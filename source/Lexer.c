@@ -8,8 +8,9 @@
 
 #define IDENTIFIER 0x0
 #define KEYWORD 0x1
-#define SEPERATORS 0x2
-#define OPERATORS 0x3
+#define SEPERATOR 0x2
+#define OPERATOR 0x3
+#define LITERAL 0x4
 
 //------------------------------------------------------
 BOOL IsLetter(char ch)
@@ -26,7 +27,42 @@ BOOL IsAlphaNumeric(char ch)
 {
     return (IsLetter(ch) || IsDigit(ch));
 }
+
+BOOL IsNumericLiteral(char ch)
+{
+    return (IsDigit(ch) || ch == '.');
+}
 //------------------------------------------------------
+
+BOOL GetNextIdentifier(char **statement, Token *token)
+{
+    char *ptr = *statement;
+    unsigned short type = token->tokenType;
+
+    token->tokenType = IDENTIFIER;
+
+    while (IsAlphaNumeric(*(*statement)++));
+    (*statement)--;
+
+    ptr != *statement ? *(*statement)++ = '\0' : (token->tokenType = type);
+
+    return (ptr != *statement);
+}
+
+BOOL GetNextNumericLiteral(char **statement, Token *token)
+{
+    char *ptr = *statement;
+    unsigned short type = token->tokenType;
+
+    token->tokenType = LITERAL;
+
+    while (IsNumericLiteral(*(*statement)++));
+    (*statement)--;
+
+    ptr != *statement ? *(*statement)++ = '\0' : (token->tokenType = type);
+
+    return (ptr != *statement);
+}
 
 LinearLinkedListNode* SplitStatmentsIntoTokens(char *statement)
 {
@@ -44,14 +80,9 @@ LinearLinkedListNode* SplitStatmentsIntoTokens(char *statement)
 
         currentToken.tokenInfo = statement;
 
-        while (IsAlphaNumeric(*statement))
-        {
-            statement++;
-        }
+        GetNextNumericLiteral(&statement, &currentToken) ||
+        GetNextIdentifier(&statement, &currentToken);
 
-        *statement++ = '\0';
-        currentToken.tokenType = IDENTIFIER;
-        
         tokensPtr->info = currentToken;
     }
 

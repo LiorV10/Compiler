@@ -6,11 +6,7 @@
 #include "../libs/LinearLinkedList.h"
 #endif
 
-#define IDENTIFIER 0x0
-#define KEYWORD 0x1
-#define SEPERATOR 0x2
-#define OPERATOR 0x3
-#define LITERAL 0x4
+#include <string.h>
 
 //------------------------------------------------------
 BOOL IsLetter(char ch)
@@ -32,44 +28,43 @@ BOOL IsNumericLiteral(char ch)
 {
     return (IsDigit(ch) || ch == '.');
 }
+
+BOOL IsOperator(char ch)
+{
+    return (ch == '=' || ch == '+');
+}
+
+BOOL IsSeperator(char ch)
+{
+    return (ch == ',' || ch == ';');
+}
 //------------------------------------------------------
 
-BOOL GetNextIdentifier(char **statement, Token *token)
+void SkipWhitespaces(char **statement)
+{
+    while (*(*statement)++ == ' ');
+    (*statement)--;
+}
+
+BOOL GetNextToken(char **statement, Token *token, token_type type, BOOL(*Condition)(char))
 {
     char *ptr = *statement;
-    unsigned short type = token->tokenType;
+    token->tokenType = type;
 
-    token->tokenType = IDENTIFIER;
-
-    while (IsAlphaNumeric(*(*statement)++));
+    while (Condition(*(*statement)++));
     (*statement)--;
-
-    ptr != *statement ? *(*statement)++ = '\0' : (token->tokenType = type);
 
     return (ptr != *statement);
 }
 
-BOOL GetNextNumericLiteral(char **statement, Token *token)
-{
-    char *ptr = *statement;
-    unsigned short type = token->tokenType;
-
-    token->tokenType = LITERAL;
-
-    while (IsNumericLiteral(*(*statement)++));
-    (*statement)--;
-
-    ptr != *statement ? *(*statement)++ = '\0' : (token->tokenType = type);
-
-    return (ptr != *statement);
-}
-
-LinearLinkedListNode* SplitStatmentsIntoTokens(char *statement)
+LinearLinkedListNode* SplitStatmentIntoTokens(char *statement)
 {
     LinearLinkedListNode *tokens = NULL;
     LinearLinkedListNode *tokensPtr;
     Token currentToken;
+    char *currentTokenInfo;
 
+    SkipWhitespaces(&statement);
     PushLinearLinkedList(&tokens);
     tokensPtr = tokens;
 
@@ -77,14 +72,21 @@ LinearLinkedListNode* SplitStatmentsIntoTokens(char *statement)
     {
         AddAfterLinearLinkedList(tokensPtr);
         tokensPtr = tokensPtr->nextNode;
+        currentTokenInfo = statement;
 
-        currentToken.tokenInfo = statement;
+        GetNextToken(&statement, &currentToken, LITERAL, IsNumericLiteral) || 
+        GetNextToken(&statement, &currentToken, IDENTIFIER, IsAlphaNumeric) || 
+        GetNextToken(&statement, &currentToken, OPERATOR, IsOperator) || 
+        GetNextToken(&statement, &currentToken, SEPERATOR, IsSeperator);
 
-        GetNextNumericLiteral(&statement, &currentToken) ||
-        GetNextIdentifier(&statement, &currentToken);
+        currentToken.tokenInfo = (char*)malloc(sizeof(char) * (statement - currentTokenInfo));
+        strncpy(currentToken.tokenInfo, currentTokenInfo, (statement - currentTokenInfo));
 
         tokensPtr->info = currentToken;
+        SkipWhitespaces(&statement);
     }
 
-    return (tokens->nextNode);
+    PopLinearLinkedList(&tokens);
+
+    return (tokens);
 }

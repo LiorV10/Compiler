@@ -17,15 +17,15 @@ char* TypeToString(unsigned short type)
 
 void main(void)
 {
-    char *_s = "my first lexer 34";
+    char *_s = "  float x = 5.3 + 3, y = 8    ,    z  =    9.9922 + 4.3232;";
     char *s = strdup(_s);
     LinearLinkedListNode *tokens;
 
-    tokens = SplitStatmentsIntoTokens(s);
+    tokens = SplitStatmentIntoTokens(s);
 
     while (tokens)
     {
-        printf("[%s] %s\n", TypeToString(tokens->info.tokenType), tokens->info.tokenInfo);
+        printf("[%s] '%s'\n", TypeToString(tokens->info.tokenType), tokens->info.tokenInfo);
         tokens = tokens->nextNode;
     }
 }

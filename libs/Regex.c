@@ -31,6 +31,16 @@ BOOL MatchChar(char plainChar, char patternChar, BOOL escape)
         (patternChar == ANY_DIGIT && IS_DIGIT(plainChar))));
 }
 
+BOOL MatchClass(char plainChar, char *patternClass)
+{
+    BOOL match = FALSE;
+    
+    patternClass++;
+    while (!(match = MatchChar(plainChar, *patternClass++, FALSE)) && *patternClass != END_OPTIONS);
+
+    return (match);
+}
+
 typedef struct
 {
     char *start;
@@ -40,28 +50,37 @@ typedef struct
 BOOL MatchesStart(char *plain, char *pattern, Match** matches, int* matchesCount)
 {
     BOOL escape;
+    char *p = pattern;
 
     if (!*pattern) return TRUE;
     escape = *pattern == ESCAPE_CHAR;
     pattern += escape;
 
+    if (*pattern == START_OPTIONS)
+    {
+        while (*pattern++ != END_OPTIONS);
+        pattern--;
+    }
+
     if (*(pattern + ONE) == ZERO_OR_MORE)
     {
-        while (*plain && MatchChar(*plain, *pattern, escape) &&
+        while (*plain && (*pattern == END_OPTIONS ? MatchClass(*plain, p) : MatchChar(*plain, *pattern, escape)) &&
               (!*(pattern + TWO) || 
               (!MatchChar(*plain, *(pattern + TWO + (*(pattern + TWO) == '^') + (*(pattern + THREE) == ESCAPE_CHAR)), 
-                *(pattern + THREE) == ESCAPE_CHAR)))) // || 1 || !MatchesStart(plain, pattern + TWO))))
+                *(pattern + THREE) == ESCAPE_CHAR))))
         {
             plain++;
         }
 
         return MatchesStart(plain, pattern + TWO, matches, matchesCount);
     }
-    else if (*(pattern + ONE) == ZERO_OR_ONE)
+
+    if (*(pattern + ONE) == ZERO_OR_ONE)
     {
-        return MatchesStart(plain + ONE * (MatchChar(*plain, *pattern, escape)), pattern + TWO, matches, matchesCount);
+        return MatchesStart(plain + ONE * ((*pattern == END_OPTIONS ? MatchClass(*plain, p) : MatchChar(*plain, *pattern, escape))), pattern + TWO, matches, matchesCount);
     }
-    else if (*pattern == MATCH_RANGE)
+    
+    if (*pattern == MATCH_RANGE)
     {
         Match* match = *matches + *matchesCount - ONE;
 
@@ -79,19 +98,17 @@ BOOL MatchesStart(char *plain, char *pattern, Match** matches, int* matchesCount
 
         return MatchesStart(plain, pattern + ONE, matches, matchesCount);
     }
-    else
+    
+    char *ptr = plain;
+    while (*plain && (*pattern == END_OPTIONS ? MatchClass(*plain, p) : MatchChar(*plain, *pattern, escape)) &&
+            (*(pattern + ONE) != ZERO_OR_MORE && *(pattern + ONE) != ZERO_OR_ONE))
     {
-        char *ptr = plain;
-        while (*plain && MatchChar(*plain, *pattern, escape) &&
-              (*(pattern + ONE) != ZERO_OR_MORE && *(pattern + ONE) != ZERO_OR_ONE))
-        {
-            plain++;
-            pattern++;
-        }
-
-        return (ptr != plain) && MatchesStart(plain, pattern, matches, matchesCount);
-        //return (*pattern == *plain || !*pattern || *pattern == ANY_CHAR || (*pattern == WHITESPACE && IsWhitespace(*plain)) || (*pattern == ANY_LETTER && IsLetter(*plain)) || (*pattern == ANY_DIGIT && IS_DIGIT(*plain))) && MatchesStart(plain, pattern);
+        plain++;
+        pattern++;
     }
+
+    return (ptr != plain) && MatchesStart(plain, pattern, matches, matchesCount);
+    
 }
 
 void PrintMatch(Match* match)
@@ -106,8 +123,8 @@ void PrintMatch(Match* match)
 
 void main(void)
 {
-    char *s = "w";//"int x = 4434.33423;";//"int x = 5.4;";   //"33043aaaaabeeeeeegefe";
-    char *p = "^~w^";//"^w*^s*^w_.*^s*=s*^d*/.?d*^;";   // "~*.~*": Floating number;
+    char *s = "ab3aa_ababs_aba_aabb";//"int _x4 = 4434.33423;";//"int x = 5.4;";   //"33043aaaaabeeeeeegefe";
+    char *p = "^[w_]*^";//"^w*^s*^[w_].*^s*=s*^d*~.?d*^;";   // "~*.~*": Floating number;
     Match *result = NULL;
     int count = 0;
 

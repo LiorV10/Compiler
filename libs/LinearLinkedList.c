@@ -62,6 +62,7 @@ void PushLinearLinkedList(LinearLinkedListNode **manager)
 
     // Code section
 
+    newNode->info = NULL;
     newNode->nextNode = *manager;
     *manager = newNode;
 }
@@ -86,7 +87,8 @@ void AddAfterLinearLinkedList(LinearLinkedListNode *node)
         (LinearLinkedListNode*)malloc(sizeof(LinearLinkedListNode));
 
     // Code section
-    
+
+    newNode->info = NULL;
     newNode->nextNode = node->nextNode;
     node->nextNode = newNode;
 }
@@ -171,6 +173,20 @@ void ReverseLinearLinkedList(LinearLinkedListNode **manager)
     *manager = previous;
 }
 
+LinearLinkedListNode* BeforeMinInLinearLinkedList(LinearLinkedListNode *manager, 
+                                            BOOL (*Compare)(void*, void*))
+{
+    LinearLinkedListNode *min = manager;
+
+    while (manager->nextNode)
+    {
+        min = Compare(manager->nextNode->info, min->info) ? manager : min;
+        manager = manager->nextNode;
+    }
+
+    return (min);
+}
+
 void ClearLinearLinkedList(LinearLinkedListNode **manager)
 {
     while (*manager)
@@ -219,28 +235,30 @@ void ClearLinearLinkedList(LinearLinkedListNode **manager)
 //     return (ptr);
 // }
 
-// LinearLinkedListNode* FindNaturalPlaceLinearLinkedList(LinearLinkedListNode *manager, LINEAR_LINKED_LIST_NODE_TYPE info)
-// {
-//     LinearLinkedListNode *ptr = manager;
+LinearLinkedListNode* FindNaturalPlaceLinearLinkedList(LinearLinkedListNode *manager, 
+    LINEAR_LINKED_LIST_NODE_TYPE info, BOOL (*Compare)(void*, void*))
+{
+    LinearLinkedListNode *ptr = manager;
 
-//     while (ptr->nextNode && ptr->nextNode->info < info)
-//     {
-//         ptr = ptr->nextNode;
-//     }
+    while (ptr->nextNode && Compare(ptr->nextNode->info, info))
+    {
+        ptr = ptr->nextNode;
+    }
 
-//     return (ptr);
-// }
+    return (ptr);
+}
 
-// void AddToNaturalPlaceLinearLinkedList(LinearLinkedListNode **manager, LINEAR_LINKED_LIST_NODE_TYPE info)
-// {
-//     LinearLinkedListNode *ptr = FindNaturalPlaceLinearLinkedList(*manager, info);
+void AddToSortedLinearLinkedList(LinearLinkedListNode **manager, 
+    LINEAR_LINKED_LIST_NODE_TYPE info, BOOL (*Compare)(void*, void*))
+{
+    LinearLinkedListNode *ptr = FindNaturalPlaceLinearLinkedList(*manager, info, Compare);
 
-//     ptr == *manager && ptr->info > info ? 
-//         (PushLinearLinkedList(manager), ptr = *manager) : 
-//         (AddAfterLinearLinkedList(ptr), ptr = ptr->nextNode);
+    ptr == *manager && Compare(info, ptr->info) ? 
+        (PushLinearLinkedList(manager), ptr = *manager) : 
+        (AddAfterLinearLinkedList(ptr), ptr = ptr->nextNode);
 
-//     ptr->info = info;
-// }
+    ptr->info = info;
+}
 
 // void main(void)
 // {

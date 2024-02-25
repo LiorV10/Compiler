@@ -10,14 +10,12 @@
     #include "CommonMacros.h"
 #endif
 
-#include "Token.c"
+#define LINEAR_LINKED_LIST_NODE_TYPE void*
 
-#define LINEAR_LINKED_LIST_NODE_TYPE Token
-
-typedef struct Node
+typedef struct LinearLinkedListNode
 {
     LINEAR_LINKED_LIST_NODE_TYPE info;
-    struct Node *nextNode;
+    struct LinearLinkedListNode *nextNode;
 } LinearLinkedListNode;
 
 void InitLinearLinkedList(LinearLinkedListNode **manager);
@@ -28,3 +26,9 @@ void PopLinearLinkedList(LinearLinkedListNode **manager);
 void DeleteAfterLinearLinkedList(LinearLinkedListNode *node);
 void ReverseLinearLinkedList(LinearLinkedListNode **manager);
 void ClearLinearLinkedList(LinearLinkedListNode **manager);
+LinearLinkedListNode* BeforeMinInLinearLinkedList(LinearLinkedListNode *manager, 
+                                            BOOL (*Compare)(void*, void*));
+void AddToSortedLinearLinkedList(LinearLinkedListNode **manager, 
+    LINEAR_LINKED_LIST_NODE_TYPE info, BOOL (*Compare)(void*, void*));
+LinearLinkedListNode* FindNaturalPlaceLinearLinkedList(LinearLinkedListNode *manager, 
+    LINEAR_LINKED_LIST_NODE_TYPE info, BOOL (*Compare)(void*, void*));

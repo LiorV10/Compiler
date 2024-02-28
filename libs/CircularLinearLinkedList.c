@@ -65,6 +65,15 @@ void DeleteEndCircularLinearLinkedList(CircularLinearLinkedListNode **manager)
     free(temp);
 }
 
+void ConcatCircularLinearLinkedLists(CircularLinearLinkedListNode **first,
+                                     CircularLinearLinkedListNode *second)
+{
+    CircularLinearLinkedListNode *ptr = (*first)->nextNode;
+
+    (*first)->nextNode = second->nextNode;
+    second->nextNode = ptr;
+}
+
 void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager)
 {
     CircularLinearLinkedListNode *ptr = *manager;

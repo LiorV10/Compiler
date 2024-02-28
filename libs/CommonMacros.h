@@ -32,3 +32,4 @@
 #define ABS(n) (n > ZERO ? n : -(n))
 #define POSITIVE_MIN(a,b) (a * b <= ZERO ? MAX(a, b) : MIN(a, b))
 #define IS_DIGIT(str) (!((str) < '0' || (str) > '9'))
+#define SWAP(a, b, T) { T temp = (a); (a) = (b); (b) = temp; }

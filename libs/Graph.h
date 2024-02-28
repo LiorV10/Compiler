@@ -12,7 +12,9 @@
 
 typedef struct
 {
-    void *info;
+    unsigned short info;
+    BOOL isAccepting;
+    BOOL visited;
     CircularLinearLinkedListNode *edgesManager;
 } Vertex;
 
@@ -25,17 +27,14 @@ typedef struct
 typedef struct
 {
     CircularLinearLinkedListNode *verticesManager;
-    BOOL (*Comapre)
-    (void *, void *);
 } Graph;
 
-void InitGraph(Graph *graph, BOOL (*Compare)(void *, void *))
+void InitGraph(Graph *graph)
 {
     InitLinearLinkedList(&graph->verticesManager);
-    graph->Comapre = Compare;
 }
 
-Vertex *AddVertex(Graph *graph, void *info)
+Vertex *AddVertex(Graph *graph, void *info, BOOL isAccepting)
 {
     Vertex *newVertex = malloc(sizeof(Vertex));
     InitLinearLinkedList(&newVertex->edgesManager);
@@ -45,27 +44,12 @@ Vertex *AddVertex(Graph *graph, void *info)
         InsertEndCircularLinearLinkedList(&graph->verticesManager);
 
     newVertex->info = info;
+    newVertex->isAccepting = isAccepting;
+    newVertex->visited = FALSE;
+    
     graph->verticesManager->info = newVertex;
 
     return (newVertex);
-}
-
-Vertex *FindVertex(Graph *graph, void *vertex)
-{
-    CircularLinearLinkedListNode *ptr = graph->verticesManager;
-
-    do
-    {
-        ptr = ptr->nextNode;
-    }
-    while (ptr != graph->verticesManager && !graph->Comapre(((Vertex *)ptr->info)->info, vertex));
-
-    return (ptr ? ptr->info : NULL);
-}
-
-CircularLinearLinkedListNode *Adjacents(Graph *graph, void *vertex)
-{
-    return (FindVertex(graph, vertex)->edgesManager);
 }
 
 void JoinWeight(Graph *graph, Vertex *source, Vertex *dest, void *weight)

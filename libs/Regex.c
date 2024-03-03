@@ -1,163 +1,287 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include "CommonMacros.h"
+// Regex.c
 
-#define ANY_CHAR '.'
-#define ANY_LETTER '@'
-#define ANY_DIGIT '$'
-#define WHITESPACE '#'
-#define ZERO_OR_ONE '?'
-#define ZERO_OR_MORE '*'
-#define MATCH_RANGE '^'
-#define NEGEATE_OPTIONS '!'
-#define START_OPTIONS '['
-#define END_OPTIONS ']'
-#define ESCAPE_CHAR '~'
+#include "Regex.h"
 
-BOOL IsLetter(char ch)
+StateMachine *FromSymbol(char symbol)
 {
-    return ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z'));
+    StateMachine *stateMachine = malloc(sizeof(StateMachine));
+    InitStateMachine(stateMachine);
+
+    State *start = AddState(stateMachine);
+    State *end = AddState(stateMachine);
+
+    AddTransition(stateMachine, start, end, symbol);
+
+    return (stateMachine);
 }
-
-BOOL IsWhitespace(char ch)
+StateMachine *Concat(StateMachine *first, StateMachine *second, BOOL applyTransition)
 {
-    return (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r');
+    State *firstEnd = FinalState(first);
+    State *secondStart = InitialState(second);
+    ConcatStateMachines(first, second);
+    applyTransition ? AddTransition(first, firstEnd, secondStart, EPSILON_TRANSITION) : ZERO;
+
+    return (first);
 }
-
-BOOL MatchChar(char plainChar, char patternChar, BOOL escape)
+StateMachine *Union(StateMachine *first, StateMachine *second)
 {
-    if (escape) return plainChar == patternChar;
+    StateMachine *stateMachine = malloc(sizeof(StateMachine));
+    InitStateMachine(stateMachine);
 
-    switch(patternChar)
+    State *start = AddState(stateMachine);
+    State *secondStart = InitialState(second);//second->verticesManager->nextNode->info;
+    State *secondEnd = FinalState(second);//second->verticesManager->info;
+    State *end;
+
+    stateMachine = Concat(stateMachine, first, TRUE);
+    stateMachine = Concat(stateMachine, second, FALSE);
+    AddTransition(stateMachine, start, secondStart, EPSILON_TRANSITION);
+    end = AddState(stateMachine);
+    AddTransition(stateMachine, FinalState(first), end, EPSILON_TRANSITION);
+    AddTransition(stateMachine, secondEnd, end, EPSILON_TRANSITION);
+
+    return (stateMachine);
+}
+StateMachine *OneOrMore(StateMachine *previous)
+{
+    State *start = InitialState(previous);//previous->verticesManager->nextNode->info;
+    State *end = FinalState(previous);//previous->verticesManager->info;
+
+    AddTransition(previous, end, start, EPSILON_TRANSITION);
+
+    return (previous);
+}
+StateMachine *Start(StateMachine *previous)
+{
+    previous = OneOrMore(previous);
+
+    AddTransition(previous, FinalState(previous), InitialState(previous), EPSILON_TRANSITION);
+    AddTransition(previous, InitialState(previous), FinalState(previous), EPSILON_TRANSITION);
+
+    return (previous);
+}
+StateMachine *Alternate(StateMachine *previous)
+{
+    StateMachine *newStart = malloc(sizeof(StateMachine));
+    InitStateMachine(newStart);
+
+    State *start = AddState(newStart);
+    State *end = FinalState(previous);//previous->verticesManager->info;
+
+    AddTransition(previous, end, AddState(previous), EPSILON_TRANSITION);
+    end = FinalState(previous);
+    newStart = Concat(newStart, previous, TRUE);
+
+    AddTransition(newStart, start, end, EPSILON_TRANSITION);
+
+    return (newStart);
+}
+StateMachine *RegexToNFARec(char *pattern)
+{
+    Stack stack;
+    StateMachine *nfa;
+
+    InitStack(&stack);
+
+    for (; *pattern; pattern++)
     {
-        case ANY_CHAR:
-            return TRUE;
-        case WHITESPACE:
-            return IsWhitespace(plainChar);
-        case ANY_LETTER:
-            return IsLetter(plainChar);
-        case ANY_DIGIT:
-            return IS_DIGIT(plainChar);
-        default:
-            return plainChar == patternChar;
-    }
-
-    // return plainChar == patternChar ||
-    //     (!escape && (patternChar == ANY_CHAR ||
-    //     (patternChar == WHITESPACE && IsWhitespace(plainChar)) ||
-    //     (patternChar == ANY_LETTER && IsLetter(plainChar)) || 
-    //     (patternChar == ANY_DIGIT && IS_DIGIT(plainChar))));
-}
-
-BOOL MatchClass(char plainChar, char *patternClass)
-{
-    BOOL match = FALSE;
-    BOOL negate;
-
-    patternClass++;
-    negate = *patternClass == NEGEATE_OPTIONS && *patternClass++;
-
-    while (!(match = (negate ^ MatchChar(plainChar, *patternClass++, FALSE))) && *patternClass != END_OPTIONS);
-
-    return (match);
-}
-
-typedef struct
-{
-    char *start;
-    char *end;
-} Match;
-
-BOOL MatchesStart(char *plain, char *pattern, Match** matches, int* matchesCount)
-{
-    BOOL escape;
-    char *p;
-
-    if (!*pattern) return TRUE;
-    escape = *pattern == ESCAPE_CHAR;
-    pattern += escape;
-
-    p = pattern;
-
-    if (*pattern == START_OPTIONS && !escape)
-    {
-        while (*pattern++ != END_OPTIONS);
-        pattern--;
-    }
-
-    if (*(pattern + ONE) == ZERO_OR_MORE)
-    {
-        while (*plain && (*pattern == END_OPTIONS ? MatchClass(*plain, p) : MatchChar(*plain, *pattern, escape)) &&
-              (!*(pattern + TWO + (*(pattern + TWO) == MATCH_RANGE) + (*(pattern + THREE) == ESCAPE_CHAR)) || 
-              !MatchesStart(plain, pattern + TWO + (*(pattern + TWO) == MATCH_RANGE) + (*(pattern + THREE) == ESCAPE_CHAR), matches, matchesCount))) 
-              //(!MatchChar(*plain, *(pattern + TWO + (*(pattern + TWO) == MATCH_RANGE) + (*(pattern + THREE) == ESCAPE_CHAR)), 
-              //  *(pattern + THREE) == ESCAPE_CHAR))))
+        switch (*pattern)
         {
-            plain++;
+            case '\003':
+                PushStack(&stack, RegexToNFARec(ASCII_LETTERS_PATTERN));
+                break;
+            case '\004':
+                PushStack(&stack, RegexToNFARec(DIGIT_PATTERN));
+                break;
+            case '*':
+                PushStack(&stack, Start(PopStack(&stack)));
+                break;
+            case '?':
+                PushStack(&stack, Alternate(PopStack(&stack)));
+                break;
+            case '|':
+                PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
+                break;
+            case '+':
+                PushStack(&stack, OneOrMore(PopStack(&stack)));
+                break;
+            case CONCAT_CHAR:
+                PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
+                break;
+            default:
+                PushStack(&stack, FromSymbol(*pattern));
+                break;
+        }
+    }
+
+    return (PopStack(&stack));
+}
+StateMachine* RegexToNFA(char *pattern)
+{
+    StateMachine *nfa = RegexToNFARec(pattern);
+    SetAccepting(FinalState(nfa));
+
+    return (nfa);
+}
+
+BOOL SelectNextTransitions(CircularLinearLinkedListNode *transitions,
+                           CircularLinearLinkedListNode **nextStates,
+                           BOOL (*Condition)(Transition *, char),
+                           char symbol)
+{
+    Transition *currentTransition;
+    BOOL foundAcceptingState = FALSE;
+    CircularLinearLinkedListNode *ptr = transitions->nextNode;
+
+    do
+    {
+        currentTransition = ptr->info;
+
+        if (!currentTransition->dest->visited && Condition(currentTransition, symbol))
+        {
+            *nextStates ? 
+                InsertEndCircularLinearLinkedList(nextStates) : 
+                InsertLastCircularLinearLinkedList(nextStates);
+
+            (*nextStates)->info = currentTransition->dest;
+            foundAcceptingState |= currentTransition->dest->isAccepting;
+            currentTransition->dest->visited = TRUE;
         }
 
-        return MatchesStart(plain, pattern + TWO, matches, matchesCount);
-    }
+        ptr = ptr->nextNode;
+    } 
+    while (ptr != transitions->nextNode);
 
-    if (*(pattern + ONE) == ZERO_OR_ONE)
-    {
-        return MatchesStart(plain + ONE * ((*pattern == END_OPTIONS ? MatchClass(*plain, p) : MatchChar(*plain, *pattern, escape))), pattern + TWO, matches, matchesCount);
-    }
-    
-    if (*pattern == MATCH_RANGE && !escape && matches)
-    {
-        Match* match = *matches + *matchesCount - ONE;
-
-        if (*matchesCount && match->end == NULL)
-        {
-            match->end = plain;
-        }
-        else
-        {
-            *matches = (Match*)realloc(*matches, ++*matchesCount * sizeof(Match));
-            match = *matches + (*matchesCount - ONE);
-            match->start = plain;
-            match->end = NULL;
-        }
-
-        return MatchesStart(plain, pattern + ONE, matches, matchesCount);
-    }
-    
-    char *ptr = plain;
-    while (*plain && (*pattern == END_OPTIONS ? MatchClass(*plain, p) : MatchChar(*plain, *pattern, escape)) &&
-            (*(pattern + ONE) != ZERO_OR_MORE && *(pattern + ONE) != ZERO_OR_ONE))
-    {
-        plain++;
-        pattern++;
-    }
-
-    return (ptr != plain) && MatchesStart(plain, pattern, matches, matchesCount);
-    
+    return (foundAcceptingState);
 }
 
-void PrintMatch(Match* match)
+BOOL IsSymbolTransition(Transition *transition, char symbol)
 {
-    printf("'");
-    for (; match->start < match->end; match->start++)
-    {
-        printf("%c", *match->start);
-    }
-
-    puts("'");
+    return (transition->symbol == symbol);
 }
 
-// TODO: Implement found matches using (double?)linear linked list
-void main(void)
+BOOL IsPossibleTransition(Transition *transition, char symbol)
 {
-    char *s = "for (int i = 0; i < 10; i++) { print(i); print(2i); }";//"int _x4 = 4434.33423;";//"int x = 5.4;";   //"33043aaaaabeeeeeegefe";
-    char *p = "for#*(^[!;]*^;#*^[!;]*^;#*^[!;]*^)#{ ^print(i);^";//"^w*^s*^[w_].*^s*=s*^d*~.?d*^;";   // "~*.~*": Floating number;
-    Match *result = NULL;
-    int count = 0;
+    return (IsSymbolTransition(transition, symbol) || 
+            ((IsSymbolTransition(transition, ANY_SYMBOL))));
+}
 
-    printf("%d\n", MatchesStart(s, p, &result, &count));
-    
-    for (; count; count--)
+void MakeTransitions(CircularLinearLinkedListNode *currentStates,
+                     CircularLinearLinkedListNode **nextStates,
+                     char symbol)
+{
+    Transition *currentTransition;
+    CircularLinearLinkedListNode *currentStatesPtr = currentStates->nextNode;
+    CircularLinearLinkedListNode *transitions;
+
+    do
     {
-        PrintMatch(result++);
+        transitions = ((State *)currentStatesPtr->info)->transitionsManager;
+
+        transitions ? 
+            SelectNextTransitions(transitions, nextStates, IsPossibleTransition, symbol) :
+            FALSE;
+
+        currentStatesPtr = currentStatesPtr->nextNode;
     }
+    while (currentStatesPtr != currentStates->nextNode);
+}
+
+BOOL EpsilonClosure(CircularLinearLinkedListNode **states)
+{
+    CircularLinearLinkedListNode *statesPtr = (*states)->nextNode;
+    CircularLinearLinkedListNode *epsilonStates;
+
+    InitCircularLinearLinkedList(&epsilonStates);
+
+    do
+    {
+        epsilonStates = NULL;
+        MakeTransitions(statesPtr, &epsilonStates, EPSILON_TRANSITION);
+        epsilonStates ? ConcatCircularLinearLinkedLists(states, epsilonStates) : ZERO;
+    }
+    while (epsilonStates);
+}
+
+BOOL CompareLists(CircularLinearLinkedListNode *first,
+                  CircularLinearLinkedListNode *second)
+{
+    CircularLinearLinkedListNode *p1 = first->nextNode;
+    CircularLinearLinkedListNode *p2 = second->nextNode;
+
+    while (p1 != first && p2 != second && p1->info == p2->info)
+    {
+        p1 = p1->nextNode;
+        p2 = p2->nextNode;
+    }
+
+    return (p1 == first && p2 == second && p1->info == p2->info);
+}
+
+State *FindAcceptingState(CircularLinearLinkedListNode *currentStates)
+{
+    BOOL isMatch = FALSE;
+    State *s = NULL;
+    CircularLinearLinkedListNode *c;
+    for (c = currentStates->nextNode; c != currentStates; c = c->nextNode)
+    {
+        ((State *)c->info)->isAccepting ? s = c->info : ZERO;
+    }
+
+    ((State *)c->info)->isAccepting ? s = c->info : ZERO;
+
+    return s;
+}
+
+BOOL IsTerminated(CircularLinearLinkedListNode *currentStates)
+{
+    State *accepting = FindAcceptingState(currentStates);
+
+    return (accepting ? !accepting->transitionsManager : FALSE);
+}
+
+CircularLinearLinkedListNode *InitStatesList(State *state, char symbol)
+{
+    CircularLinearLinkedListNode *states;
+
+    InitCircularLinearLinkedList(&states);
+    InsertLastCircularLinearLinkedList(&states);
+    states->info = state;
+    EpsilonClosure(&states);
+
+    return (states);
+}
+
+MatchType* Match(StateMachine *nfa, char *input)
+{
+    CircularLinearLinkedListNode *currentStates;
+    CircularLinearLinkedListNode *nextStates;
+    MatchType *result = NULL;
+    char *ptr = input;
+
+    nextStates = currentStates = InitStatesList(InitialState(nfa), *input);
+    MakeTransitions(currentStates, &nextStates, *input);
+    nextStates = CompareLists(currentStates, nextStates) ? NULL : nextStates;
+    
+    while (*input && nextStates && !IsTerminated(currentStates))
+    {
+        EpsilonClosure(&nextStates);
+
+        currentStates = nextStates;
+        nextStates = NULL;
+
+        SetAllVisited(nfa, FALSE);
+        MakeTransitions(currentStates, &nextStates, *++input);
+    }
+
+    if (!!FindAcceptingState(currentStates))
+    {
+        result = malloc(sizeof(MatchType));
+        *result = (MatchType){.start = ptr, .end = input};
+    }
+    
+    SetAllVisited(nfa, FALSE);
+    EmptyCircularLinearLinkedList(&currentStates);
+
+    return (result);
 }

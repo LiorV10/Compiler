@@ -72,6 +72,8 @@ void ConcatCircularLinearLinkedLists(CircularLinearLinkedListNode **first,
 
     (*first)->nextNode = second->nextNode;
     second->nextNode = ptr;
+
+    *first = second;
 }
 
 void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager)

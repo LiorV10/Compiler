@@ -87,11 +87,14 @@ StateMachine *RegexToNFARec(char *pattern)
     {
         switch (*pattern)
         {
-            case '\003':
+            case ASCII_LTETTERS_CHAR:
                 PushStack(&stack, RegexToNFARec(ASCII_LETTERS_PATTERN));
                 break;
-            case '\004':
+            case DIGIT_CHAR:
                 PushStack(&stack, RegexToNFARec(DIGIT_PATTERN));
+                break;
+            case CONCAT_CHAR:
+                PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
                 break;
             case '*':
                 PushStack(&stack, Start(PopStack(&stack)));
@@ -104,9 +107,6 @@ StateMachine *RegexToNFARec(char *pattern)
                 break;
             case '+':
                 PushStack(&stack, OneOrMore(PopStack(&stack)));
-                break;
-            case CONCAT_CHAR:
-                PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
                 break;
             default:
                 PushStack(&stack, FromSymbol(*pattern));

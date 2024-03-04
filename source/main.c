@@ -1,17 +1,49 @@
 // main.c
 
-
 #include "../libs/Regex.h"
 #include <stdio.h>
 
+void PrintRange(char *start, char *end)
+{
+    for (; start < end; start++)
+    {
+        printf("%c", *start);
+    }
+}
+
 #define PATTERNS_NUM 7
 
-void print_range(char *s, char *e)
+void PrintList(CircularLinearLinkedListNode *lst)
 {
-    for (; s < e; s++)
+    if (!lst)
     {
-        printf("%c", *s);
-    }
+        puts("");
+        return;
+    };
+
+    CircularLinearLinkedListNode *ptr = lst->nextNode;
+
+    do
+    {
+        printf("[%p:%c]->", ((Transition *)ptr->info)->dest, ((Transition *)ptr->info)->symbol);
+        ptr = ptr->nextNode;
+    } while (ptr != lst->nextNode);
+
+    puts("");
+}
+
+void PrintGraph(StateMachine *graph)
+{
+    CircularLinearLinkedListNode *ptr = graph->statesManager->nextNode;
+
+    do
+    {
+        printf("[%d][%d][%p]:", ((State *)ptr->info)->isAccepting, ((State *)ptr->info)->visited, ((State *)ptr->info));
+        PrintList(((State *)ptr->info)->transitionsManager);
+        ptr = ptr->nextNode;
+    } while (ptr != graph->statesManager->nextNode);
+
+    puts("");
 }
 
 void main(void)
@@ -21,25 +53,25 @@ void main(void)
     char *patterns[PATTERNS_NUM] = 
     {
          // ".+"
-        "\"\001+\002\"\002",         
+        "\"\001\006\002\"\002",         
 
-        // int|float|[^a-zA-Z\d_]
-        "in\002t\002fl\002o\002a\002t\002| \n|\002",
+        // (void|unsigned|int|float|short)[^a-zA-Z\d_]
+        "vo\002i\002d\002ch\002a\002r\002un\002s\002i\002g\002n\002e\002d\002in\002t\002fl\002o\002a\002t\002sh\002o\002r\002t\002\010\010\010\010\010 *({\n\r\t\010\010\010\010\010\010\002",
         
-        // [_a-zA-Z][_a-zA-Z\d]*                                      
-        "_\003|\003\004|*\002",//"_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ||||||||||||||||||||||||||||||||||||||||||||||||||||+",
+        // [_a-zA-Z][_a-zA-Z\d]*                              
+        "_\003\010_\003\010\004\010\005\002",
         
-        // [;=]
-        ";=.||",  
+        // [;=.-]
+        ";=.-+/*&\010\010\010\010\010\010\010",  
 
         // \d+.\d+                                                    
-        "\004+.\002\004+\002",//"0123456789|||||||||+.\0020123456789|||||||||+\002",
+        "\004\006.\002\004\006\002",
 
         // \d+        
-        "\004+",//"01|2|3|4|5|6|7|8|9|+",
+        "\004\006",
 
          // \s+                                      
-        " \n\r\t|||+"                                              
+        " \n\r\t\010\010\010\006"                                            
     };
 
     char *type[PATTERNS_NUM] = 
@@ -52,8 +84,8 @@ void main(void)
         "integer literal",
         "whitespace"
     };
-
-    char *code = "float x\n = 2343.48;";
+    
+    char *code = "float variable = 2343.48 + 25;\nchar *ptr = &variable;";
 
     for (int i = 0; i < PATTERNS_NUM; i++)
     {
@@ -62,19 +94,22 @@ void main(void)
 
     puts("\n------- Tokens: -------\n");
 
+    unsigned short offset = ZERO;
+
     while (*code)
     {
-        for (int i = 0; i < PATTERNS_NUM; i++)
+        while ((currentMatch = Match(nfas[offset], code)))
         {
-            if ((currentMatch = Match(nfas[i], code)))
+            if (strcmp(type[offset], "whitespace"))
             {
-                print_range(currentMatch->start, currentMatch->end);
-                printf(" -> %s\n", type[i]);
-                code = currentMatch->end;
-                i = 0;
+                PrintRange(currentMatch->start, currentMatch->end);
+                printf(" -> %s\n", type[offset]);
             }
-
-            free(currentMatch);
+            code = currentMatch->end;
+            offset = ZERO;
         }
+
+        offset++;
+        free(currentMatch);
     }
 }

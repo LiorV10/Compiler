@@ -2,80 +2,6 @@
 
 #include "Regex.h"
 
-StateMachine *FromSymbol(char symbol)
-{
-    StateMachine *stateMachine = malloc(sizeof(StateMachine));
-    InitStateMachine(stateMachine);
-
-    State *start = AddState(stateMachine);
-    State *end = AddState(stateMachine);
-
-    AddTransition(stateMachine, start, end, symbol);
-
-    return (stateMachine);
-}
-StateMachine *Concat(StateMachine *first, StateMachine *second, BOOL applyTransition)
-{
-    State *firstEnd = FinalState(first);
-    State *secondStart = InitialState(second);
-    ConcatStateMachines(first, second);
-    applyTransition ? AddTransition(first, firstEnd, secondStart, EPSILON_TRANSITION) : ZERO;
-
-    return (first);
-}
-StateMachine *Union(StateMachine *first, StateMachine *second)
-{
-    StateMachine *stateMachine = malloc(sizeof(StateMachine));
-    InitStateMachine(stateMachine);
-
-    State *start = AddState(stateMachine);
-    State *secondStart = InitialState(second);//second->verticesManager->nextNode->info;
-    State *secondEnd = FinalState(second);//second->verticesManager->info;
-    State *end;
-
-    stateMachine = Concat(stateMachine, first, TRUE);
-    stateMachine = Concat(stateMachine, second, FALSE);
-    AddTransition(stateMachine, start, secondStart, EPSILON_TRANSITION);
-    end = AddState(stateMachine);
-    AddTransition(stateMachine, FinalState(first), end, EPSILON_TRANSITION);
-    AddTransition(stateMachine, secondEnd, end, EPSILON_TRANSITION);
-
-    return (stateMachine);
-}
-StateMachine *OneOrMore(StateMachine *previous)
-{
-    State *start = InitialState(previous);//previous->verticesManager->nextNode->info;
-    State *end = FinalState(previous);//previous->verticesManager->info;
-
-    AddTransition(previous, end, start, EPSILON_TRANSITION);
-
-    return (previous);
-}
-StateMachine *Start(StateMachine *previous)
-{
-    previous = OneOrMore(previous);
-
-    AddTransition(previous, FinalState(previous), InitialState(previous), EPSILON_TRANSITION);
-    AddTransition(previous, InitialState(previous), FinalState(previous), EPSILON_TRANSITION);
-
-    return (previous);
-}
-StateMachine *Alternate(StateMachine *previous)
-{
-    StateMachine *newStart = malloc(sizeof(StateMachine));
-    InitStateMachine(newStart);
-
-    State *start = AddState(newStart);
-    State *end = FinalState(previous);//previous->verticesManager->info;
-
-    AddTransition(previous, end, AddState(previous), EPSILON_TRANSITION);
-    end = FinalState(previous);
-    newStart = Concat(newStart, previous, TRUE);
-
-    AddTransition(newStart, start, end, EPSILON_TRANSITION);
-
-    return (newStart);
-}
 StateMachine *RegexToNFARec(char *pattern)
 {
     Stack stack;
@@ -96,16 +22,16 @@ StateMachine *RegexToNFARec(char *pattern)
             case CONCAT_CHAR:
                 PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
                 break;
-            case '*':
-                PushStack(&stack, Start(PopStack(&stack)));
+            case STAR_OPERATOR:
+                PushStack(&stack, Star(PopStack(&stack)));
                 break;
-            case '?':
+            case ALTERNATION_OPERATOR:
                 PushStack(&stack, Alternate(PopStack(&stack)));
                 break;
-            case '|':
+            case UNION_OPERATOR:
                 PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
                 break;
-            case '+':
+            case PLUS_OPERATOR:
                 PushStack(&stack, OneOrMore(PopStack(&stack)));
                 break;
             default:
@@ -163,7 +89,7 @@ BOOL IsSymbolTransition(Transition *transition, char symbol)
 BOOL IsPossibleTransition(Transition *transition, char symbol)
 {
     return (IsSymbolTransition(transition, symbol) || 
-            ((IsSymbolTransition(transition, ANY_SYMBOL))));
+            (IsSymbolTransition(transition, ANY_SYMBOL)));
 }
 
 void MakeTransitions(CircularLinearLinkedListNode *currentStates,
@@ -240,14 +166,19 @@ BOOL IsTerminated(CircularLinearLinkedListNode *currentStates)
     return (accepting ? !accepting->transitionsManager : FALSE);
 }
 
-CircularLinearLinkedListNode *InitStatesList(State *state, char symbol)
+CircularLinearLinkedListNode *InitStatesList(State *state, char symbol, 
+                                             CircularLinearLinkedListNode **nextStates)
 {
     CircularLinearLinkedListNode *states;
 
     InitCircularLinearLinkedList(&states);
     InsertLastCircularLinearLinkedList(&states);
     states->info = state;
+
     EpsilonClosure(&states);
+
+    *nextStates = states;
+    MakeTransitions(states, nextStates, symbol);
 
     return (states);
 }
@@ -259,10 +190,9 @@ MatchType* Match(StateMachine *nfa, char *input)
     MatchType *result = NULL;
     char *ptr = input;
 
-    nextStates = currentStates = InitStatesList(InitialState(nfa), *input);
-    MakeTransitions(currentStates, &nextStates, *input);
+    currentStates = InitStatesList(InitialState(nfa), *input, &nextStates);
     nextStates = CompareLists(currentStates, nextStates) ? NULL : nextStates;
-    
+
     while (*input && nextStates && !IsTerminated(currentStates))
     {
         EpsilonClosure(&nextStates);

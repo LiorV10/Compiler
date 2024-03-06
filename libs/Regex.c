@@ -13,36 +13,36 @@ StateMachine *RegexToNFARec(char *pattern)
     {
         switch (*pattern)
         {
-            case ASCII_LTETTERS_CHAR:
-                PushStack(&stack, RegexToNFARec(ASCII_LETTERS_PATTERN));
-                break;
-            case DIGIT_CHAR:
-                PushStack(&stack, RegexToNFARec(DIGIT_PATTERN));
-                break;
-            case CONCAT_CHAR:
-                PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
-                break;
-            case STAR_OPERATOR:
-                PushStack(&stack, Star(PopStack(&stack)));
-                break;
-            case ALTERNATION_OPERATOR:
-                PushStack(&stack, Alternate(PopStack(&stack)));
-                break;
-            case UNION_OPERATOR:
-                PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
-                break;
-            case PLUS_OPERATOR:
-                PushStack(&stack, OneOrMore(PopStack(&stack)));
-                break;
-            default:
-                PushStack(&stack, FromSymbol(*pattern));
-                break;
+        case LTETTERS_CHAR:
+            PushStack(&stack, RegexToNFARec(LETTERS_PATTERN));
+            break;
+        case DIGIT_CHAR:
+            PushStack(&stack, RegexToNFARec(DIGIT_PATTERN));
+            break;
+        case CONCAT_CHAR:
+            PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
+            break;
+        case STAR_OPERATOR:
+            PushStack(&stack, Star(PopStack(&stack)));
+            break;
+        case ALTERNATION_OPERATOR:
+            PushStack(&stack, Alternate(PopStack(&stack)));
+            break;
+        case UNION_OPERATOR:
+            PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
+            break;
+        case PLUS_OPERATOR:
+            PushStack(&stack, OneOrMore(PopStack(&stack)));
+            break;
+        default:
+            PushStack(&stack, FromSymbol(*pattern));
+            break;
         }
     }
 
     return (PopStack(&stack));
 }
-StateMachine* RegexToNFA(char *pattern)
+StateMachine *RegexToNFA(char *pattern)
 {
     StateMachine *nfa = RegexToNFARec(pattern);
     SetAccepting(FinalState(nfa));
@@ -50,13 +50,12 @@ StateMachine* RegexToNFA(char *pattern)
     return (nfa);
 }
 
-BOOL SelectNextTransitions(CircularLinearLinkedListNode *transitions,
+void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
                            CircularLinearLinkedListNode **nextStates,
                            BOOL (*Condition)(Transition *, char),
                            char symbol)
 {
     Transition *currentTransition;
-    BOOL foundAcceptingState = FALSE;
     CircularLinearLinkedListNode *ptr = transitions->nextNode;
 
     do
@@ -65,20 +64,14 @@ BOOL SelectNextTransitions(CircularLinearLinkedListNode *transitions,
 
         if (!currentTransition->dest->visited && Condition(currentTransition, symbol))
         {
-            *nextStates ? 
-                InsertEndCircularLinearLinkedList(nextStates) : 
-                InsertLastCircularLinearLinkedList(nextStates);
+            *nextStates ? InsertEndCircularLinearLinkedList(nextStates) : InsertLastCircularLinearLinkedList(nextStates);
 
             (*nextStates)->info = currentTransition->dest;
-            foundAcceptingState |= currentTransition->dest->isAccepting;
             currentTransition->dest->visited = TRUE;
         }
 
         ptr = ptr->nextNode;
-    } 
-    while (ptr != transitions->nextNode);
-
-    return (foundAcceptingState);
+    } while (ptr != transitions->nextNode);
 }
 
 BOOL IsSymbolTransition(Transition *transition, char symbol)
@@ -88,7 +81,7 @@ BOOL IsSymbolTransition(Transition *transition, char symbol)
 
 BOOL IsPossibleTransition(Transition *transition, char symbol)
 {
-    return (IsSymbolTransition(transition, symbol) || 
+    return (IsSymbolTransition(transition, symbol) ||
             (IsSymbolTransition(transition, ANY_SYMBOL)));
 }
 
@@ -104,13 +97,10 @@ void MakeTransitions(CircularLinearLinkedListNode *currentStates,
     {
         transitions = ((State *)currentStatesPtr->info)->transitionsManager;
 
-        transitions ? 
-            SelectNextTransitions(transitions, nextStates, IsPossibleTransition, symbol) :
-            FALSE;
+        transitions ? SelectNextTransitions(transitions, nextStates, IsPossibleTransition, symbol) : FALSE;
 
         currentStatesPtr = currentStatesPtr->nextNode;
-    }
-    while (currentStatesPtr != currentStates->nextNode);
+    } while (currentStatesPtr != currentStates->nextNode);
 }
 
 BOOL EpsilonClosure(CircularLinearLinkedListNode **states)
@@ -125,8 +115,7 @@ BOOL EpsilonClosure(CircularLinearLinkedListNode **states)
         epsilonStates = NULL;
         MakeTransitions(statesPtr, &epsilonStates, EPSILON_TRANSITION);
         epsilonStates ? ConcatCircularLinearLinkedLists(states, epsilonStates) : ZERO;
-    }
-    while (epsilonStates);
+    } while (epsilonStates);
 }
 
 BOOL CompareLists(CircularLinearLinkedListNode *first,
@@ -146,17 +135,16 @@ BOOL CompareLists(CircularLinearLinkedListNode *first,
 
 State *FindAcceptingState(CircularLinearLinkedListNode *currentStates)
 {
-    BOOL isMatch = FALSE;
-    State *s = NULL;
-    CircularLinearLinkedListNode *c;
-    for (c = currentStates->nextNode; c != currentStates; c = c->nextNode)
+    CircularLinearLinkedListNode *ptr = currentStates->nextNode;
+    State *acceptingState = NULL;
+
+    do
     {
-        ((State *)c->info)->isAccepting ? s = c->info : ZERO;
-    }
+        ((State *)ptr->info)->isAccepting ? acceptingState = ptr->info : ZERO;
+        ptr = ptr->nextNode;
+    } while (ptr != currentStates->nextNode);
 
-    ((State *)c->info)->isAccepting ? s = c->info : ZERO;
-
-    return s;
+    return (acceptingState);
 }
 
 BOOL IsTerminated(CircularLinearLinkedListNode *currentStates)
@@ -166,8 +154,7 @@ BOOL IsTerminated(CircularLinearLinkedListNode *currentStates)
     return (accepting ? !accepting->transitionsManager : FALSE);
 }
 
-CircularLinearLinkedListNode *InitStatesList(State *state, char symbol, 
-                                             CircularLinearLinkedListNode **nextStates)
+CircularLinearLinkedListNode *InitStatesList(State *state, char symbol)
 {
     CircularLinearLinkedListNode *states;
 
@@ -177,24 +164,27 @@ CircularLinearLinkedListNode *InitStatesList(State *state, char symbol,
 
     EpsilonClosure(&states);
 
-    *nextStates = states;
-    MakeTransitions(states, nextStates, symbol);
-
     return (states);
 }
 
-MatchType* Match(StateMachine *nfa, char *input)
+MatchType *Match(StateMachine *nfa, char *input)
 {
     CircularLinearLinkedListNode *currentStates;
-    CircularLinearLinkedListNode *nextStates;
-    MatchType *result = NULL;
+    CircularLinearLinkedListNode *nextStates = NULL;
+    MatchType *match = NULL;
     char *ptr = input;
 
-    currentStates = InitStatesList(InitialState(nfa), *input, &nextStates);
-    nextStates = CompareLists(currentStates, nextStates) ? NULL : nextStates;
+    currentStates = InitStatesList(InitialState(nfa), *input);
+
+    MakeTransitions(currentStates, &nextStates, *input);
+    SetAllVisited(nfa, FALSE);
+
+    nextStates = nextStates && CompareLists(currentStates, nextStates) ? NULL : nextStates;
+    IsTerminated(currentStates) ? input++ : ZERO;
 
     while (*input && nextStates && !IsTerminated(currentStates))
     {
+        EmptyCircularLinearLinkedList(&currentStates);
         EpsilonClosure(&nextStates);
 
         currentStates = nextStates;
@@ -206,12 +196,13 @@ MatchType* Match(StateMachine *nfa, char *input)
 
     if (!!FindAcceptingState(currentStates))
     {
-        result = malloc(sizeof(MatchType));
-        *result = (MatchType){.start = ptr, .end = input};
+        match = malloc(sizeof(MatchType));
+        *match = (MatchType){.start = ptr, .end = input};
     }
-    
+
     SetAllVisited(nfa, FALSE);
     EmptyCircularLinearLinkedList(&currentStates);
+    nextStates ? EmptyCircularLinearLinkedList(&nextStates) : ZERO;
 
-    return (result);
+    return (match);
 }

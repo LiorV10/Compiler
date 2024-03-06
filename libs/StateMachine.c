@@ -104,6 +104,8 @@ StateMachine *Concat(StateMachine *first, StateMachine *second, BOOL applyTransi
     ConcatStateMachines(first, second);
     applyTransition ? AddTransition(first, firstEnd, secondStart, EPSILON_TRANSITION) : ZERO;
 
+    free(second);
+
     return (first);
 }
 
@@ -115,13 +117,15 @@ StateMachine *Union(StateMachine *first, StateMachine *second)
     State *start = AddState(stateMachine);
     State *secondStart = InitialState(second);
     State *secondEnd = FinalState(second);
+    State *firstEnd = FinalState(first);
     State *end;
 
     stateMachine = Concat(stateMachine, first, TRUE);
     stateMachine = Concat(stateMachine, second, FALSE);
     AddTransition(stateMachine, start, secondStart, EPSILON_TRANSITION);
+    
     end = AddState(stateMachine);
-    AddTransition(stateMachine, FinalState(first), end, EPSILON_TRANSITION);
+    AddTransition(stateMachine, firstEnd, end, EPSILON_TRANSITION);
     AddTransition(stateMachine, secondEnd, end, EPSILON_TRANSITION);
 
     return (stateMachine);

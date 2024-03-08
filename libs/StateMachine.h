@@ -48,3 +48,4 @@ StateMachine *Union(StateMachine *first, StateMachine *second);
 StateMachine *OneOrMore(StateMachine *previous);
 StateMachine *Star(StateMachine *previous);
 StateMachine *Alternate(StateMachine *previous);
+void EmptyStateMachine(StateMachine *stateMachine);

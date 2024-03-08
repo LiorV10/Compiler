@@ -1,6 +1,8 @@
 // StateMachine.c
 
-#include "StateMachine.h"
+#ifndef _STATE_MACHINE_H
+    #include "StateMachine.h"
+#endif
 
 void InitStateMachine(StateMachine *stateMachine)
 {
@@ -131,39 +133,74 @@ StateMachine *Union(StateMachine *first, StateMachine *second)
     return (stateMachine);
 }
 
-StateMachine *OneOrMore(StateMachine *previous)
+StateMachine *OneOrMore(StateMachine *stateMachine)
 {
-    State *start = InitialState(previous);
-    State *end = FinalState(previous);
+    State *start = InitialState(stateMachine);
+    State *end = FinalState(stateMachine);
 
-    AddTransition(previous, end, start, EPSILON_TRANSITION);
+    AddTransition(stateMachine, end, start, EPSILON_TRANSITION);
 
-    return (previous);
+    return (stateMachine);
 }
 
-StateMachine *Star(StateMachine *previous)
+StateMachine *Star(StateMachine *stateMachine)
 {
-    previous = OneOrMore(previous);
+    stateMachine = OneOrMore(stateMachine);
 
-    AddTransition(previous, FinalState(previous), InitialState(previous), EPSILON_TRANSITION);
-    AddTransition(previous, InitialState(previous), FinalState(previous), EPSILON_TRANSITION);
+    AddTransition(stateMachine, FinalState(stateMachine), InitialState(stateMachine), EPSILON_TRANSITION);
+    AddTransition(stateMachine, InitialState(stateMachine), FinalState(stateMachine), EPSILON_TRANSITION);
 
-    return (previous);
+    return (stateMachine);
 }
 
-StateMachine *Alternate(StateMachine *previous)
+StateMachine *Alternate(StateMachine *stateMachine)
 {
     StateMachine *newStart = malloc(sizeof(StateMachine));
     InitStateMachine(newStart);
 
     State *start = AddState(newStart);
-    State *end = FinalState(previous);
+    State *end = FinalState(stateMachine);
 
-    AddTransition(previous, end, AddState(previous), EPSILON_TRANSITION);
-    end = FinalState(previous);
-    newStart = Concat(newStart, previous, TRUE);
+    AddTransition(stateMachine, end, AddState(stateMachine), EPSILON_TRANSITION);
+    end = FinalState(stateMachine);
+    newStart = Concat(newStart, stateMachine, TRUE);
 
     AddTransition(newStart, start, end, EPSILON_TRANSITION);
 
     return (newStart);
+}
+
+void EmptyTransitions(CircularLinearLinkedListNode **transitions)
+{
+    CircularLinearLinkedListNode *ptr = *transitions;
+
+    do
+    {
+        free(ptr->info);
+        ptr = ptr->nextNode;
+    }
+    while (ptr != *transitions);
+
+    EmptyCircularLinearLinkedList(transitions);
+}
+
+void EmptyState(State *state)
+{
+    state->transitionsManager ? EmptyTransitions(&state->transitionsManager) : ZERO;
+    free(state);
+}
+
+void EmptyStateMachine(StateMachine *stateMachine)
+{
+    CircularLinearLinkedListNode *ptr = stateMachine->statesManager;
+
+    do
+    {
+        EmptyState(ptr->info);
+        ptr = ptr->nextNode;
+    }   
+    while (ptr != stateMachine->statesManager);
+
+    EmptyCircularLinearLinkedList(&stateMachine->statesManager);
+    free(stateMachine);
 }

@@ -22,9 +22,9 @@
 
 typedef struct
 {
-    char *start;
-    char *end;
+    const char *start;
+    const char *end;
 } MatchType;
 
-StateMachine *RegexToNFA(char *pattern);
-MatchType* Match(StateMachine *nfa, char *input);
+StateMachine *RegexToNFA(const char *pattern);
+MatchType* Match(StateMachine *nfa, const char *input);

@@ -1,6 +1,7 @@
 // main.c
 
-#include "../libs/Regex.h"
+#include "Lexer.h"
+#include "Parser.h"
 #include <stdio.h>
 
 void PrintMatch(MatchType *match)
@@ -46,47 +47,8 @@ void PrintStateMachine(StateMachine *stateMachine)
     puts("");
 }
 
-#define PATTERNS_NUM 7
-
 void main(void)
-{
-    MatchType *currentMatch;
-    StateMachine *nfas[PATTERNS_NUM];
-    char *patterns[PATTERNS_NUM] = 
-    {
-         // ".+"
-        "\"\001\006\002\"\002",         
-
-        // (while|for|void|(un)?signed|int|float|short)[^a-zA-Z\d_]
-        "wh\002i\002l\002e\002fo\002r\002vo\002i\002d\002ch\002a\002r\002un\002\007s\002i\002g\002n\002e\002d\002in\002t\002fl\002o\002a\002t\002sh\002o\002r\002t\002\010\010\010\010\010\010\010 *(){}\n\r\t\010\010\010\010\010\010\010\010\002",
-        
-        // [_a-zA-Z][_a-zA-Z\d]*                              
-        "_\003\010_\003\010\004\010\005\002",
-        
-        // operators
-        ",;=.-+/*&(){}[]<>\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010",  
-
-        // \d+.\d+                                                    
-        "\004\006.\002\004\006\002",
-
-        // \d+        
-        "\004\006",
-
-         // \s+                                      
-       " \n\r\t\010\010\010\006"                                            
-    };
-
-    const char *types[PATTERNS_NUM] = 
-    {
-        "string literal",
-        "keyword",
-        "identifier",
-        "operator",
-        "float literal",
-        "integer literal",
-        "whitespace"
-    };
-    
+{    
     const char *code = "float variable = 1637.48 + 25;       \n\
                   float *ptr = &variable;                     \n\
                   void func(void)                              \n\
@@ -97,52 +59,8 @@ void main(void)
                             printf(\"%d\", i);                      \n\
                         }                                            \n\
                   }";
-
-    for (int i = ZERO; i < PATTERNS_NUM; i++)
-    {
-        nfas[i] = RegexToNFA(patterns[i]);
-    }
-
-    /* TESTING TOKENS */
-    puts("\n------- Tokens: -------\n");
-
-    typedef struct
-    {
-        MatchType *match;
-        const char *type;
-    } Token;
-
-    unsigned short offset = ZERO;
-    CircularLinearLinkedListNode *tokens;
-
-    InitCircularLinearLinkedList(&tokens);
-
-    while (*code)
-    {
-        while ((currentMatch = Match(nfas[offset], code)))
-        {
-            code = currentMatch->end;
-
-            if (strcmp(types[offset], "whitespace"))
-            {
-                !tokens ?
-                    InsertLastCircularLinearLinkedList(&tokens) :
-                    InsertEndCircularLinearLinkedList(&tokens);
-
-                tokens->info = malloc(sizeof(Token));
-                *(Token*)tokens->info = (Token){.match = currentMatch, .type = types[offset]};
-            }
-            else
-            {
-                free(currentMatch);
-            }
-            
-            offset = ZERO;
-        }
-
-        offset++;
-    }
-
+                  
+    CircularLinearLinkedListNode *tokens = Tokenize(code);
     CircularLinearLinkedListNode *ptr = tokens->nextNode;
     Token *token;
 
@@ -150,10 +68,10 @@ void main(void)
     {
         token = ptr->info;
 
-        PrintMatch(token->match);
-        printf(" -> %s\n", token->type);
+        PrintMatch(token->info);
+        printf(" -> %d\n", token->type);
 
-        free(token->match);
+        free(token->info);
         free(token);
 
         ptr = ptr->nextNode;
@@ -161,9 +79,4 @@ void main(void)
     while (ptr != tokens->nextNode);
 
     EmptyCircularLinearLinkedList(&tokens);
-
-    for (int i = ZERO; i < PATTERNS_NUM; i++)
-    {
-        EmptyStateMachine(nfas[i]);
-    }
 }

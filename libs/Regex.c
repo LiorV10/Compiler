@@ -151,58 +151,64 @@ BOOL IsTerminated(CircularLinearLinkedListNode *currentStates)
     return (accepting ? !accepting->transitionsManager : FALSE);
 }
 
-CircularLinearLinkedListNode *InitStatesList(State *state, char symbol)
+Match* MakeMatch(char *start, char *end)
 {
-    CircularLinearLinkedListNode *states;
+    char *ptr;
+    Match *match = malloc(sizeof(Match));
 
-    InitCircularLinearLinkedList(&states);
-    InsertLastCircularLinearLinkedList(&states);
-    states->info = state;
+    match->start = malloc(sizeof(char) * (end - start + ONE));
+    ptr = match->start;
 
-    EpsilonClosure(&states);
+    for (; start != end;)
+    {
+        *ptr++ = *start++;
+    }
 
-    return (states);
+    *ptr = '\0';
+    match->end = ptr;
 }
 
-MatchType *Match(StateMachine *nfa, char *input)
+void SetNextStates(StateMachine *nfa,
+                   CircularLinearLinkedListNode **currentStates, 
+                   CircularLinearLinkedListNode **nextStates,
+                   char symbol)
+{
+    EmptyCircularLinearLinkedList(currentStates);
+    SetAllVisited(nfa, FALSE);
+    EpsilonClosure(nextStates);
+
+    *currentStates = *nextStates;
+    *nextStates = NULL;
+
+    SetAllVisited(nfa, FALSE);
+    !IsTerminated(*currentStates) ? MakeTransitions(*currentStates, nextStates, symbol) : ZERO;
+}
+
+void InitStatesList(CircularLinearLinkedListNode **states, State *state)
+{
+    InitCircularLinearLinkedList(states);
+    InsertLastCircularLinearLinkedList(states);
+    (*states)->info = state;
+}
+
+Match* ExecuteRegex(StateMachine *nfa, char *input)
 {
     CircularLinearLinkedListNode *currentStates;
     CircularLinearLinkedListNode *nextStates;
-    MatchType *match = NULL;
     char *inputStart = input;
-    char *ptr;
+    Match *match;
 
-    InitCircularLinearLinkedList(&nextStates);
-    MakeTransitions((currentStates = InitStatesList(InitialState(nfa), *input)), &nextStates, *input);
-    input += IsTerminated(currentStates);
+    InitStatesList(&nextStates, InitialState(nfa));
+    InitStatesList(&currentStates, InitialState(nfa));
+    
+    SetNextStates(nfa, &currentStates, &nextStates, *input);
 
-    while (*input && nextStates && !IsTerminated(currentStates))
+    while (*input && nextStates)
     {
-        EmptyCircularLinearLinkedList(&currentStates);
-        SetAllVisited(nfa, FALSE);
-        EpsilonClosure(&nextStates);
-
-        currentStates = nextStates;
-        nextStates = NULL;
-
-        SetAllVisited(nfa, FALSE);
-        MakeTransitions(currentStates, &nextStates, *++input);
+        SetNextStates(nfa, &currentStates, &nextStates, *++input);
     }
 
-    if (FindAcceptingState(currentStates))
-    {
-        match = malloc(sizeof(MatchType));
-        match->start = malloc(sizeof(char) * (input - inputStart + ONE));
-        ptr = match->start;
-
-        for (; inputStart != input;)
-        {
-            *ptr++ = *inputStart++;
-        }
-
-        *ptr = '\0';
-        match->end = ptr;
-    }
+    match = FindAcceptingState(currentStates) ? MakeMatch(inputStart, input) : NULL;
 
     SetAllVisited(nfa, FALSE);
     EmptyCircularLinearLinkedList(&currentStates);
@@ -211,7 +217,7 @@ MatchType *Match(StateMachine *nfa, char *input)
     return (match);
 }
 
-void FreeMatch(MatchType *match)
+void FreeMatch(Match *match)
 {
     free(match->start);
     free(match);

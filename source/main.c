@@ -4,7 +4,7 @@
 #include "Parser.h"
 #include "viewer.h"
 
-void PrintMatch(MatchType *match)
+void PrintMatch(Match *match)
 {
     const char *ptr = match->start;
 

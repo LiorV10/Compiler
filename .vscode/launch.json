@@ -5,7 +5,7 @@
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/out.exe", // Adjust the executable file path accordingly
+            "program": "${fileDirname}/mc", // Adjust the executable file path accordingly
             "args": ["/media/lior/Data/C/Compiler/source/demo.c"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

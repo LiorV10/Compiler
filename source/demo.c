@@ -1,7 +1,16 @@
+void func(int num)
+{
+    puts("hello world!");
+    for (unsigned int i = 0; i < num; i++)
+    {
+        printf("%d\n", i);
+    }
+}
+
 void main(void)
 {
-    int a = 7;
-    int* p = &a;
-    printf("%d\n", *p);
-    puts("hello world");
+    int variable = 10;
+    int *ptr = &variable;
+
+    func(*ptr);
 }

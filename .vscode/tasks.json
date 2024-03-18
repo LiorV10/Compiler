@@ -7,7 +7,7 @@
             "command": "bash",
             "args": [
                 "-c",
-                "gcc -fdiagnostics-color=always -DDEBUG -o out.exe -g ${file} ../libs/*.o *.o"
+                "gcc -fdiagnostics-color=always -DDEBUG -o mc -g ${file} ../libs/*.o *.o"
             ],
             "options": {
                 "cwd": "${fileDirname}"

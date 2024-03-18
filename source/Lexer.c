@@ -2,7 +2,7 @@
 
 #include "Lexer.h"
 
-Token* CreateToken(MatchType *info, TokenType type)
+Token* CreateToken(Match *info, TokenType type)
 {
     Token *token = malloc(sizeof(Token));
     
@@ -13,11 +13,11 @@ Token* CreateToken(MatchType *info, TokenType type)
 
 Token* NextToken(char **source, StateMachine *nfas[PATTERNS_NUM])
 {
-    MatchType *currentMatch;
+    Match *currentMatch;
     TokenType type = ZERO;
     Token *token = NULL;
 
-    while (!(currentMatch = Match(nfas[type++], *source)));
+    while (!(currentMatch = ExecuteRegex(nfas[type++], *source)));
 
     *source += (currentMatch->end - currentMatch->start);
 

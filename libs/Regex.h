@@ -24,8 +24,8 @@ typedef struct
 {
     char *start;
     char *end;
-} MatchType;
+} Match;
 
 StateMachine *RegexToNFA(char *pattern);
-MatchType* Match(StateMachine *nfa, char *input);
-void FreeMatch(MatchType *match);
+Match* ExecuteRegex(StateMachine *nfa, char *input);
+void FreeMatch(Match *match);

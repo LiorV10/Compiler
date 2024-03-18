@@ -22,7 +22,7 @@ typedef unsigned short TokenType;
 
 typedef struct
 {
-    MatchType *info;
+    Match *info;
     TokenType type;
 } Token;
 

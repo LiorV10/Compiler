@@ -2,7 +2,7 @@
 
 #include "Lexer.h"
 #include "Parser.h"
-#include <stdio.h>
+#include "viewer.h"
 
 void PrintMatch(MatchType *match)
 {
@@ -14,69 +14,71 @@ void PrintMatch(MatchType *match)
     }
 }
 
-void PrintList(CircularLinearLinkedListNode *lst)
+CircularLinearLinkedListNode* TokenizeSource(Stream *sourceStream)
 {
-    if (!lst)
-    {
-        puts("");
-        return;
-    };
+    Lexer lexer;              
+    CircularLinearLinkedListNode *tokens;
+    CircularLinearLinkedListNode *current;
 
-    CircularLinearLinkedListNode *ptr = lst->nextNode;
+    InitLexer(&lexer);
+
+    tokens = Tokenize(&lexer, NextLine(sourceStream));
+
+    while (!EndOfStream(sourceStream))
+    {
+        current = Tokenize(&lexer, NextLine(sourceStream));
+        current ? ConcatCircularLinearLinkedLists(&tokens, current) : ZERO;
+    }
+
+    FreeLexer(&lexer);
+    ResetStream(sourceStream);
+
+    return (tokens);
+}
+
+void FreeAllTokens(CircularLinearLinkedListNode **tokens)
+{
+    CircularLinearLinkedListNode *ptr = *tokens;
 
     do
     {
-        printf("[%p:%c]->", ((Transition *)ptr->info)->dest, ((Transition *)ptr->info)->symbol);
-        ptr = ptr->nextNode;
-    } while (ptr != lst->nextNode);
+        FreeMatch(((Token*)ptr->info)->info);
+        free(ptr->info);
 
-    puts("");
+        ptr = ptr->nextNode;
+    }
+    while (ptr != *tokens);
+
+    EmptyCircularLinearLinkedList(tokens);
 }
 
-void PrintStateMachine(StateMachine *stateMachine)
-{
-    CircularLinearLinkedListNode *ptr = stateMachine->statesManager->nextNode;
-
-    do
-    {
-        printf("[%d][%d][%p]:", ((State *)ptr->info)->isAccepting, ((State *)ptr->info)->visited, ((State *)ptr->info));
-        PrintList(((State *)ptr->info)->transitionsManager);
-        ptr = ptr->nextNode;
-    } while (ptr != stateMachine->statesManager->nextNode);
-
-    puts("");
-}
-
-void main(void)
+void main(unsigned short argumentsCount, char* arguments[])
 {    
-    const char *code = "float variable = 1637.48 + 25;       \n\
-                  float *ptr = &variable;                     \n\
-                  void func(void)                              \n\
-                  {                                             \n\
-                        puts(\"hello, world!\");                 \n\
-                        for (unsigned int i = 0; i < 7; i++)      \n\
-                        {                                          \n\
-                            printf(\"%d\", i);                      \n\
-                        }                                            \n\
-                  }";
-                  
-    CircularLinearLinkedListNode *tokens = Tokenize(code);
+    Stream sourceStream;
+    CircularLinearLinkedListNode *tokens;
+    
+    argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
+
+    InitStream(&sourceStream, arguments[ONE]);
+    tokens = TokenizeSource(&sourceStream);
+    CloseStream(&sourceStream);
+
+    /* TESTING */
+
     CircularLinearLinkedListNode *ptr = tokens->nextNode;
     Token *token;
 
     do
     {
         token = ptr->info;
-
         PrintMatch(token->info);
         printf(" -> %d\n", token->type);
-
-        free(token->info);
-        free(token);
 
         ptr = ptr->nextNode;
     }
     while (ptr != tokens->nextNode);
 
-    EmptyCircularLinearLinkedList(&tokens);
+    /* TESTING */
+
+    FreeAllTokens(&tokens);
 }

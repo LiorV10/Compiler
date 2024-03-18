@@ -2,8 +2,6 @@
 
 #include "Lexer.h"
 
-#define PATTERNS_NUM 7
-
 Token* CreateToken(MatchType *info, TokenType type)
 {
     Token *token = malloc(sizeof(Token));
@@ -13,7 +11,7 @@ Token* CreateToken(MatchType *info, TokenType type)
     return (token);
 }
 
-Token *NextToken(const char **source, StateMachine *nfas[PATTERNS_NUM])
+Token* NextToken(char **source, StateMachine *nfas[PATTERNS_NUM])
 {
     MatchType *currentMatch;
     TokenType type = ZERO;
@@ -21,20 +19,20 @@ Token *NextToken(const char **source, StateMachine *nfas[PATTERNS_NUM])
 
     while (!(currentMatch = Match(nfas[type++], *source)));
 
-    *source = currentMatch->end;
+    *source += (currentMatch->end - currentMatch->start);
 
     --type != WHITESPACE_TOKEN ? 
         token = CreateToken(currentMatch, type) : 
-        free(currentMatch);
+        FreeMatch(currentMatch);
 
-    return (token ? token : NextToken(source, nfas));
+    return (token);
 }
 
 void InitNFAs(StateMachine *nfas[PATTERNS_NUM])
 {
     unsigned short offset;
 
-    const char *patterns[PATTERNS_NUM] = 
+    char *patterns[PATTERNS_NUM] = 
     {
         "\"\001\006\002\"\002",         
         "wh\002i\002l\002e\002fo\002r\002vo\002i\002d\002ch\002a\002r\002un\002\007s\002i\002g\002n\002e\002d\002in\002t\002fl\002o\002a\002t\002sh\002o\002r\002t\002\010\010\010\010\010\010\010 *(){}\n\r\t\010\010\010\010\010\010\010\010\002",                    
@@ -51,27 +49,42 @@ void InitNFAs(StateMachine *nfas[PATTERNS_NUM])
     }
 }
 
-CircularLinearLinkedListNode* Tokenize(const char *source)
+void InitLexer(Lexer *lexer)
+{
+    InitNFAs(lexer->nfas);
+}
+
+void FreeLexer(Lexer *lexer)
+{
+    unsigned short offset;
+
+    for (offset = ZERO; offset < PATTERNS_NUM; offset++)
+    {
+        EmptyStateMachine(lexer->nfas[offset]);
+    }
+}
+
+CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source)
 {
     CircularLinearLinkedListNode *tokens;
-    StateMachine *nfas[PATTERNS_NUM];
-    unsigned short offset;
     
-    InitNFAs(nfas);
     InitCircularLinearLinkedList(&tokens);
 
     while (*source)
     {
+        if (!tokens || tokens->info)
         tokens ? 
             InsertEndCircularLinearLinkedList(&tokens) : 
             InsertLastCircularLinearLinkedList(&tokens);
 
-        tokens->info = NextToken(&source, nfas);
+        tokens->info = NextToken(&source, lexer->nfas);
     }
 
-    for (offset = ZERO; offset < PATTERNS_NUM; offset++)
+    if (!tokens->info)
     {
-        EmptyStateMachine(nfas[offset]);
+        tokens == tokens->nextNode ? 
+            DeleteLastCircularLinearLinkedList(&tokens) : 
+            DeleteEndCircularLinearLinkedList(&tokens);
     }
 
     return (tokens);

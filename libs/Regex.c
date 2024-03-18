@@ -4,7 +4,7 @@
     #include "Regex.h"
 #endif
 
-StateMachine *RegexToNFARec(const char *pattern)
+StateMachine *RegexToNFARec(char *pattern)
 {
     Stack stack;
     StateMachine *nfa;
@@ -45,7 +45,7 @@ StateMachine *RegexToNFARec(const char *pattern)
     return (PopStack(&stack));
 }
 
-StateMachine *RegexToNFA(const char *pattern)
+StateMachine *RegexToNFA(char *pattern)
 {
     StateMachine *nfa = RegexToNFARec(pattern);
     SetAccepting(FinalState(nfa));
@@ -164,12 +164,13 @@ CircularLinearLinkedListNode *InitStatesList(State *state, char symbol)
     return (states);
 }
 
-MatchType *Match(StateMachine *nfa, const char *input)
+MatchType *Match(StateMachine *nfa, char *input)
 {
     CircularLinearLinkedListNode *currentStates;
     CircularLinearLinkedListNode *nextStates;
     MatchType *match = NULL;
-    const char *ptr = input;
+    char *inputStart = input;
+    char *ptr;
 
     InitCircularLinearLinkedList(&nextStates);
     MakeTransitions((currentStates = InitStatesList(InitialState(nfa), *input)), &nextStates, *input);
@@ -191,7 +192,16 @@ MatchType *Match(StateMachine *nfa, const char *input)
     if (FindAcceptingState(currentStates))
     {
         match = malloc(sizeof(MatchType));
-        *match = (MatchType){.start = ptr, .end = input};
+        match->start = malloc(sizeof(char) * (input - inputStart + ONE));
+        ptr = match->start;
+
+        for (; inputStart != input;)
+        {
+            *ptr++ = *inputStart++;
+        }
+
+        *ptr = '\0';
+        match->end = ptr;
     }
 
     SetAllVisited(nfa, FALSE);
@@ -199,4 +209,10 @@ MatchType *Match(StateMachine *nfa, const char *input)
     nextStates ? EmptyCircularLinearLinkedList(&nextStates) : ZERO;
 
     return (match);
+}
+
+void FreeMatch(MatchType *match)
+{
+    free(match->start);
+    free(match);
 }

@@ -16,6 +16,8 @@
 #define INTEGER_LITERAL_TOKEN 5
 #define WHITESPACE_TOKEN 6
 
+#define PATTERNS_NUM 7
+
 typedef unsigned short TokenType;
 
 typedef struct
@@ -24,4 +26,11 @@ typedef struct
     TokenType type;
 } Token;
 
-CircularLinearLinkedListNode* Tokenize(const char *source);
+typedef struct
+{
+    StateMachine *nfas[PATTERNS_NUM];
+} Lexer;
+
+void InitLexer(Lexer *lexer);
+void FreeLexer(Lexer *lexer);
+CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source);

@@ -2,15 +2,36 @@
 
 #include "Lexer.h"
 #include "Parser.h"
-#include "viewer.h"
+#include "Viewer.h"
 
 void PrintMatch(Match *match)
 {
-    const char *ptr = match->start;
+    char *ptr = match->start;
 
     for (; ptr < match->end; ptr++)
     {
         printf("%c", *ptr);
+    }
+
+    printf("\t");
+}
+
+char* TypeStr(TokenType type)
+{
+    switch(type)
+    {
+        case STRING_LITERAL_TOKEN:
+            return "String literal";
+        case KEYOWRD_TOKEN:
+            return "Keyword";
+        case IDENTIFIER_TOKEN:
+            return "Identifier";
+        case OPERATOR_LITERAL_TOKEN:
+            return "Operator";
+        case FLOAT_LITERAL_TOKEN:
+            return "Float literal";
+        case INTEGER_LITERAL_TOKEN:
+            return "Int literal"; 
     }
 }
 
@@ -72,7 +93,7 @@ void main(unsigned short argumentsCount, char* arguments[])
     {
         token = ptr->info;
         PrintMatch(token->info);
-        printf(" -> %d\n", token->type);
+        printf("\t->\t%s\n", TypeStr(token->type));
 
         ptr = ptr->nextNode;
     }

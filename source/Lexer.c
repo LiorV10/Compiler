@@ -72,12 +72,11 @@ CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source)
 
     while (*source)
     {
-        if (!tokens || tokens->info)
         tokens ? 
             InsertEndCircularLinearLinkedList(&tokens) : 
             InsertLastCircularLinearLinkedList(&tokens);
 
-        tokens->info = NextToken(&source, lexer->nfas);
+        while(*source && !(tokens->info = NextToken(&source, lexer->nfas)));
     }
 
     if (!tokens->info)

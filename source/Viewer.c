@@ -1,6 +1,6 @@
 // viewer.c
 
-#include "viewer.h"
+#include "Viewer.h"
 
 void InitStream(Stream *stream, char *path)
 {
@@ -27,7 +27,7 @@ BOOL EndOfStream(Stream *stream)
 
 void CloseStream(Stream *stream)
 {
-    fclose(stream->fp) ? exit(ONE) : ZERO;
+    fclose(stream->fp) ? ExitWithError("Could not close the file correctly.") : ZERO;
 }
 
 void ExitWithError(char *error)

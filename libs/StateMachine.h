@@ -10,13 +10,14 @@
     #include "CircularLinearLinkedList.h"
 #endif
 
+#define NON_ACCEPTING ((void*)-ONE)
 #define EPSILON_TRANSITION '\000'
 #define ANY_SYMBOL '\001'
 
 typedef struct
 {
-    BOOL isAccepting;
     BOOL visited;
+    void *info;
     CircularLinearLinkedListNode *transitionsManager;
 } State;
 
@@ -34,8 +35,6 @@ typedef struct
 void InitStateMachine(StateMachine *stateMachine);
 State *AddState(StateMachine *statemachine);
 void AddTransition(StateMachine *statemachine, State *source, State *dest, char symbol);
-void SetAccepting(State *state);
-BOOL IsAccepting(State *state);
 void SetVisited(State *state, BOOL isVisited);
 BOOL IsVisited(State *state);
 State *FinalState(StateMachine *stateMachine);

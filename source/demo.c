@@ -1,16 +1,344 @@
 void func(int num)
 {
-    puts("hello world!");
+    puts("hi");
     for (unsigned int i = 0; i < num; i++)
     {
-        printf("%d\n", i);
+        printf(i);
     }
 }
 
 void main(void)
 {
-    int variable = 10;
+    int variable = 10 - 2;
     int *ptr = &variable;
 
     func(*ptr);
+}
+
+void PrintMatch(Match *match)
+{
+    char *ptr = match->start;
+
+    for (; ptr < match->end; ptr++)
+    {
+        printf("%c", *ptr);
+    }
+
+    printf("\t");
+}
+
+char* TypeStr(TokenType type)
+{
+    switch(type)
+    {
+        case STRING_LITERAL_TOKEN:
+            return "String literal";
+        case KEYOWRD_TOKEN:
+            return "Keyword";
+        case IDENTIFIER_TOKEN:
+            return "Identifier";
+        case OPERATOR_LITERAL_TOKEN:
+            return "Operator";
+        case FLOAT_LITERAL_TOKEN:
+            return "Float literal";
+        case INTEGER_LITERAL_TOKEN:
+            return "Int literal";
+        default:
+            return "Testing";
+    }
+}
+
+CircularLinearLinkedListNode* TokenizeSource(Stream *sourceStream)
+{
+    Lexer lexer;              
+    CircularLinearLinkedListNode *tokens;
+    CircularLinearLinkedListNode *current;
+
+    InitLexer(&lexer);
+
+    tokens = Tokenize(&lexer, NextLine(sourceStream));
+
+    while (!EndOfStream(sourceStream))
+    {
+        current = Tokenize(&lexer, NextLine(sourceStream));
+        current ? ConcatCircularLinearLinkedLists(&tokens, current) : ZERO;
+    }
+
+    FreeLexer(&lexer);
+    ResetStream(sourceStream);
+
+    return (tokens);
+}
+
+void FreeAllTokens(CircularLinearLinkedListNode **tokens)
+{
+    CircularLinearLinkedListNode *ptr = *tokens;
+
+    do
+    {
+        FreeMatch(((Token*)ptr->info)->info);
+        free(ptr->info);
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != *tokens);
+
+    EmptyCircularLinearLinkedList(tokens);
+}
+
+void main(unsigned short argumentsCount, char* arguments[])
+{    
+    Stream sourceStream;
+    CircularLinearLinkedListNode *tokens;
+    
+    argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
+
+    InitStream(&sourceStream, arguments[ONE]);
+    tokens = TokenizeSource(&sourceStream);
+    CloseStream(&sourceStream);
+
+    CircularLinearLinkedListNode *ptr = tokens->nextNode;
+    Token *token;
+
+    do
+    {
+        token = ptr->info;
+        PrintMatch(token->info);
+        printf("\t->\t%s\n", TypeStr(token->type));
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != tokens->nextNode);
+
+    FreeAllTokens(&tokens);
+}
+
+void func(int num)
+{
+    puts("hi");
+    for (unsigned int i = 0; i < num; i++)
+    {
+        printf(i);
+    }
+}
+
+void main(void)
+{
+    int variable = 10 - 2;
+    int *ptr = &variable;
+
+    func(*ptr);
+}
+
+void PrintMatch(Match *match)
+{
+    char *ptr = match->start;
+
+    for (; ptr < match->end; ptr++)
+    {
+        printf("%c", *ptr);
+    }
+
+    printf("\t");
+}
+
+char* TypeStr(TokenType type)
+{
+    switch(type)
+    {
+        case STRING_LITERAL_TOKEN:
+            return "String literal";
+        case KEYOWRD_TOKEN:
+            return "Keyword";
+        case IDENTIFIER_TOKEN:
+            return "Identifier";
+        case OPERATOR_LITERAL_TOKEN:
+            return "Operator";
+        case FLOAT_LITERAL_TOKEN:
+            return "Float literal";
+        case INTEGER_LITERAL_TOKEN:
+            return "Int literal";
+        default:
+            return "Testing";
+    }
+}
+
+CircularLinearLinkedListNode* TokenizeSource(Stream *sourceStream)
+{
+    Lexer lexer;              
+    CircularLinearLinkedListNode *tokens;
+    CircularLinearLinkedListNode *current;
+
+    InitLexer(&lexer);
+
+    tokens = Tokenize(&lexer, NextLine(sourceStream));
+
+    while (!EndOfStream(sourceStream))
+    {
+        current = Tokenize(&lexer, NextLine(sourceStream));
+        current ? ConcatCircularLinearLinkedLists(&tokens, current) : ZERO;
+    }
+
+    FreeLexer(&lexer);
+    ResetStream(sourceStream);
+
+    return (tokens);
+}
+
+void FreeAllTokens(CircularLinearLinkedListNode **tokens)
+{
+    CircularLinearLinkedListNode *ptr = *tokens;
+
+    do
+    {
+        FreeMatch(((Token*)ptr->info)->info);
+        free(ptr->info);
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != *tokens);
+
+    EmptyCircularLinearLinkedList(tokens);
+}
+
+void main(unsigned short argumentsCount, char* arguments[])
+{    
+    Stream sourceStream;
+    CircularLinearLinkedListNode *tokens;
+    
+    argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
+
+    InitStream(&sourceStream, arguments[ONE]);
+    tokens = TokenizeSource(&sourceStream);
+    CloseStream(&sourceStream);
+
+    CircularLinearLinkedListNode *ptr = tokens->nextNode;
+    Token *token;
+
+    do
+    {
+        token = ptr->info;
+        PrintMatch(token->info);
+        printf("\t->\t%s\n", TypeStr(token->type));
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != tokens->nextNode);
+
+    FreeAllTokens(&tokens);
+}
+
+void func(int num)
+{
+    puts("hi");
+    for (unsigned int i = 0; i < num; i++)
+    {
+        printf(i);
+    }
+}
+
+void main(void)
+{
+    int variable = 10 - 2;
+    int *ptr = &variable;
+
+    func(*ptr);
+}
+
+void PrintMatch(Match *match)
+{
+    char *ptr = match->start;
+
+    for (; ptr < match->end; ptr++)
+    {
+        printf("%c", *ptr);
+    }
+
+    printf("\t");
+}
+
+char* TypeStr(TokenType type)
+{
+    switch(type)
+    {
+        case STRING_LITERAL_TOKEN:
+            return "String literal";
+        case KEYOWRD_TOKEN:
+            return "Keyword";
+        case IDENTIFIER_TOKEN:
+            return "Identifier";
+        case OPERATOR_LITERAL_TOKEN:
+            return "Operator";
+        case FLOAT_LITERAL_TOKEN:
+            return "Float literal";
+        case INTEGER_LITERAL_TOKEN:
+            return "Int literal";
+        default:
+            return "Testing";
+    }
+}
+
+CircularLinearLinkedListNode* TokenizeSource(Stream *sourceStream)
+{
+    Lexer lexer;              
+    CircularLinearLinkedListNode *tokens;
+    CircularLinearLinkedListNode *current;
+
+    InitLexer(&lexer);
+
+    tokens = Tokenize(&lexer, NextLine(sourceStream));
+
+    while (!EndOfStream(sourceStream))
+    {
+        current = Tokenize(&lexer, NextLine(sourceStream));
+        current ? ConcatCircularLinearLinkedLists(&tokens, current) : ZERO;
+    }
+
+    FreeLexer(&lexer);
+    ResetStream(sourceStream);
+
+    return (tokens);
+}
+
+void FreeAllTokens(CircularLinearLinkedListNode **tokens)
+{
+    CircularLinearLinkedListNode *ptr = *tokens;
+
+    do
+    {
+        FreeMatch(((Token*)ptr->info)->info);
+        free(ptr->info);
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != *tokens);
+
+    EmptyCircularLinearLinkedList(tokens);
+}
+
+void main(unsigned short argumentsCount, char* arguments[])
+{    
+    Stream sourceStream;
+    CircularLinearLinkedListNode *tokens;
+    
+    argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
+
+    InitStream(&sourceStream, arguments[ONE]);
+    tokens = TokenizeSource(&sourceStream);
+    CloseStream(&sourceStream);
+
+    CircularLinearLinkedListNode *ptr = tokens->nextNode;
+    Token *token;
+
+    do
+    {
+        token = ptr->info;
+        PrintMatch(token->info);
+        printf("\t->\t%s\n", TypeStr(token->type));
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != tokens->nextNode);
+
+    FreeAllTokens(&tokens);
 }

@@ -45,11 +45,10 @@ StateMachine *RegexToNFARec(char *pattern)
     return (PopStack(&stack));
 }
 
-StateMachine *RegexToNFA(char *pattern, void *finalStateInfo)
+StateMachine *RegexToNFA(char *pattern)
 {
     StateMachine *nfa = RegexToNFARec(pattern);
-
-    FinalState(nfa)->info = finalStateInfo;
+    SetAccepting(FinalState(nfa));
 
     return (nfa);
 }
@@ -64,9 +63,9 @@ void InsertState(CircularLinearLinkedListNode **states, State *state)
     state->visited = TRUE;
 }
 
-BOOL IsSymbolTransition(Transition *transition, char symbol)
+BOOL IsPossibleTransition(Transition *transition, char symbol)
 {
-    return (transition->symbol == symbol);
+    return (transition->symbol == symbol || transition->symbol == ANY_SYMBOL);
 }
 
 void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
@@ -80,7 +79,7 @@ void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
     {
         currentTransition = ptr->info;
 
-        !currentTransition->dest->visited && IsSymbolTransition(currentTransition, symbol) ?
+        !currentTransition->dest->visited && currentTransition->symbol == symbol ?//IsPossibleTransition(currentTransition, symbol) ?
             InsertState(nextStates, currentTransition->dest) : 
             ZERO;
 
@@ -90,19 +89,19 @@ void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
 }
 
 void MakeSymbolTransitions(CircularLinearLinkedListNode *currentStates,
-                           CircularLinearLinkedListNode **nextStates,
-                           char symbol)
+                     CircularLinearLinkedListNode **nextStates,
+                     char symbol)
 {
     Transition *currentTransition;
     CircularLinearLinkedListNode *currentStatesPtr = currentStates->nextNode;
     CircularLinearLinkedListNode *transitions;
-    
+
     do
     {
-        transitions = ((State*)currentStatesPtr->info)->transitionsManager;
+        transitions = ((State *)currentStatesPtr->info)->transitionsManager;
 
         transitions ? 
-            SelectNextTransitions(transitions, nextStates, symbol):
+            SelectNextTransitions(transitions, nextStates, symbol) :
             ZERO;
 
         currentStatesPtr = currentStatesPtr->nextNode;
@@ -111,8 +110,8 @@ void MakeSymbolTransitions(CircularLinearLinkedListNode *currentStates,
 }
 
 void MakeAllTransitions(CircularLinearLinkedListNode *currentStates,
-                     CircularLinearLinkedListNode **nextStates,
-                     char symbol)
+                        CircularLinearLinkedListNode **nextStates,
+                        char symbol)
 {
     MakeSymbolTransitions(currentStates, nextStates, symbol);
     !*nextStates ? MakeSymbolTransitions(currentStates, nextStates, ANY_SYMBOL) : ZERO;
@@ -120,17 +119,17 @@ void MakeAllTransitions(CircularLinearLinkedListNode *currentStates,
 
 BOOL EpsilonClosure(CircularLinearLinkedListNode **states)
 {
-    CircularLinearLinkedListNode *statesPtr = (*states)->nextNode;
     CircularLinearLinkedListNode *epsilonStates;
 
     InitCircularLinearLinkedList(&epsilonStates);
+    MakeAllTransitions(*states, &epsilonStates, EPSILON_TRANSITION);
 
-    do
+    while (epsilonStates)
     {
+        ConcatCircularLinearLinkedLists(states, epsilonStates);
         epsilonStates = NULL;
-        MakeAllTransitions(statesPtr, &epsilonStates, EPSILON_TRANSITION);
-        epsilonStates ? ConcatCircularLinearLinkedLists(states, epsilonStates) : ZERO;
-    } while (epsilonStates);
+        MakeAllTransitions(*states, &epsilonStates, EPSILON_TRANSITION);
+    } 
 }
 
 State *FindAcceptingState(CircularLinearLinkedListNode *currentStates)
@@ -140,10 +139,9 @@ State *FindAcceptingState(CircularLinearLinkedListNode *currentStates)
 
     do
     {
-        ((State *)ptr->info)->info != NON_ACCEPTING ? acceptingState = ptr->info : ZERO;
+        ((State *)ptr->info)->isAccepting ? acceptingState = ptr->info : ZERO;
         ptr = ptr->nextNode;
-    } 
-    while (ptr != currentStates->nextNode);
+    } while (ptr != currentStates->nextNode);
 
     return (acceptingState);
 }
@@ -161,7 +159,7 @@ Match* MakeMatch(char *start, char *end)
         *ptr++ = *start++;
     }
 
-    *ptr = '\0';
+    *ptr ^= *ptr;
     match->end = ptr;
 }
 
@@ -188,12 +186,12 @@ void InitStatesList(CircularLinearLinkedListNode **states, State *state)
     (*states)->info = state;
 }
 
-void* ExecuteRegex(StateMachine *nfa, char *input, Match **match)
+Match* ExecuteRegex(StateMachine *nfa, char *input)
 {
     CircularLinearLinkedListNode *currentStates;
     CircularLinearLinkedListNode *nextStates;
     char *inputStart = input;
-    void *acceptingStateInfo;
+    Match *match;
 
     InitStatesList(&nextStates, InitialState(nfa));
     InitStatesList(&currentStates, InitialState(nfa));
@@ -205,16 +203,13 @@ void* ExecuteRegex(StateMachine *nfa, char *input, Match **match)
         SetNextStates(nfa, &currentStates, &nextStates, *++input);
     }
 
-    *match = (acceptingStateInfo = FindAcceptingState(currentStates)) ? 
-        MakeMatch(inputStart, input) : NULL;
-
-    acceptingStateInfo = (void*)((State*)acceptingStateInfo)->info;
+    match = FindAcceptingState(currentStates) ? MakeMatch(inputStart, input) : NULL;
 
     SetAllVisited(nfa, FALSE);
     EmptyCircularLinearLinkedList(&currentStates);
     nextStates ? EmptyCircularLinearLinkedList(&nextStates) : ZERO;
 
-    return (acceptingStateInfo);
+    return (match);
 }
 
 void FreeMatch(Match *match)

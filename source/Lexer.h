@@ -1,7 +1,7 @@
 // Lexer.h
 
 #ifndef _REGEX_H
-    #include "../libs/Regex.c"
+    #include "../libs/Regex.h"
 #endif
 
 #ifndef _CIRCULAR_LINEAR_LINKED_LIST_H
@@ -16,6 +16,8 @@
 #define INTEGER_LITERAL_TOKEN 5
 #define WHITESPACE_TOKEN 6
 
+#define PATTERNS_NUM 7
+
 typedef unsigned short TokenType;
 
 typedef struct
@@ -26,7 +28,7 @@ typedef struct
 
 typedef struct
 {
-    StateMachine *nfa;
+    StateMachine *nfas[PATTERNS_NUM];
 } Lexer;
 
 void InitLexer(Lexer *lexer);

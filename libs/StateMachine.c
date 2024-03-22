@@ -18,7 +18,7 @@ State *AddState(StateMachine *statemachine)
         InsertLastCircularLinearLinkedList(&statemachine->statesManager) :
         InsertEndCircularLinearLinkedList(&statemachine->statesManager);
 
-    newState->info = NON_ACCEPTING;
+    newState->isAccepting = FALSE;
     newState->visited = FALSE;
     
     statemachine->statesManager->info = newState;
@@ -37,6 +37,16 @@ void AddTransition(StateMachine *statemachine, State *source, State *dest, char 
     transition->dest = dest;
     transition->symbol = symbol;
     source->transitionsManager->info = transition;
+}
+
+void SetAccepting(State *state)
+{
+    state->isAccepting = TRUE;
+}
+
+BOOL IsAccepting(State *state)
+{
+    return (state->isAccepting == TRUE);
 }
 
 void SetVisited(State *state, BOOL isVisited)

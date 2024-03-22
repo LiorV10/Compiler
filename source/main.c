@@ -1,6 +1,6 @@
 // main.c
 
-#include "Lexer.c"
+#include "Lexer.h"
 #include "Parser.h"
 #include "Viewer.h"
 
@@ -18,7 +18,6 @@ void PrintMatch(Match *match)
     printf("\t");
 }
 
-/* FOR TESTING ONLY */
 char* TypeStr(TokenType type)
 {
     switch(type)
@@ -34,15 +33,13 @@ char* TypeStr(TokenType type)
         case FLOAT_LITERAL_TOKEN:
             return "Float literal";
         case INTEGER_LITERAL_TOKEN:
-            return "Int literal";
-        default:
-            return "Testing";
+            return "Int literal"; 
     }
 }
 
 CircularLinearLinkedListNode* TokenizeSource(Stream *sourceStream)
 {
-    Lexer lexer;              
+    Lexer lexer;
     CircularLinearLinkedListNode *tokens;
     CircularLinearLinkedListNode *current;
 
@@ -79,14 +76,11 @@ void FreeAllTokens(CircularLinearLinkedListNode **tokens)
 }
 
 void main(unsigned short argumentsCount, char* arguments[])
-{    
+{
     Stream sourceStream;
     CircularLinearLinkedListNode *tokens;
     
     argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
-
-    struct timeval stop, st;
-    gettimeofday(&st, NULL);
 
     InitStream(&sourceStream, arguments[ONE]);
     tokens = TokenizeSource(&sourceStream);
@@ -110,8 +104,4 @@ void main(unsigned short argumentsCount, char* arguments[])
     /* TESTING */
 
     FreeAllTokens(&tokens);
-
-    gettimeofday(&stop, NULL);
-    printf("took %lu us\n", (stop.tv_sec - st.tv_sec) * 1000000 + stop.tv_usec - st.tv_usec); 
-    printf("took %lu s\n", stop.tv_sec - st.tv_sec);
 }

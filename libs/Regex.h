@@ -26,6 +26,6 @@ typedef struct
     char *end;
 } Match;
 
-StateMachine *RegexToNFA(char *pattern, void *finalStateInfo);
-void* ExecuteRegex(StateMachine *nfa, char *input, Match **match);
+StateMachine *RegexToNFA(char *pattern);
+Match* ExecuteRegex(StateMachine *nfa, char *input);
 void FreeMatch(Match *match);

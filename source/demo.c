@@ -1,11 +1,11 @@
-void PrintMatch(Match *match)
+#include <stdio.h>
+
+void main(void)
 {
-    char *ptr = match->start;
+    int a = 5;
+    int *p = &a;
 
-    for (; ptr < match->end; ptr++)
-    {
-        printf("%c", *ptr);
-    }
-
-    printf("\t");
+    puts("output: ");
+    printf("%d", *p);
+    puts("");
 }

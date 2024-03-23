@@ -1,7 +1,7 @@
 // Lexer.h
 
 #ifndef _REGEX_H
-    #include "../libs/Regex.h"
+    #include "../libs/Regex.c"
 #endif
 
 #ifndef _CIRCULAR_LINEAR_LINKED_LIST_H

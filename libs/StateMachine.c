@@ -9,24 +9,27 @@ void InitStateMachine(StateMachine *stateMachine)
     InitCircularLinearLinkedList(&stateMachine->statesManager);
 }
 
-State *AddState(StateMachine *statemachine)
+State *AddState(StateMachine *stateMachine)
 {
     State *newState = malloc(sizeof(State));
-    InitCircularLinearLinkedList(&newState->transitionsManager);
 
-    !statemachine->statesManager ? 
-        InsertLastCircularLinearLinkedList(&statemachine->statesManager) :
-        InsertEndCircularLinearLinkedList(&statemachine->statesManager);
+    InitCircularLinearLinkedList(&newState->transitionsManager);
+    InitCircularLinearLinkedList(&newState->epsilonClosure);
+    InsertLastCircularLinearLinkedList(&newState->epsilonClosure);
+
+    !stateMachine->statesManager ? 
+        InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
+        InsertEndCircularLinearLinkedList(&stateMachine->statesManager);
 
     newState->isAccepting = FALSE;
     newState->visited = FALSE;
     
-    statemachine->statesManager->info = newState;
+    newState->epsilonClosure->info = stateMachine->statesManager->info = newState;
 
     return (newState);
 }
 
-void AddTransition(StateMachine *statemachine, State *source, State *dest, char symbol)
+void AddTransition(StateMachine *stateMachine, State *source, State *dest, char symbol)
 {
     Transition *transition = malloc(sizeof(Transition));
 
@@ -187,6 +190,7 @@ void EmptyTransitions(CircularLinearLinkedListNode **transitions)
 void EmptyState(State *state)
 {
     state->transitionsManager ? EmptyTransitions(&state->transitionsManager) : ZERO;
+    EmptyCircularLinearLinkedList(&state->epsilonClosure);
     free(state);
 }
 

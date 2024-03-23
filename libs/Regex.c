@@ -4,6 +4,9 @@
     #include "Regex.h"
 #endif
 
+BOOL EpsilonClosure(CircularLinearLinkedListNode **states);
+State *FindAcceptingState(CircularLinearLinkedListNode *currentStates);
+
 StateMachine *RegexToNFARec(char *pattern)
 {
     Stack stack;
@@ -48,8 +51,18 @@ StateMachine *RegexToNFARec(char *pattern)
 StateMachine *RegexToNFA(char *pattern)
 {
     StateMachine *nfa = RegexToNFARec(pattern);
+    CircularLinearLinkedListNode *ptr = nfa->statesManager;
     SetAccepting(FinalState(nfa));
 
+    do
+    {
+        SetAllVisited(nfa, FALSE);
+        EpsilonClosure(&((State*)ptr->info)->epsilonClosure);
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != nfa->statesManager);
+    
     return (nfa);
 }
 
@@ -63,11 +76,6 @@ void InsertState(CircularLinearLinkedListNode **states, State *state)
     state->visited = TRUE;
 }
 
-BOOL IsPossibleTransition(Transition *transition, char symbol)
-{
-    return (transition->symbol == symbol || transition->symbol == ANY_SYMBOL);
-}
-
 void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
                            CircularLinearLinkedListNode **nextStates,
                            char symbol)
@@ -79,7 +87,7 @@ void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
     {
         currentTransition = ptr->info;
 
-        !currentTransition->dest->visited && currentTransition->symbol == symbol ?//IsPossibleTransition(currentTransition, symbol) ?
+        !currentTransition->dest->visited && currentTransition->symbol == symbol ?
             InsertState(nextStates, currentTransition->dest) : 
             ZERO;
 
@@ -117,19 +125,41 @@ void MakeAllTransitions(CircularLinearLinkedListNode *currentStates,
     !*nextStates ? MakeSymbolTransitions(currentStates, nextStates, ANY_SYMBOL) : ZERO;
 }
 
+CircularLinearLinkedListNode* Clone(CircularLinearLinkedListNode *list)
+{
+    CircularLinearLinkedListNode *clone = NULL;
+    CircularLinearLinkedListNode *p = list->nextNode;
+
+    InsertLastCircularLinearLinkedList(&clone);
+    clone->info = p->info;
+
+    p = p->nextNode;
+
+    while (p != list->nextNode)
+    {
+        InsertEndCircularLinearLinkedList(&clone);
+        clone->info = p->info;
+        p = p->nextNode;
+    }
+
+    return clone;
+}
+
 BOOL EpsilonClosure(CircularLinearLinkedListNode **states)
 {
     CircularLinearLinkedListNode *epsilonStates;
+    CircularLinearLinkedListNode *ptr;
 
     InitCircularLinearLinkedList(&epsilonStates);
-    MakeAllTransitions(*states, &epsilonStates, EPSILON_TRANSITION);
+    MakeSymbolTransitions(*states, &epsilonStates, EPSILON_TRANSITION);
 
     while (epsilonStates)
     {
-        ConcatCircularLinearLinkedLists(states, epsilonStates);
+        ConcatCircularLinearLinkedLists(states, Clone(ptr = epsilonStates));
         epsilonStates = NULL;
-        MakeAllTransitions(*states, &epsilonStates, EPSILON_TRANSITION);
-    } 
+        MakeSymbolTransitions(ptr, &epsilonStates, EPSILON_TRANSITION);
+        EmptyCircularLinearLinkedList(&ptr);
+    }
 }
 
 State *FindAcceptingState(CircularLinearLinkedListNode *currentStates)
@@ -141,7 +171,8 @@ State *FindAcceptingState(CircularLinearLinkedListNode *currentStates)
     {
         ((State *)ptr->info)->isAccepting ? acceptingState = ptr->info : ZERO;
         ptr = ptr->nextNode;
-    } while (ptr != currentStates->nextNode);
+    } 
+    while (ptr != currentStates->nextNode);
 
     return (acceptingState);
 }
@@ -169,8 +200,20 @@ void SetNextStates(StateMachine *nfa,
                    char symbol)
 {
     EmptyCircularLinearLinkedList(currentStates);
-    SetAllVisited(nfa, FALSE);
-    EpsilonClosure(nextStates);
+
+    CircularLinearLinkedListNode *p = *nextStates;
+    CircularLinearLinkedListNode *l = Clone(((State*)p->info)->epsilonClosure);
+
+    do
+    {
+        ConcatCircularLinearLinkedLists(&l, Clone(((State*)p->info)->epsilonClosure));
+
+        p = p->nextNode;
+    }
+    while (p != *nextStates);
+
+    EmptyCircularLinearLinkedList(nextStates);
+    *nextStates = l;
 
     *currentStates = *nextStates;
     *nextStates = NULL;
@@ -206,6 +249,7 @@ Match* ExecuteRegex(StateMachine *nfa, char *input)
     match = FindAcceptingState(currentStates) ? MakeMatch(inputStart, input) : NULL;
 
     SetAllVisited(nfa, FALSE);
+
     EmptyCircularLinearLinkedList(&currentStates);
     nextStates ? EmptyCircularLinearLinkedList(&nextStates) : ZERO;
 

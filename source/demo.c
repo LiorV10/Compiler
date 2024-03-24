@@ -2,8 +2,11 @@
 
 void main(void)
 {
-    int a = 5;
-    int *p = &a;
+    int b = 4;
+    int *p = &b;
+    int a = 5 + 3 * *p;
+    
+    p = &a;
 
     puts("output: ");
     printf("%d", *p);

@@ -18,7 +18,6 @@ typedef struct
     BOOL isAccepting;
     BOOL visited;
     CircularLinearLinkedListNode *transitionsManager;
-    CircularLinearLinkedListNode *epsilonClosure;
 } State;
 
 typedef struct
@@ -35,10 +34,6 @@ typedef struct
 void InitStateMachine(StateMachine *stateMachine);
 State *AddState(StateMachine *stateMachine);
 void AddTransition(StateMachine *stateMachine, State *source, State *dest, char symbol);
-void SetAccepting(State *state);
-BOOL IsAccepting(State *state);
-void SetVisited(State *state, BOOL isVisited);
-BOOL IsVisited(State *state);
 State *FinalState(StateMachine *stateMachine);
 State *InitialState(StateMachine *stateMachine);
 void SetAllVisited(StateMachine *stateMachine, BOOL visited);
@@ -49,4 +44,8 @@ StateMachine *Union(StateMachine *first, StateMachine *second);
 StateMachine *OneOrMore(StateMachine *previous);
 StateMachine *Star(StateMachine *previous);
 StateMachine *Alternate(StateMachine *previous);
+void SelectNextStates(StateMachine *nfa,
+                   CircularLinearLinkedListNode **currentStates, 
+                   CircularLinearLinkedListNode **nextStates,
+                   char symbol);
 void EmptyStateMachine(StateMachine *stateMachine);

@@ -44,12 +44,13 @@ Token* CreateToken(Match *info, TokenType type)
     return (token);
 }
 
+static TokenType type = STRING_LITERAL_TOKEN;
+
 Token* NextToken(char **source, StateMachine *nfas[PATTERNS_NUM])
 {
     Match *currentMatch;
-    TokenType type = ZERO;
     Token *token = NULL;
-
+    type = ZERO;
     while (!(currentMatch = ExecuteRegex(nfas[type++], *source)));
 
     *source += (currentMatch->end - currentMatch->start);
@@ -71,7 +72,7 @@ void InitNFAs(StateMachine *nfas[PATTERNS_NUM])
         "wh\002i\002l\002e\002fo\002r\002vo\002i\002d\002ch\002a\002r\002un\002\007s\002i\002g\002n\002e\002d\002in\002t\002fl\002o\002a\002t\002sh\002o\002r\002t\002\010\010\010\010\010\010\010 *(){}\n\r\t\010\010\010\010\010\010\010\010\002",                    
         "_\003\010_\003\010\004\010\005\002",
         ",;=.-+/*&(){}[]<>#\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010",                                                
-        "\004\006.\002\004\006\002",   
+        "\004\006.\002\004\006\002",  
         "\004\006",                                   
        " \n\r\t\010\010\010\006"                                            
     };

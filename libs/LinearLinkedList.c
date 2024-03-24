@@ -139,3 +139,11 @@ void DeleteAfterLinearLinkedList(LinearLinkedListNode *node)
     node->nextNode = temp->nextNode;
     free(temp);
 }
+
+void EmptyLinearLinkedList(LinearLinkedListNode **manager)
+{
+    while (*manager)
+    {
+        PopLinearLinkedList(manager);
+    }
+}

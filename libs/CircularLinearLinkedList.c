@@ -80,7 +80,7 @@ void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager)
 {
     CircularLinearLinkedListNode *ptr = *manager;
 
-    while (ptr->nextNode != *manager)
+    while (ptr && ptr->nextNode != *manager)
     {
         DeleteAfterCircularLinearLinkedList(ptr);
     }

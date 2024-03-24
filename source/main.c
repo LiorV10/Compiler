@@ -107,11 +107,11 @@ void main(unsigned short argumentsCount, char* arguments[])
     }
     while (ptr != tokens->nextNode);
 
-    /* TESTING */
-
-    FreeAllTokens(&tokens);
-
     gettimeofday(&stop, NULL);
     printf("took %lu us\n", (stop.tv_sec - st.tv_sec) * 1000000 + stop.tv_usec - st.tv_usec);
     printf("took %lu s\n", stop.tv_sec - st.tv_sec);
+
+    /* TESTING */
+
+    FreeAllTokens(&tokens);
 }

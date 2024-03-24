@@ -14,8 +14,6 @@ State *AddState(StateMachine *stateMachine)
     State *newState = malloc(sizeof(State));
 
     InitCircularLinearLinkedList(&newState->transitionsManager);
-    InitCircularLinearLinkedList(&newState->epsilonClosure);
-    InsertLastCircularLinearLinkedList(&newState->epsilonClosure);
 
     !stateMachine->statesManager ? 
         InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
@@ -24,7 +22,7 @@ State *AddState(StateMachine *stateMachine)
     newState->isAccepting = FALSE;
     newState->visited = FALSE;
     
-    newState->epsilonClosure->info = stateMachine->statesManager->info = newState;
+    stateMachine->statesManager->info = newState;
 
     return (newState);
 }
@@ -40,26 +38,6 @@ void AddTransition(StateMachine *stateMachine, State *source, State *dest, char 
     transition->dest = dest;
     transition->symbol = symbol;
     source->transitionsManager->info = transition;
-}
-
-void SetAccepting(State *state)
-{
-    state->isAccepting = TRUE;
-}
-
-BOOL IsAccepting(State *state)
-{
-    return (state->isAccepting == TRUE);
-}
-
-void SetVisited(State *state, BOOL isVisited)
-{
-    state->visited = isVisited;
-}
-
-BOOL IsVisited(State *state)
-{
-    return (state->visited == TRUE);
 }
 
 State *FinalState(StateMachine *stateMachine)
@@ -78,7 +56,7 @@ void SetAllVisited(StateMachine *stateMachine, BOOL visited)
 
     do
     {
-        SetVisited(states->info, visited);
+        ((State*)states->info)->visited = visited;
         states = states->nextNode;
     } 
     while (states != stateMachine->statesManager);
@@ -173,6 +151,97 @@ StateMachine *Alternate(StateMachine *stateMachine)
     return (newStart);
 }
 
+void InsertState(CircularLinearLinkedListNode **states, State *state)
+{
+    *states ? 
+        InsertEndCircularLinearLinkedList(states) : 
+        InsertLastCircularLinearLinkedList(states);
+
+    state->visited = TRUE;
+    (*states)->info = state;
+}
+
+void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
+                           CircularLinearLinkedListNode **nextStates,
+                           char symbol)
+{
+    Transition *currentTransition;
+    CircularLinearLinkedListNode *ptr = transitions->nextNode;
+
+    do
+    {
+        currentTransition = ptr->info;
+
+        !currentTransition->dest->visited && currentTransition->symbol == symbol ?
+            InsertState(nextStates, currentTransition->dest) : 
+            ZERO;
+
+        ptr = ptr->nextNode;
+    } 
+    while (ptr != transitions->nextNode);
+}
+
+void MakeSymbolTransitions(CircularLinearLinkedListNode *currentStates,
+                           CircularLinearLinkedListNode *startPtr,
+                           CircularLinearLinkedListNode **nextStates,
+                           char symbol)
+{
+    Transition *currentTransition;
+    CircularLinearLinkedListNode *currentStatesPtr = startPtr;
+    CircularLinearLinkedListNode *transitions;
+
+    do
+    {
+        transitions = ((State *)currentStatesPtr->info)->transitionsManager;
+
+        transitions ? 
+            SelectNextTransitions(transitions, nextStates, symbol) :
+            ZERO;
+
+        currentStatesPtr = currentStatesPtr->nextNode;
+    } 
+    while (currentStatesPtr != currentStates->nextNode);
+}
+
+void MakeAllTransitions(CircularLinearLinkedListNode *currentStates,
+                        CircularLinearLinkedListNode **nextStates,
+                        char symbol)
+{
+    MakeSymbolTransitions(currentStates, currentStates->nextNode, nextStates, symbol);
+    !*nextStates ? MakeSymbolTransitions(currentStates, currentStates->nextNode, nextStates, ANY_SYMBOL) : ZERO;
+}
+
+void EpsilonClosure(CircularLinearLinkedListNode **states)
+{
+    CircularLinearLinkedListNode *epsilonStates;
+    CircularLinearLinkedListNode *previousEpsilonStates;
+
+    InitCircularLinearLinkedList(&epsilonStates);
+    MakeSymbolTransitions(*states, (*states)->nextNode, &epsilonStates, EPSILON_TRANSITION);
+
+    while (epsilonStates)
+    {
+        previousEpsilonStates = epsilonStates->nextNode;
+        ConcatCircularLinearLinkedLists(states, epsilonStates);
+        epsilonStates = NULL;
+        MakeSymbolTransitions(*states, previousEpsilonStates, &epsilonStates, EPSILON_TRANSITION);
+    }
+}
+
+void SelectNextStates(StateMachine *nfa,
+                   CircularLinearLinkedListNode **currentStates, 
+                   CircularLinearLinkedListNode **nextStates,
+                   char symbol)
+{
+    EmptyCircularLinearLinkedList(currentStates);
+    EpsilonClosure(nextStates);
+
+    SWAP(*nextStates, *currentStates, CircularLinearLinkedListNode*);
+
+    SetAllVisited(nfa, FALSE);
+    MakeAllTransitions(*currentStates, nextStates, symbol);
+}
+
 void EmptyTransitions(CircularLinearLinkedListNode **transitions)
 {
     CircularLinearLinkedListNode *ptr = *transitions;
@@ -190,7 +259,6 @@ void EmptyTransitions(CircularLinearLinkedListNode **transitions)
 void EmptyState(State *state)
 {
     state->transitionsManager ? EmptyTransitions(&state->transitionsManager) : ZERO;
-    EmptyCircularLinearLinkedList(&state->epsilonClosure);
     free(state);
 }
 

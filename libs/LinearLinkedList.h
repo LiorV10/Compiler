@@ -24,11 +24,4 @@ void PushLinearLinkedList(LinearLinkedListNode **manager);
 void AddAfterLinearLinkedList(LinearLinkedListNode *node);
 void PopLinearLinkedList(LinearLinkedListNode **manager);
 void DeleteAfterLinearLinkedList(LinearLinkedListNode *node);
-void ReverseLinearLinkedList(LinearLinkedListNode **manager);
-void ClearLinearLinkedList(LinearLinkedListNode **manager);
-LinearLinkedListNode* BeforeMinInLinearLinkedList(LinearLinkedListNode *manager, 
-                                            BOOL (*Compare)(void*, void*));
-void AddToSortedLinearLinkedList(LinearLinkedListNode **manager, 
-    LINEAR_LINKED_LIST_NODE_TYPE info, BOOL (*Compare)(void*, void*));
-LinearLinkedListNode* FindNaturalPlaceLinearLinkedList(LinearLinkedListNode *manager, 
-    LINEAR_LINKED_LIST_NODE_TYPE info, BOOL (*Compare)(void*, void*));
+void EmptyLinearLinkedList(LinearLinkedListNode **manager);

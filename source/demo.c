@@ -1,10 +1,9 @@
-#include <stdio.h>
-
 void main(void)
 {
+    int intv;
     int b = 4;
     int *p = &b;
-    int a = 5 + 3 * *p;
+    int a = 15 + 3 * *p;
     
     p = &a;
 

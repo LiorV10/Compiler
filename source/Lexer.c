@@ -1,7 +1,7 @@
 // Lexer.c
 
 #include "Lexer.h"
-
+/*
 void PrintList(CircularLinearLinkedListNode *lst)
 {
     if (!lst)
@@ -27,75 +27,99 @@ void PrintStateMachine(StateMachine *stateMachine)
 
     do
     {
-        printf("[%d][%d][%p]:", ((State *)ptr->info)->isAccepting, ((State *)ptr->info)->visited, ((State *)ptr->info));
+        printf("[%d][%d][%p]:", ((State *)ptr->info)->info, ((State *)ptr->info)->visited, ((State *)ptr->info));
         PrintList(((State *)ptr->info)->transitionsManager);
         ptr = ptr->nextNode;
     } while (ptr != stateMachine->statesManager->nextNode);
 
     puts("");
 }
+*/
 
-Token* CreateToken(Match *info, TokenType type)
+Token* CreateToken(struct Match *info, TokenType type)
 {
     Token *token = malloc(sizeof(Token));
     
-    *token = (Token){.info = info, .type = type};
-    
+    *token = (Token){.lexeme = info->start, .type = type};
+
     return (token);
 }
 
-static TokenType type = STRING_LITERAL_TOKEN;
-
-Token* NextToken(char **source, StateMachine *nfas[PATTERNS_NUM])
+Token* NextToken(char **source, StateMachine *nfa)
 {
-    Match *currentMatch;
+    struct Match *currentMatch;
+    TokenType type;
     Token *token = NULL;
-    type = ZERO;
-    while (!(currentMatch = ExecuteRegex(nfas[type++], *source)));
+
+    currentMatch = ExecuteRegex(nfa, *source);
+    type = currentMatch->matchType;
 
     *source += (currentMatch->end - currentMatch->start);
 
-    --type != WHITESPACE_TOKEN ? 
+    type != WHITESPACE ? 
         token = CreateToken(currentMatch, type) : 
-        FreeMatch(currentMatch);
+        free(currentMatch->start);
+
+    free(currentMatch);
 
     return (token);
-}
-
-void InitNFAs(StateMachine *nfas[PATTERNS_NUM])
-{
-    unsigned short offset;
-
-    char *patterns[PATTERNS_NUM] = 
-    {
-        "\"\001\005\002\"\002",         
-        "wh\002i\002l\002e\002fo\002r\002vo\002i\002d\002ch\002a\002r\002un\002\007s\002i\002g\002n\002e\002d\002in\002t\002fl\002o\002a\002t\002sh\002o\002r\002t\002\010\010\010\010\010\010\010 *(){}\n\r\t\010\010\010\010\010\010\010\010\002",                    
-        "_\003\010_\003\010\004\010\005\002",
-        ",;=.-+/*&(){}[]<>#\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010",                                                
-        "\004\006.\002\004\006\002",  
-        "\004\006",                                   
-       " \n\r\t\010\010\010\006"                                            
-    };
-
-    for (offset = ZERO; offset < PATTERNS_NUM; offset++)
-    {
-        nfas[offset] = RegexToNFA(patterns[offset]);
-    }
 }
 
 void InitLexer(Lexer *lexer)
 {
-    InitNFAs(lexer->nfas);
+    TokenType tokenType;
+    unsigned short patternsSize;
+    char *patterns[] = 
+    {
+        "\"\001\005\002\"\002",
+        "_\003\010_\003\010\004\010\005\002",
+        "vo\002i\002d\002",
+        "ma\002i\002n\002",
+        "in\002t\002",
+        "fl\002o\002a\002t\002",
+        "lo\002n\002g\002",
+        "do\002u\002b\002l\002e\002",
+        "sh\002o\002r\002t\002",
+        "ch\002a\002r\002",
+        "un\002s\002i\002g\002n\002e\002d\002",
+        "fo\002r\002",
+        "if\002",
+        "el\002s\002e\002",
+        "wh\002i\002l\002e\002",
+        "+",
+        "-",
+        ">",
+        "<",
+        "=",
+        "*",
+        "/",
+        "%",
+        ",",
+        ";",
+        "{",
+        "}",
+        "(",
+        ")",
+        "&",
+        //"wh\002i\002l\002e\002fo\002r\002vo\002i\002d\002ch\002a\002r\002un\002\007s\002i\002g\002n\002e\002d\002in\002t\002fl\002o\002a\002t\002sh\002o\002r\002t\002\010\010\010\010\010\010\010",             
+        //",;=.-+/*&(){}[]<>#\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010",                                                
+        "\004\006.\002\004\006\002",  
+        "\004\006",
+       " \n\r\t\010\010\010\006"                                            
+    };
+
+    patternsSize = sizeof(patterns)/sizeof(char*);
+    lexer->nfa = RegexToNFA(*patterns, ZERO);
+
+    for (tokenType = ONE; tokenType < patternsSize; tokenType++)
+    {
+        lexer->nfa = Union(lexer->nfa, RegexToNFA(patterns[tokenType], tokenType));
+    }
 }
 
 void FreeLexer(Lexer *lexer)
 {
-    unsigned short offset;
-
-    for (offset = ZERO; offset < PATTERNS_NUM; offset++)
-    {
-        EmptyStateMachine(lexer->nfas[offset]);
-    }
+    EmptyStateMachine(lexer->nfa);
 }
 
 CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source)
@@ -110,7 +134,7 @@ CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source)
             InsertEndCircularLinearLinkedList(&tokens) : 
             InsertLastCircularLinearLinkedList(&tokens);
 
-        while(*source && !(tokens->info = NextToken(&source, lexer->nfas)));
+        while(*source && !(tokens->info = NextToken(&source, lexer->nfa)));
     }
 
     if (!tokens->info)

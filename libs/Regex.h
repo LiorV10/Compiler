@@ -20,12 +20,12 @@
 #define LETTERS_PATTERN "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010"
 #define DIGIT_PATTERN "0123456789\010\010\010\010\010\010\010\010\010"
 
-typedef struct
+struct Match
 {
     char *start;
     char *end;
-} Match;
+    unsigned short matchType;
+};
 
-StateMachine *RegexToNFA(char *pattern);
-Match* ExecuteRegex(StateMachine *nfa, char *input);
-void FreeMatch(Match *match);
+StateMachine *RegexToNFA(char *pattern, unsigned short matchType);
+struct Match* ExecuteRegex(StateMachine *nfa, char *input);

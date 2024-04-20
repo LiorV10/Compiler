@@ -15,7 +15,8 @@
 
 typedef struct
 {
-    BOOL isAccepting;
+    int flag;
+    unsigned short info;
     BOOL visited;
     CircularLinearLinkedListNode *transitionsManager;
 } State;
@@ -48,4 +49,8 @@ void SelectNextStates(StateMachine *nfa,
                    CircularLinearLinkedListNode **currentStates, 
                    CircularLinearLinkedListNode **nextStates,
                    char symbol);
+void MakeSymbolTransitions(CircularLinearLinkedListNode *currentStates,
+                           CircularLinearLinkedListNode *startPtr,
+                           CircularLinearLinkedListNode **nextStates,
+                           char symbol);
 void EmptyStateMachine(StateMachine *stateMachine);

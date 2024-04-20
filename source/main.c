@@ -1,14 +1,25 @@
 // main.c
 
-#include "Lexer.c"
-#include "Parser.h"
+#include "Lexer.h"
+#include "Parser.c"
 #include "Viewer.h"
 
-/* FOR TESTING */
+#pragma region TESTING
 #include <sys/time.h>
 
-/* FOR TESTING */
-void PrintMatch(Match *match)
+
+#define TO_STR(x) [x] = #x
+
+const char* typeStr[] = {
+              TO_STR(STRING_LITERAL), TO_STR(IDENTIFIER), TO_STR(VOID), TO_STR(MAIN), TO_STR(INT), 
+              TO_STR(FLOAT), TO_STR(LONG), TO_STR(DOUBLE), TO_STR(SHORT), TO_STR(CHAR), TO_STR(UNSIGNED), TO_STR(FOR), 
+              TO_STR(IF), TO_STR(ELSE), TO_STR(WHILE), TO_STR(PLUS), TO_STR(MINUS), TO_STR(GT), TO_STR(LT), TO_STR(EQ), 
+              TO_STR(STAR), TO_STR(SLASH), TO_STR(MOD), TO_STR(COMMA), TO_STR(SEMI_COLON), TO_STR(LEFT_CURLY), 
+              TO_STR(RIGHT_CURLY), TO_STR(LEFT_PAREN), TO_STR(RIGHT_PAREN), TO_STR(AMPERSAND), TO_STR(FLOAT_LITERAL), 
+              TO_STR(INTEGER_LITERAL), TO_STR(WHITESPACE)
+            };
+
+void PrintMatch(struct Match *match)
 {
     char *ptr = match->start;
 
@@ -20,27 +31,10 @@ void PrintMatch(Match *match)
     printf("\t");
 }
 
-/* FOR TESTING */
-char* TypeStr(TokenType type)
-{
-    switch(type)
-    {
-        case STRING_LITERAL_TOKEN:
-            return "String literal";
-        case KEYOWRD_TOKEN:
-            return "Keyword";
-        case IDENTIFIER_TOKEN:
-            return "Identifier";
-        case OPERATOR_LITERAL_TOKEN:
-            return "Operator";
-        case FLOAT_LITERAL_TOKEN:
-            return "Float literal";
-        case INTEGER_LITERAL_TOKEN:
-            return "Int literal";
-    }
-}
+struct timeval stop, start;
+#pragma endregion
 
-CircularLinearLinkedListNode* TokenizeSource(Stream *sourceStream)
+CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream)
 {
     Lexer lexer;
     CircularLinearLinkedListNode *tokens;
@@ -68,7 +62,7 @@ void FreeAllTokens(CircularLinearLinkedListNode **tokens)
 
     do
     {
-        FreeMatch(((Token*)ptr->info)->info);
+        free(((Token*)ptr->info)->lexeme);
         free(ptr->info);
 
         ptr = ptr->nextNode;
@@ -80,36 +74,42 @@ void FreeAllTokens(CircularLinearLinkedListNode **tokens)
 
 void main(unsigned short argumentsCount, char* arguments[])
 {
+    Parser parser;
+
+    InitParser(&parser, typeStr);
+    BuildLRStates(parser.grammar);
+}
+
+void _main(unsigned short argumentsCount, char* arguments[])
+{
     Stream sourceStream;
     CircularLinearLinkedListNode *tokens;
 
-    struct timeval stop, st;
-    gettimeofday(&st, NULL);
+    gettimeofday(&start, NULL);
 
     argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
 
     InitStream(&sourceStream, arguments[ONE]);
-    tokens = TokenizeSource(&sourceStream);
+    tokens = TokenizeStream(&sourceStream);
     CloseStream(&sourceStream);
 
     /* TESTING */
-
+    
     CircularLinearLinkedListNode *ptr = tokens->nextNode;
     Token *token;
 
     do
     {
         token = ptr->info;
-        PrintMatch(token->info);
-        printf("\t->\t%s\n", TypeStr(token->type));
+        printf("%s\t->\t%s\n", token->lexeme, typeStr[token->type]);
 
         ptr = ptr->nextNode;
     }
     while (ptr != tokens->nextNode);
 
     gettimeofday(&stop, NULL);
-    printf("took %lu us\n", (stop.tv_sec - st.tv_sec) * 1000000 + stop.tv_usec - st.tv_usec);
-    printf("took %lu s\n", stop.tv_sec - st.tv_sec);
+    printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+    printf("took %lu s\n", stop.tv_sec - start.tv_sec);
 
     /* TESTING */
 

@@ -19,7 +19,7 @@ State *AddState(StateMachine *stateMachine)
         InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
         InsertEndCircularLinearLinkedList(&stateMachine->statesManager);
 
-    newState->isAccepting = FALSE;
+    newState->info = ZERO;
     newState->visited = FALSE;
     
     stateMachine->statesManager->info = newState;

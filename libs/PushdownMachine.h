@@ -14,16 +14,22 @@
     #include "Stack.h"
 #endif
 
+#ifndef _GRAMMAR_H
+    #include "Grammar.h"
+#endif
+
+#define SYMBOL_TYPE ExpressionValue
+
 typedef struct
 {
-    BOOL isAccepting;
+    BOOL isAccepting : TWO;
     CircularLinearLinkedListNode *lrItems;
     CircularLinearLinkedListNode *transitionsManager;
 } PushdownState;
 
 typedef struct
 {
-    void *symbol;
+    SYMBOL_TYPE symbol;
     PushdownState *dest;
 } PushdownTransition;
 
@@ -34,3 +40,8 @@ typedef struct
 } PushdownMachine;
 
 void InitPushdownMachine(PushdownMachine *pushdownMachine);
+PushdownState *AddPushdownState(PushdownMachine *stateMachine);
+void AddPushdownTransition(PushdownMachine *stateMachine, PushdownState *source, PushdownState *dest, SYMBOL_TYPE symbol);
+PushdownState *FinalPushdownState(PushdownMachine *stateMachine);
+PushdownState *InitialPushdownState(PushdownMachine *stateMachine);
+void EmptyPushdownMachine(PushdownMachine *stateMachine);

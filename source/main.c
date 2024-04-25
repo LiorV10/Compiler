@@ -7,7 +7,6 @@
 #pragma region TESTING
 #include <sys/time.h>
 
-
 #define TO_STR(x) [x] = #x
 
 const char* typeStr[] = {
@@ -50,6 +49,11 @@ CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream)
         current ? ConcatCircularLinearLinkedLists(&tokens, current) : ZERO;
     }
 
+    InsertEndCircularLinearLinkedList(&tokens);
+    tokens->info = malloc(sizeof(Token));
+    ((Token*)tokens->info)->type = EOD;
+    ((Token*)tokens->info)->lexeme = NULL; // just for printing
+
     FreeLexer(&lexer);
     ResetStream(sourceStream);
 
@@ -62,6 +66,7 @@ void FreeAllTokens(CircularLinearLinkedListNode **tokens)
 
     do
     {
+        if (((Token*)ptr->info)->lexeme)
         free(((Token*)ptr->info)->lexeme);
         free(ptr->info);
 
@@ -74,18 +79,8 @@ void FreeAllTokens(CircularLinearLinkedListNode **tokens)
 
 void main(unsigned short argumentsCount, char* arguments[])
 {
-    Parser parser;
-
-    InitParser(&parser, typeStr);
-    BuildLRStates(parser.grammar);
-}
-
-void _main(unsigned short argumentsCount, char* arguments[])
-{
     Stream sourceStream;
     CircularLinearLinkedListNode *tokens;
-
-    gettimeofday(&start, NULL);
 
     argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
 
@@ -101,11 +96,25 @@ void _main(unsigned short argumentsCount, char* arguments[])
     do
     {
         token = ptr->info;
+        if (token->lexeme)
         printf("%s\t->\t%s\n", token->lexeme, typeStr[token->type]);
 
         ptr = ptr->nextNode;
     }
     while (ptr != tokens->nextNode);
+
+    /*     PARSING      */
+
+    Parser parser;
+
+    InitParser(&parser, typeStr);
+    puts("\n");
+    gettimeofday(&start, NULL);
+
+    Parse(&parser, tokens);
+    FreeParser(&parser);
+
+    /*     PARSING      */
 
     gettimeofday(&stop, NULL);
     printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);

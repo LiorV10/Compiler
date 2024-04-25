@@ -4,10 +4,8 @@
 
 void InitStream(Stream *stream, char *path)
 {
-    FILE *fp = fopen(path, "rt");
-
-    !fp ? ExitWithError("Could not find the source file.") : ZERO;
-    stream->fp = fp;
+    stream->fp = fopen(path, "rt");
+    !stream->fp ? ExitWithError("Could not find the source file.") : ZERO;
 }
 
 char* NextLine(Stream *stream)

@@ -8,6 +8,10 @@
     #include "../libs/Grammar.h"
 #endif
 
+#ifndef _QUEUE_H
+    #include "../libs/Queue.h"
+#endif
+
 typedef struct
 {
     Grammar *grammar;
@@ -15,3 +19,4 @@ typedef struct
 } Parser;
 
 void InitParser(Parser *parser, const char **);
+void Parse(Parser *parser, CircularLinearLinkedListNode *tokens);

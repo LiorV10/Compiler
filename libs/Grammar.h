@@ -12,30 +12,34 @@
 
 typedef struct
 {
+    BOOL visited;
     char name;
     LinearLinkedListNode *rules;
 } NonTerminal;
 
+typedef union
+{
+    NonTerminal *nonTerminal;
+    TokenType terminal;
+} ExpressionValue;
+
 typedef struct
 {
+    BOOL visited;
     BOOL isTerminal;
-    union
-    {
-        NonTerminal *nonTerminal;
-        TokenType terminal;
-    } value;
+    ExpressionValue value;
     void *node;
 } Expression;
 
 typedef struct
 {
+    NonTerminal *nonTerminal;
     LinearLinkedListNode *expressions;
     void(*semanticAction)();
 } Rule;
 
 typedef struct
 {
-    NonTerminal *nonTerminal;
     Rule *rule;
     LinearLinkedListNode *dotPosition;
     TokenType lookahead;
@@ -45,3 +49,8 @@ typedef struct
 {
     LinearLinkedListNode *nonTerminals;
 } Grammar;
+
+NonTerminal* InitialNonTerminal(Grammar *grammar);
+BOOL CompareNonTerminals(ExpressionValue first, ExpressionValue second);
+BOOL CompareTerminals(ExpressionValue first, ExpressionValue second);
+void FreeGrammar(Grammar *grammar);

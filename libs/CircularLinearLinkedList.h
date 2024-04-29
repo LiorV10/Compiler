@@ -27,4 +27,4 @@ void DeleteLastCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
 void DeleteEndCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
 void ConcatCircularLinearLinkedLists(CircularLinearLinkedListNode **first,
                                      CircularLinearLinkedListNode *second);
-void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
+void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager, void(*Free)(void *));

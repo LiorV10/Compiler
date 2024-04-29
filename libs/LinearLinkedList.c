@@ -140,10 +140,15 @@ void DeleteAfterLinearLinkedList(LinearLinkedListNode *node)
     free(temp);
 }
 
-void EmptyLinearLinkedList(LinearLinkedListNode **manager)
+void LinearLinkedListEmptyFunction(void *_) {}
+
+void EmptyLinearLinkedList(LinearLinkedListNode **manager, void(*Free)(void *))
 {
+    Free = Free ? Free : LinearLinkedListEmptyFunction;
+
     while (*manager)
     {
+        Free((*manager)->info);
         PopLinearLinkedList(manager);
     }
 }

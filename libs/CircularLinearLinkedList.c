@@ -76,14 +76,21 @@ void ConcatCircularLinearLinkedLists(CircularLinearLinkedListNode **first,
     *first = second;
 }
 
-void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager)
+void CircularLinearLinkedListEmptyFunction(void *_) {}
+
+void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager, void(*Free)(void *))
 {
     CircularLinearLinkedListNode *ptr = *manager;
 
+    Free = Free ? Free : CircularLinearLinkedListEmptyFunction;
+
     while (ptr && ptr->nextNode != *manager)
     {
+        Free(ptr->nextNode->info);
         DeleteAfterCircularLinearLinkedList(ptr);
     }
+
+    ptr ? Free((*manager)->info) : ZERO;
 
     DeleteLastCircularLinearLinkedList(manager);
 }

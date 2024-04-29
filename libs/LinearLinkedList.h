@@ -24,4 +24,4 @@ void PushLinearLinkedList(LinearLinkedListNode **manager);
 void AddAfterLinearLinkedList(LinearLinkedListNode *node);
 void PopLinearLinkedList(LinearLinkedListNode **manager);
 void DeleteAfterLinearLinkedList(LinearLinkedListNode *node);
-void EmptyLinearLinkedList(LinearLinkedListNode **manager);
+void EmptyLinearLinkedList(LinearLinkedListNode **manager, void(*Free)(void *));

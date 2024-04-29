@@ -12,6 +12,10 @@
     #include "../libs/Queue.h"
 #endif
 
+#ifndef _DICTIONARY_H
+    #include "../libs/Dictionary.h"
+#endif
+
 typedef struct
 {
     Grammar *grammar;

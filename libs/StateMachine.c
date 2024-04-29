@@ -233,7 +233,7 @@ void SelectNextStates(StateMachine *nfa,
                    CircularLinearLinkedListNode **nextStates,
                    char symbol)
 {
-    EmptyCircularLinearLinkedList(currentStates);
+    EmptyCircularLinearLinkedList(currentStates, NULL);
     EpsilonClosure(nextStates);
 
     SWAP(*nextStates, *currentStates, CircularLinearLinkedListNode*);
@@ -242,37 +242,14 @@ void SelectNextStates(StateMachine *nfa,
     MakeAllTransitions(*currentStates, nextStates, symbol);
 }
 
-void EmptyTransitions(CircularLinearLinkedListNode **transitions)
-{
-    CircularLinearLinkedListNode *ptr = *transitions;
-
-    do
-    {
-        free(ptr->info);
-        ptr = ptr->nextNode;
-    }
-    while (ptr != *transitions);
-
-    EmptyCircularLinearLinkedList(transitions);
-}
-
 void EmptyState(State *state)
 {
-    state->transitionsManager ? EmptyTransitions(&state->transitionsManager) : ZERO;
+    state->transitionsManager ? EmptyCircularLinearLinkedList(&state->transitionsManager, free) : ZERO;
     free(state);
 }
 
 void EmptyStateMachine(StateMachine *stateMachine)
 {
-    CircularLinearLinkedListNode *ptr = stateMachine->statesManager;
-
-    do
-    {
-        EmptyState(ptr->info);
-        ptr = ptr->nextNode;
-    }   
-    while (ptr != stateMachine->statesManager);
-
-    EmptyCircularLinearLinkedList(&stateMachine->statesManager);
+    EmptyCircularLinearLinkedList(&stateMachine->statesManager, EmptyState);
     free(stateMachine);
 }

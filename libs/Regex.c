@@ -127,7 +127,7 @@ StateMachine *ENFAToNFA(StateMachine *enfa)
         }
         while (sc != closure->nextNode);
 
-        EmptyCircularLinearLinkedList(&closure);
+        EmptyCircularLinearLinkedList(&closure, NULL);
 
         sp = sp->nextNode;
     }
@@ -212,8 +212,8 @@ struct Match* ExecuteRegex(StateMachine *nfa, char *input)
 
     SetAllVisited(nfa, FALSE);
 
-    EmptyCircularLinearLinkedList(&currentStates);
-    nextStates ? EmptyCircularLinearLinkedList(&nextStates) : ZERO;
+    EmptyCircularLinearLinkedList(&currentStates, NULL);
+    nextStates ? EmptyCircularLinearLinkedList(&nextStates, NULL) : ZERO;
 
     return (match);
 }

@@ -2,6 +2,14 @@
 
 #include "Grammar.h"
 
+void InitGrammar(Grammar *grammar)
+{
+    InitLinearLinkedList(&grammar->nonTerminals);
+    InitLinearLinkedList(&grammar->expressions);
+
+    #include "../grammar/GrammarConstruction.c"
+}
+
 NonTerminal* InitialNonTerminal(Grammar *grammar)
 {
     return (grammar->nonTerminals->info);
@@ -17,55 +25,21 @@ BOOL CompareTerminals(ExpressionValue first, ExpressionValue second)
     return (first.terminal == second.terminal);
 }
 
-void FreeRule(Rule *rule, LinearLinkedListNode **uniqueExpressions)
+void FreeRule(Rule *rule)
 {
-    LinearLinkedListNode *ptr = rule->expressions;
-
-    for (; ptr; ptr = ptr->nextNode)
-    {
-        if (!((Expression*)ptr->info)->visited)
-        {
-            PushLinearLinkedList(uniqueExpressions);
-            (*uniqueExpressions)->info = ptr->info;
-            ((Expression*)ptr->info)->visited = TRUE;
-        }
-    }
-
-    EmptyLinearLinkedList(&rule->expressions);
+    EmptyLinearLinkedList(&rule->expressions, NULL);
     free(rule);
 }
 
-void FreeNonTerminal(NonTerminal *nonTerminal, LinearLinkedListNode **uniqueExpressions)
+void FreeNonTerminal(NonTerminal *nonTerminal)
 {
-    LinearLinkedListNode *ptr = nonTerminal->rules;
-
-    for (; ptr; ptr = ptr->nextNode)
-    {
-        FreeRule(ptr->info, uniqueExpressions);
-    }
-
-    EmptyLinearLinkedList(&nonTerminal->rules);
+    EmptyLinearLinkedList(&nonTerminal->rules, FreeRule);
     free(nonTerminal);
 }
 
 void FreeGrammar(Grammar *grammar)
 {
-    LinearLinkedListNode *ptr = grammar->nonTerminals;
-    LinearLinkedListNode *expressions;
-
-    InitLinearLinkedList(&expressions);
-
-    for (; ptr; ptr = ptr->nextNode)
-    {
-        FreeNonTerminal(ptr->info, &expressions);
-    }
-
-    for (ptr = expressions; ptr; ptr = ptr->nextNode)
-    {
-        free(ptr->info);
-    }
-
-    EmptyLinearLinkedList(&expressions);
-    EmptyLinearLinkedList(&grammar->nonTerminals);
+    EmptyLinearLinkedList(&grammar->nonTerminals, FreeNonTerminal);
+    EmptyLinearLinkedList(&grammar->expressions, free);
     free(grammar);
 }

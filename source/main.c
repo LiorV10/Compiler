@@ -11,11 +11,12 @@
 
 const char* typeStr[] = {
               TO_STR(STRING_LITERAL), TO_STR(IDENTIFIER), TO_STR(VOID), TO_STR(MAIN), TO_STR(INT), 
-              TO_STR(FLOAT), TO_STR(LONG), TO_STR(DOUBLE), TO_STR(SHORT), TO_STR(CHAR), TO_STR(UNSIGNED), TO_STR(FOR), 
-              TO_STR(IF), TO_STR(ELSE), TO_STR(WHILE), TO_STR(PLUS), TO_STR(MINUS), TO_STR(GT), TO_STR(LT), TO_STR(EQ), 
-              TO_STR(STAR), TO_STR(SLASH), TO_STR(MOD), TO_STR(COMMA), TO_STR(SEMI_COLON), TO_STR(LEFT_CURLY), 
-              TO_STR(RIGHT_CURLY), TO_STR(LEFT_PAREN), TO_STR(RIGHT_PAREN), TO_STR(AMPERSAND), TO_STR(FLOAT_LITERAL), 
-              TO_STR(INTEGER_LITERAL), TO_STR(WHITESPACE)
+              TO_STR(FLOAT), TO_STR(LONG), TO_STR(DOUBLE), TO_STR(SHORT), TO_STR(CHAR), TO_STR(UNSIGNED), TO_STR(STRUCT),
+              TO_STR(FOR), TO_STR(IF), TO_STR(ELSE), TO_STR(WHILE), TO_STR(RETURN), TO_STR(PLUS), TO_STR(MINUS), TO_STR(GT), 
+              TO_STR(LT), TO_STR(EQ), TO_STR(GE), TO_STR(LE), TO_STR(EEQ), TO_STR(NEQ), TO_STR(STAR), TO_STR(SLASH), TO_STR(MOD), 
+              TO_STR(DOT), TO_STR(ARROW), TO_STR(COMMA), TO_STR(SEMI_COLON), TO_STR(LEFT_BRACKET), TO_STR(RIGHT_BRACKET), 
+              TO_STR(LEFT_CURLY), TO_STR(RIGHT_CURLY), TO_STR(LEFT_PAREN), TO_STR(RIGHT_PAREN), TO_STR(AMPERSAND), 
+              TO_STR(FLOAT_LITERAL), TO_STR(INTEGER_LITERAL), TO_STR(WHITESPACE), TO_STR(EOD)
             };
 
 void PrintMatch(struct Match *match)
@@ -60,21 +61,26 @@ CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream)
     return (tokens);
 }
 
+void FreeToken(Token *token)
+{
+    free(token->lexeme);
+    free(token);
+}
+
 void FreeAllTokens(CircularLinearLinkedListNode **tokens)
 {
-    CircularLinearLinkedListNode *ptr = *tokens;
+    // CircularLinearLinkedListNode *ptr = *tokens;
 
-    do
-    {
-        if (((Token*)ptr->info)->lexeme)
-        free(((Token*)ptr->info)->lexeme);
-        free(ptr->info);
+    // do
+    // {
+    //     free(((Token*)ptr->info)->lexeme);
+    //     free(ptr->info);
 
-        ptr = ptr->nextNode;
-    }
-    while (ptr != *tokens);
+    //     ptr = ptr->nextNode;
+    // }
+    // while (ptr != *tokens);
 
-    EmptyCircularLinearLinkedList(tokens);
+    EmptyCircularLinearLinkedList(tokens, FreeToken);
 }
 
 void main(unsigned short argumentsCount, char* arguments[])
@@ -104,19 +110,16 @@ void main(unsigned short argumentsCount, char* arguments[])
     while (ptr != tokens->nextNode);
 
     /*     PARSING      */
-
-    Parser parser;
-
-    InitParser(&parser, typeStr);
-    puts("\n");
     gettimeofday(&start, NULL);
-
+    Parser parser;
+    InitParser(&parser, typeStr);
+    puts("");
     Parse(&parser, tokens);
     FreeParser(&parser);
+    gettimeofday(&stop, NULL);
 
     /*     PARSING      */
 
-    gettimeofday(&stop, NULL);
     printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
     printf("took %lu s\n", stop.tv_sec - start.tv_sec);
 

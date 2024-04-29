@@ -2,6 +2,8 @@
 
 #include "PushdownMachine.h"
 
+static int numOfStates = 0;
+
 void InitPushdownMachine(PushdownMachine *pushdownMachine)
 {
     pushdownMachine->stack = malloc(sizeof(Stack));
@@ -12,6 +14,7 @@ void InitPushdownMachine(PushdownMachine *pushdownMachine)
 
 PushdownState *AddPushdownState(PushdownMachine *stateMachine)
 {
+    numOfStates++;
     PushdownState *newState = malloc(sizeof(PushdownState));
 
     InitCircularLinearLinkedList(&newState->transitionsManager);
@@ -50,45 +53,24 @@ PushdownState *InitialPushdownState(PushdownMachine *stateMachine)
     return (stateMachine->statesManager->nextNode->info);
 }
 
-void EmptyItems(CircularLinearLinkedListNode **items)
-{
-    CircularLinearLinkedListNode *ptr = *items;
-
-    do
-    {
-        free(ptr->info);
-        ptr = ptr->nextNode;
-    }
-    while (ptr != *items);
-
-    EmptyCircularLinearLinkedList(items);
-}
-
 void EmptyPushdownState(PushdownState *state)
 {
-    state->transitionsManager ? EmptyItems(&state->transitionsManager) : ZERO;
-    state->lrItems ? EmptyItems(&state->lrItems) : ZERO;
+    state->transitionsManager ? EmptyCircularLinearLinkedList(&state->transitionsManager, free) : ZERO;
+    state->lrItems ? EmptyCircularLinearLinkedList(&state->lrItems, free) : ZERO;
 
     free(state);
 }
 
 void EmptyPushdownMachine(PushdownMachine *stateMachine)
 {
-    CircularLinearLinkedListNode *ptr = stateMachine->statesManager;
-
-    do
-    {
-        EmptyPushdownState(ptr->info);
-        ptr = ptr->nextNode;
-    }   
-    while (ptr != stateMachine->statesManager);
+    printf("\nNum of States: %d\n", numOfStates);
 
     while (!IsEmptyStack(stateMachine->stack))
     {
         PopStack(stateMachine->stack);
     }
 
-    EmptyCircularLinearLinkedList(&stateMachine->statesManager);
+    EmptyCircularLinearLinkedList(&stateMachine->statesManager, EmptyPushdownState);
     free(stateMachine->stack);
     free(stateMachine);
 }

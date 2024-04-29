@@ -13,7 +13,7 @@
 typedef struct
 {
     BOOL visited;
-    char name;
+    char *name;
     LinearLinkedListNode *rules;
 } NonTerminal;
 
@@ -48,8 +48,10 @@ typedef struct
 typedef struct
 {
     LinearLinkedListNode *nonTerminals;
+    LinearLinkedListNode *expressions;
 } Grammar;
 
+void InitGrammar(Grammar *grammar);
 NonTerminal* InitialNonTerminal(Grammar *grammar);
 BOOL CompareNonTerminals(ExpressionValue first, ExpressionValue second);
 BOOL CompareTerminals(ExpressionValue first, ExpressionValue second);

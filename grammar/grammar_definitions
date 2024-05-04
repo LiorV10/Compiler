@@ -1,3 +1,4 @@
+EOD
 STRING_LITERAL
 IDENTIFIER
 VOID
@@ -105,3 +106,4 @@ iteration_statement
 jump_statement
 external_declaration
 function_definition
+block_enter

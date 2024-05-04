@@ -149,22 +149,21 @@
 // //     EmptyDictionary(&dictionary);
 // // }
 
+#define SEMANTIC_ACTION(rule) ACTION_##rule();
+
+void ACTION_0()
+{
+    puts("0");
+}
+
+void ACTION_1()
+{
+    puts("1");
+}
+
 void main(void)
 {
-    LinearLinkedListNode *temp = NULL;
+    int x = 0;
 
-    int *a = malloc(sizeof(int));
-    int *b = malloc(sizeof(int));
-    int *c = malloc(sizeof(int));
-
-    PushLinearLinkedList(&temp);
-    temp->info = a;
-
-    PushLinearLinkedList(&temp);
-    temp->info = b;
-
-    PushLinearLinkedList(&temp);
-    temp->info = c;
-
-    EmptyLinearLinkedList(&temp, free);
+    SEMANTIC_ACTION(x)
 }

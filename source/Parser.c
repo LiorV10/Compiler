@@ -5,57 +5,18 @@
 #define REDUCING_STATE_MASK 0b01
 #define ACCEPTING_STATE_MASK 0b10
 
-BOOL CompareItems(Item *first, Item *second);
-
-#pragma region Not In Use
-
-BOOL CompareItem(Item *first, Item *second)
-{
-    return (first->dotPosition == second->dotPosition && first->rule == second->rule && first->lookahead == second->lookahead);
-}
-BOOL Compare(CircularLinearLinkedListNode *first, CircularLinearLinkedListNode *second)
-{
-    CircularLinearLinkedListNode *f = first;
-    CircularLinearLinkedListNode *s = second;
-
-    Item *ff;
-    Item *ss;
-
-    do
-    {
-        ff = f->info;
-        ss = s->info;
-
-        if (!CompareItem(ff, ss))
-        {
-            return FALSE;
-        }
-
-        f = f->nextNode;
-        s = s->nextNode;
-    }
-    while (f != first && s != second);
-
-    return (f == first && s == second);
-}
-
-#pragma endregion
-
 static const char** _types;
 
-LinearLinkedListNode *FromVector(void *arr[], unsigned short size)
+BOOL CompareItems(Item *first, Item *second)
 {
-    LinearLinkedListNode *lst;
+    return (first->dotPosition == second->dotPosition &&
+            first->rule == second->rule);
+}
 
-    InitLinearLinkedList(&lst);
-    
-    for(; size; )
-    {
-        PushLinearLinkedList(&lst);
-        lst->info = arr[--size];
-    }
-
-    return (lst);
+BOOL CompareItemKernels(Item *first, Item *second)
+{
+    return (first->dotPosition == second->dotPosition &&
+            first->rule == second->rule && first->lookahead == second->lookahead);
 }
 
 void PrintExpression(Expression *exp)
@@ -98,229 +59,114 @@ void PrintGrammar(Grammar *grammar)
     }
 }
 
-void InitParser(Parser *parser, const char **types)
-{
-    _types = types;
-
-    parser->pushdownMachine = malloc(sizeof(PushdownMachine));
-    parser->grammar = malloc(sizeof(Grammar));
-
-    InitPushdownMachine(parser->pushdownMachine);
-    InitGrammar(parser->grammar);
-
-    PrintGrammar(parser->grammar);
-
-    BuildLRStates(parser);
-}
-
-Item* NextItem(Item *item)
-{
-    Item *next = malloc(sizeof(Item));
-
-    next->rule = item->rule;
-    next->lookahead = item->lookahead;
-    next->dotPosition = item->dotPosition->nextNode;
-
-    return (next);
-}
-
-Item* InitialItem(Rule *rule, TokenType lookahead)
-{
-    Item *item = malloc(sizeof(Item));
-
-    item->rule = rule;
-    item->dotPosition = rule->expressions;
-    item->lookahead = lookahead;
-
-    return (item);
-}
-
-LinearLinkedListNode *FirstSet(NonTerminal *nonTerminal)
-{
-    Stack st;
-    Stack _st;
-    LinearLinkedListNode *result;
-    NonTerminal *current;
-
-    InitLinearLinkedList(&result);
-    InitStack(&st);
-    InitStack(&_st);
-
-    PushStack(&st, nonTerminal);
-
-    while (!IsEmptyStack(&st))
-    {
-        current = PopStack(&st);
-
-        for (LinearLinkedListNode *p = current->rules; p; p = p->nextNode)
-        {
-            if (!((Expression*)((Rule*)p->info)->expressions->info)->visited)
-            {
-                ((Expression*)((Rule*)p->info)->expressions->info)->visited = TRUE;
-                PushStack(&_st, ((Expression*)((Rule*)p->info)->expressions->info));
-                !((Expression*)((Rule*)p->info)->expressions->info)->isTerminal ? 
-                    PushStack(&st, ((Expression*)((Rule*)p->info)->expressions->info)->value.nonTerminal) : 
-                    ((PushLinearLinkedList(&result)), (result->info = ((Rule*)p->info)->expressions->info));
-            }
-        }
-    }
-
-    while (!IsEmptyStack(&_st))
-    {
-        ((Expression*)PopStack(&_st))->visited = FALSE;
-    }
-
-    return (result);
-    
-}
-
-LinearLinkedListNode* FollowSet(LinearLinkedListNode *dotPosition, TokenType lookahead)
-{
-    LinearLinkedListNode *result;
-    Expression *exp;
-
-    InitLinearLinkedList(&result);
-
-    if (!dotPosition)
-    {
-        PushLinearLinkedList(&result);
-        Expression *none = malloc(sizeof(Expression));
-        none->isTerminal = TRUE;
-        none->value.terminal = lookahead;
-        none->visited = FALSE;
-        result->info = none;
-    }
-    else
-    {
-        exp = dotPosition->info;
-
-        if (exp->isTerminal)
-        {
-            PushLinearLinkedList(&result);
-            result->info = exp;
-        }
-        else
-        {
-            result = FirstSet(exp->value.nonTerminal);
-        }
-    }
-
-    return (result);
-}   
-
 CircularLinearLinkedListNode *KernelEnd(CircularLinearLinkedListNode *lrItems)
 {
     CircularLinearLinkedListNode *ptr = lrItems->nextNode;
-    CircularLinearLinkedListNode *ptr2;
-    BOOL f = TRUE;
+    BOOL isKernelItem = TRUE;
 
     do
     {
-        f &= ((Item*)ptr->info)->dotPosition != ((Item*)ptr->info)->rule->expressions;
-        ptr2 = ptr;
+        isKernelItem &= ((Item*)ptr->info)->dotPosition != ((Item*)ptr->info)->rule->expressions;
         ptr = ptr->nextNode;
     }
-    while (ptr != lrItems->nextNode && f);
+    while (ptr != lrItems->nextNode && isKernelItem);
 
-    return (ptr2);
+    return (ptr);
 }
 
-BOOL CompareStates2(PushdownState* first, CircularLinearLinkedListNode *second)
+BOOL CompareItemsLists(CircularLinearLinkedListNode *firstStart, CircularLinearLinkedListNode *secondStart,
+                       CircularLinearLinkedListNode *firstEnd, CircularLinearLinkedListNode *secondEnd)
 {
-    CircularLinearLinkedListNode *p2 = first->lrItems->nextNode;
-    CircularLinearLinkedListNode *p1 = second->nextNode;
-
-    CircularLinearLinkedListNode *e1 = KernelEnd(p1);
-    CircularLinearLinkedListNode *e2 = KernelEnd(p2);
-
-    BOOL f = TRUE;
+    BOOL areEqual = TRUE;
 
     do
     {
-        f &= CompareItems(p1->info, p2->info);
+        areEqual = CompareItems(firstStart->info, secondStart->info);
 
-        p1 = p1->nextNode;
-        p2 = p2->nextNode;
+        firstStart = firstStart->nextNode;
+        secondStart = secondStart->nextNode;
     }
-    while (p1 != e1 && p2 != e2 && f);
+    while (areEqual && firstStart != firstEnd && secondStart != secondEnd);
 
-    return f;
+    return (areEqual);
 }
 
-unsigned long Key(Item *item)
+BOOL CompareKernels(CircularLinearLinkedListNode *first, CircularLinearLinkedListNode *second)
 {
-    return (unsigned long)((long)item->rule + (long)item->dotPosition + item->lookahead);
+    return CompareItems(first->nextNode->info, second->nextNode->info);
+    return CompareItemsLists(first->nextNode, second->nextNode, first->nextNode->nextNode, second->nextNode->nextNode);
+    return CompareItemsLists(first->nextNode, second->nextNode, KernelEnd(first), KernelEnd(second));
 }
 
-BOOL CompareItems(Item *first, Item *second)
+BOOL StatesComparator(PushdownState* first, CircularLinearLinkedListNode *second)
 {
-    return (first->dotPosition == second->dotPosition &&
-            first->lookahead == second->lookahead &&
-            first->rule == second->rule);
+    return CompareKernels(first->lrItems, second);
 }
 
-CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items)
+unsigned int PointerKey(void *ptr)
 {
-    Item *current;
-    Stack st;
-    NonTerminal *next;
-    CircularLinearLinkedListNode *p = (*items)->nextNode;
-    LinearLinkedListNode *allItems = NULL;
-    Dictionary visited;
+    return (unsigned)ptr & sizeof(void*);
+}
 
-    InitDictionary(&visited);
-    InitStack(&st);
+unsigned long ItemKey(Item *item)
+{
+    return (PointerKey(item->rule) + PointerKey(item->dotPosition) + item->lookahead->value.terminal);
+}
+
+CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items, Dictionary *firstSets)
+{
+    Item *currentItem;
+    Stack closureStack;
+    Dictionary visitedItems;
+    NonTerminal *nextNonTerminal;
+    CircularLinearLinkedListNode *itemsPtr = (*items)->nextNode;
+
+    InitDictionary(&visitedItems);
+    InitStack(&closureStack);
 
     do
     {
-        PushStack(&st, p->info);
-        p = p->nextNode;
+        ((Item*)itemsPtr->info)->dotPosition && !((Expression*)((Item*)itemsPtr->info)->dotPosition->info)->isTerminal ?
+            PushStack(&closureStack, itemsPtr->info) : 
+            ZERO;
+
+        itemsPtr = itemsPtr->nextNode;
     }
-    while (p != (*items)->nextNode);
+    while (itemsPtr != (*items)->nextNode);
 
-    while (!IsEmptyStack(&st))
+    while (!IsEmptyStack(&closureStack))
     {
-        current = PopStack(&st);
+        currentItem = PopStack(&closureStack);
+        nextNonTerminal = ((Expression*)currentItem->dotPosition->info)->value.nonTerminal;
 
-        if (current->dotPosition && !((Expression*)current->dotPosition->info)->isTerminal)
+        for (LinearLinkedListNode *pRules = nextNonTerminal->rules; pRules; pRules = pRules->nextNode)
         {
-            next = ((Expression*)current->dotPosition->info)->value.nonTerminal;
+            Item *temp;
+            LinearLinkedListNode *ptf = currentItem->dotPosition->nextNode ?
+                LookupFirstSet(firstSets, currentItem->dotPosition->nextNode->info) : 
+                LookupFirstSet(firstSets, currentItem->lookahead);
 
-            for (LinearLinkedListNode *pRules = next->rules; pRules; pRules = pRules->nextNode)
+            for (; ptf; ptf = ptf->nextNode)
             {
-                Item *temp;
-                LinearLinkedListNode *pf = FollowSet(current->dotPosition->nextNode, current->lookahead);
-                LinearLinkedListNode *ptf = pf;
+                temp = InitialItem(pRules->info, ptf->info);
 
-                for (; ptf; ptf = ptf->nextNode)
+                if (!LookupDictionary(&visitedItems, temp, ItemKey, CompareItemKernels))
                 {
-                    temp = InitialItem(pRules->info, ((Expression*)ptf->info)->value.terminal);
-
-                    if (!LookupDictionary(&visited, temp, Key, CompareItems))
-                    {
-                        InsertDictionary(&visited, temp, Key);
-                        InsertEndCircularLinearLinkedList(items);
-                        (*items)->info = temp;
-                        PushStack(&st, (*items)->info);
-                    }
-                    else
-                    {
-                        free(temp);
-                    }
+                    InsertDictionary(&visitedItems, temp, ItemKey);
+                    InsertEndCircularLinearLinkedList(items);
+                    (*items)->info = temp;
+                    if (!((Expression*)temp->dotPosition->info)->isTerminal)
+                    PushStack(&closureStack, (*items)->info);
                 }
-
-                if (!current->dotPosition->nextNode) for (ptf = pf; ptf; ptf = ptf->nextNode)
+                else
                 {
-                    free(ptf->info);
+                    free(temp);
                 }
-
-                EmptyLinearLinkedList(&pf, NULL);
             }
         }
     }
 
-    EmptyDictionary(&visited, NULL);
-    CircularLinearLinkedListNode *ptr = *items;
+    EmptyDictionary(&visitedItems, NULL);
 
     return (*items);   
 }
@@ -340,15 +186,15 @@ unsigned long KeyState(PushdownState *state)
 {
     unsigned long key = ZERO;
 
-    CircularLinearLinkedListNode *e = KernelEnd(state->lrItems);
-    CircularLinearLinkedListNode *s = state->lrItems;
+    CircularLinearLinkedListNode *startPtr = state->lrItems->nextNode;
+    CircularLinearLinkedListNode *endPtr = KernelEnd(state->lrItems);
 
     do
     {
-        key += Key(s->info);
-        s = s->nextNode;
+        key += ItemKey(startPtr->info);
+        startPtr = startPtr->nextNode;
     }
-    while (s != state->lrItems);
+    while (startPtr != endPtr);
     
     return (key);
 }
@@ -381,7 +227,7 @@ void HandleFinalItem(Parser *parser, PushdownState *currentState, Item *item)
     reducingState->isAccepting |= (REDUCING_STATE_MASK | 
         (ACCEPTING_STATE_MASK & (item->rule->nonTerminal == InitialNonTerminal(parser->grammar)) << ONE));
 
-    AddPushdownTransition(parser->pushdownMachine, currentState, reducingState, (ExpressionValue)item->lookahead);
+    AddPushdownTransition(parser->pushdownMachine, currentState, reducingState, item->lookahead->value);
 }
 
 void MakeGotoState(PushdownMachine *machine, PushdownState *currentState, 
@@ -390,10 +236,9 @@ void MakeGotoState(PushdownMachine *machine, PushdownState *currentState,
     PushdownState *nextState;
     CircularLinearLinkedListNode *gotoItems = expression->node;
 
-    if (!(nextState = LookupDictionary(visitedStates, gotoItems, KeyState, CompareStates2)))
+    if (!(nextState = LookupDictionary(visitedStates, gotoItems, KeyState, StatesComparator)))
     {
         nextState = AddPushdownState(machine);
-        nextState->isAccepting = FALSE;
         nextState->lrItems = gotoItems;
         InsertQueue(nextStates, nextState);
         InsertDictionary(visitedStates, nextState, KeyState);
@@ -435,22 +280,28 @@ void MakeGotoStates(Parser *parser, PushdownState *currentState, Queue *nextStat
     EmptyLinearLinkedList(&visitedExpressions, NULL);
 }
 
-void f(PushdownState *state)
+void PrintFirst(LinearLinkedListNode *first)
 {
-    //EmptyCircularLinearLinkedList(&state->lrItems, free);
+    for (; first; first = first->nextNode)
+    {
+        printf("%s ", _types[((Expression*)first->info)->value.terminal]);
+    }
+
+    puts("\n");
 }
 
 void BuildLRStates(Parser *parser)
 {
     PushdownState* initialState = AddPushdownState(parser->pushdownMachine);
+    Dictionary *firstSets = GrammarFirstSet(parser->grammar);
     PushdownState *currentState;
-    Queue queue;
     Dictionary visited;
+    Queue queue;
 
     InitDictionary(&visited);
     InitQueue(&queue);
     InsertLastCircularLinearLinkedList(&initialState->lrItems);
-    initialState->lrItems->info = InitialItem(InitialNonTerminal(parser->grammar)->rules->info, EOD);
+    initialState->lrItems->info = InitialItem(InitialRule(parser->grammar), EODTerminal(parser->grammar));
 
     InsertQueue(&queue, initialState);
     initialState->isAccepting = FALSE;
@@ -459,11 +310,27 @@ void BuildLRStates(Parser *parser)
     {
         currentState = RemoveQueue(&queue);
 
-        Closure(&currentState->lrItems);
+        Closure(&currentState->lrItems, firstSets);
         MakeGotoStates(parser, currentState, &queue, &visited);
     }
 
-    EmptyDictionary(&visited, f);
+    FreeFirstSets(firstSets);
+    EmptyDictionary(&visited, NULL);
+}
+
+void InitParser(Parser *parser, const char **types)
+{
+    _types = types;
+
+    parser->pushdownMachine = malloc(sizeof(PushdownMachine));
+    parser->grammar = malloc(sizeof(Grammar));
+
+    InitPushdownMachine(parser->pushdownMachine);
+    InitGrammar(parser->grammar);
+
+    PrintGrammar(parser->grammar);
+
+    BuildLRStates(parser);
 }
 
 void NextState(PushdownState **current, ExpressionValue expression, BOOL(*ComapreExpressions)(ExpressionValue, ExpressionValue))
@@ -489,12 +356,6 @@ void NextState(PushdownState **current, ExpressionValue expression, BOOL(*Comapr
     *current = next;
 }
 
-void Shift(Stack *states, PushdownState *state, CircularLinearLinkedListNode **tokenPtr)
-{
-    PushStack(states, state);
-    *tokenPtr = (*tokenPtr)->nextNode;
-}
-
 void PrintItem(Item *item)
 {
     LinearLinkedListNode *p = item->rule->expressions;
@@ -509,7 +370,7 @@ void PrintItem(Item *item)
 
     if (!item->dotPosition) printf("•");
 
-    printf("  |%s]\n\t", _types[item->lookahead]);
+    printf("  |%s]\n\t", _types[item->lookahead->value.terminal]);
 }
 
 void PrintItems(CircularLinearLinkedListNode *items)
@@ -556,13 +417,29 @@ void PrintState(PushdownState *state)
     puts("]");
 }
 
-PushdownState* Reduce(Stack *states, Rule *rule)
+void Shift(Stack *states, PushdownState *state, CircularLinearLinkedListNode **tokenPtr, Stack *semanticStack)
+{
+    AbstractSyntaxTreeNode *astNode;
+
+    PushStack(states, state);
+
+    MakeAbstractSyntaxTree(&astNode);
+    PushStack(semanticStack, astNode);
+    astNode->info = (*tokenPtr)->info;
+
+    *tokenPtr = (*tokenPtr)->nextNode;
+}
+
+PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *semanticStack)
 {
     LinearLinkedListNode *ptr;
     PushdownState *nextState;
 
-    //printf("Reduce by: %s -> ", rule->nonTerminal->name);
-    //PrintRule(rule);
+    printf("Reduce by: %s -> ", rule->nonTerminal->name);
+    PrintRule(rule);
+
+    rule->semanticAction = rule->semanticAction ? rule->semanticAction : DefaultSemanticAction;
+    PushStack(semanticStack, rule->semanticAction(scopeStack, semanticStack));
 
     for (ptr = rule->expressions; ptr; ptr = ptr->nextNode)
     {
@@ -576,22 +453,71 @@ PushdownState* Reduce(Stack *states, Rule *rule)
     return (nextState);
 }
 
+void padding ( char ch, int n )
+{
+  int i;
+
+  for ( i = 0; i < n; i++ )
+    putchar ( ch );
+}
+
+void Traverse(AbstractSyntaxTreeNode *root, int level)
+{
+    if (!root)
+    {
+        padding('\t', level);
+        puts("~");
+        return;
+    }
+
+    padding('\t', level);
+    if (root->info)
+    {
+        printf("%s:%s\n", ((Symbol*)root->info)->name, _types[((Symbol*)root->info)->type]);
+    }
+    else
+    {
+        puts("Program");
+    }
+
+    for (LinearLinkedListNode *p = root->childrenManager; p; p = p->nextNode)
+    {
+        Traverse(p->info, level + 1);
+    }
+}
+
 void Parse(Parser *parser, CircularLinearLinkedListNode *tokens)
 {
     PushdownState *currentState = InitialPushdownState(parser->pushdownMachine);
     CircularLinearLinkedListNode *tokensPtr = tokens->nextNode;
+    ScopeStack scopeStack;
+    Stack semanticStack;
 
+    InitStack(&semanticStack);
+    InitScopeStack(&scopeStack);
+    EnterScope(&scopeStack);
     PushStack(parser->pushdownMachine->stack, currentState);
     NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
 
     while (currentState && ~currentState->isAccepting & ACCEPTING_STATE_MASK)
     {
         currentState->isAccepting & REDUCING_STATE_MASK ? 
-            currentState = Reduce(parser->pushdownMachine->stack, ((Item*)currentState->lrItems->info)->rule) : 
-            Shift(parser->pushdownMachine->stack, currentState, &tokensPtr);
+            currentState = Reduce(parser->pushdownMachine->stack, ((Item*)currentState->lrItems->info)->rule, &scopeStack, &semanticStack) : 
+            Shift(parser->pushdownMachine->stack, currentState, &tokensPtr, &semanticStack);
 
         NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
     }
+
+    printf("\n\r");
+    Traverse(semanticStack.topOfStack->info, 0);
+    puts("");
+
+    SymbolTable *t1 = scopeStack.symbolTables->info;
+
+    printf("\n%p\n", LookupSymbol(&scopeStack, "c"));
+    printf("\n%p\n", LookupSymbol(&scopeStack, "ptr"));
+
+    ExitScope(&scopeStack);
 
     if (currentState)
     {

@@ -2,7 +2,7 @@
 
 #include "PushdownMachine.h"
 
-static int numOfStates = 0;
+static int __numOfStates = 0;
 
 void InitPushdownMachine(PushdownMachine *pushdownMachine)
 {
@@ -14,7 +14,7 @@ void InitPushdownMachine(PushdownMachine *pushdownMachine)
 
 PushdownState *AddPushdownState(PushdownMachine *stateMachine)
 {
-    numOfStates++;
+    __numOfStates++;
     PushdownState *newState = malloc(sizeof(PushdownState));
 
     InitCircularLinearLinkedList(&newState->transitionsManager);
@@ -63,7 +63,7 @@ void EmptyPushdownState(PushdownState *state)
 
 void EmptyPushdownMachine(PushdownMachine *stateMachine)
 {
-    printf("\nNum of States: %d\n", numOfStates);
+    printf("\nNum of States: %d\n", __numOfStates);
 
     while (!IsEmptyStack(stateMachine->stack))
     {

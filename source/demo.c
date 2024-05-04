@@ -1,18 +1,35 @@
-int func(int hello)
+void f()
 {
-    int a = 4;
-
-    if(a >= 4)
-    {
-        int c = 4;
-        printf(c, b);
-    }
-
-    for (int i = 0, j; i < 10; i++)
-    {
-        while (b == 0)
-        {
-            puts("hello world!");
-        }
-    }
+    int hello;
 }
+
+float start(char c)
+{
+    int hello;
+    int hi;
+}
+
+double hi(float ptr)
+{
+    printf("hello, world!");
+}
+
+int ptr;
+
+void f()
+{
+    int hello;
+}
+
+float start(char c)
+{
+    int hello;
+    int hi;
+}
+
+double hi(float ptr)
+{
+    printf("hello, world!");
+}
+
+int ptr;

@@ -6,11 +6,11 @@
     #include "../libs/LinearLinkedList.h"
 #endif
 
-#define MAX_SIZE 64
+#define MAX_DICTIONARY_SIZE 64
 
 typedef struct
 {
-    LinearLinkedListNode *buckets[MAX_SIZE];
+    LinearLinkedListNode *buckets[MAX_DICTIONARY_SIZE];
 } Dictionary;
 
 void InitDictionary(Dictionary *dictionary);

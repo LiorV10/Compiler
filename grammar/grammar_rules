@@ -1,10 +1,10 @@
 start:translation_unit
-translation_unit:external_declaration
-translation_unit:translation_unit external_declaration
+translation_unit:external_declaration {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
+translation_unit:translation_unit external_declaration {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1; }
 external_declaration:function_definition
 external_declaration:declaration
-function_definition:declaration_specifiers direct_declarator LEFT_PAREN parameter_list RIGHT_PAREN compound_statement
-function_definition:declaration_specifiers direct_declarator LEFT_PAREN RIGHT_PAREN compound_statement
+function_definition:declaration_specifiers direct_declarator LEFT_PAREN parameter_list RIGHT_PAREN compound_statement {MakeAbstractSyntaxTree(&$$); $$->info = $1->info; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; *SetAbstractSyntaxTreeNodeChild($$) = $3; *SetAbstractSyntaxTreeNodeChild($$) = $5;}
+function_definition:declaration_specifiers direct_declarator LEFT_PAREN RIGHT_PAREN compound_statement {MakeAbstractSyntaxTree(&$$); $$->info = $1->info; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; *SetAbstractSyntaxTreeNodeChild($$) = $4;}
 function_definition:direct_declarator declaration_list compound_statement
 function_definition:direct_declarator compound_statement
 jump_statement:RETURN SEMI_COLON
@@ -14,15 +14,16 @@ iteration_statement:FOR LEFT_PAREN declaration expression_statement expression R
 iteration_statement:FOR LEFT_PAREN expression_statement expression_statement expression RIGHT_PAREN statement
 selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement
 expression_statement:SEMI_COLON
-expression_statement:expression SEMI_COLON
+expression_statement:expression SEMI_COLON {$$ = $0;}
 statement_list:statement
 statement_list:statement_list statement
-declaration_list:declaration
-declaration_list:declaration_list declaration
+declaration_list:declaration {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
+declaration_list:declaration_list declaration {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1; }
 compound_statement:LEFT_CURLY RIGHT_CURLY
-compound_statement:LEFT_CURLY statement_list RIGHT_CURLY
-compound_statement:LEFT_CURLY declaration_list RIGHT_CURLY
-compound_statement:LEFT_CURLY declaration_list statement_list RIGHT_CURLY
+compound_statement:block_enter statement_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1;}
+compound_statement:block_enter declaration_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1;}
+compound_statement:block_enter declaration_list statement_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1;}
+block_enter:LEFT_CURLY {EnterScope(scopeStack); $$ = $0;}
 statement:compound_statement
 statement:expression_statement
 statement:selection_statement
@@ -49,7 +50,7 @@ type_name:specifier_qualifier_list
 type_name:specifier_qualifier_list abstract_declarator
 identifier_list:IDENTIFIER
 identifier_list:identifier_list COMMA IDENTIFIER
-parameter_declaration:declaration_specifiers declarator
+parameter_declaration:declaration_specifiers declarator {MakeAbstractSyntaxTree(&$$); $$->info = $1->info; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; InsertSymbol(scopeStack, $1->info);}
 parameter_declaration:declaration_specifiers abstract_declarator
 parameter_declaration:declaration_specifiers
 parameter_list:parameter_declaration
@@ -57,8 +58,7 @@ parameter_list:parameter_list COMMA parameter_declaration
 parameter_type_list:parameter_list
 pointer:STAR
 pointer:STAR pointer
-direct_declarator:LEFT_PAREN INT IDENTIFIER RIGHT_PAREN
-direct_declarator:IDENTIFIER
+direct_declarator:IDENTIFIER {Symbol* symbol; MakeSymbol(&symbol); symbol->name = ((Token*)$0->info)->lexeme; $0->info = symbol; $$ = $0;}
 direct_declarator:LEFT_BRACKET constant_expression RIGHT_BRACKET
 direct_declarator:LEFT_BRACKET RIGHT_BRACKET
 direct_declarator:LEFT_PAREN parameter_type_list RIGHT_PAREN
@@ -96,7 +96,7 @@ init_declarator_list:init_declarator_list COMMA init_declarator
 declaration_specifiers:type_specifier
 declaration_specifiers:type_specifier declaration_specifiers
 declaration:declaration_specifiers SEMI_COLON
-declaration:declaration_specifiers init_declarator_list SEMI_COLON
+declaration:declaration_specifiers init_declarator_list SEMI_COLON {$$ = $1; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; if (!LookupSymbol(scopeStack, ((Symbol*)$1->info)->name)) InsertSymbol(scopeStack, $1->info); else printf("%s has already been defined.", ((Symbol*)$1->info)->name);}
 constant_expression:conditional_expression
 expression:assignment_expression
 expression:expression COMMA assignment_expression
@@ -111,6 +111,7 @@ assignment_expression:unary_expression assignment_operator assignment_expression
 conditional_expression:equality_expression
 equality_expression:relational_expression
 equality_expression:equality_expression EEQ relational_expression
+equality_expression:equality_expression NEQ relational_expression
 relational_expression:shift_expression
 relational_expression:relational_expression GT shift_expression
 relational_expression:relational_expression LT shift_expression
@@ -139,7 +140,7 @@ argument_expression_list:argument_expression_list COMMA assignment_expression
 postfix_expression:primary_expression
 postfix_expression:postfix_expression LEFT_BRACKET expression RIGHT_BRACKET
 postfix_expression:postfix_expression LEFT_PAREN RIGHT_PAREN
-postfix_expression:postfix_expression LEFT_PAREN argument_expression_list RIGHT_PAREN
+postfix_expression:postfix_expression LEFT_PAREN argument_expression_list RIGHT_PAREN {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $2;}
 postfix_expression:postfix_expression DOT IDENTIFIER
 postfix_expression:postfix_expression ARROW IDENTIFIER
 postfix_expression:postfix_expression PLUS PLUS

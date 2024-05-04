@@ -53,7 +53,7 @@ CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream)
     InsertEndCircularLinearLinkedList(&tokens);
     tokens->info = malloc(sizeof(Token));
     ((Token*)tokens->info)->type = EOD;
-    ((Token*)tokens->info)->lexeme = NULL; // just for printing
+    ((Token*)tokens->info)->lexeme = NULL;
 
     FreeLexer(&lexer);
     ResetStream(sourceStream);
@@ -90,6 +90,7 @@ void main(unsigned short argumentsCount, char* arguments[])
 
     argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
 
+    gettimeofday(&start, NULL);
     InitStream(&sourceStream, arguments[ONE]);
     tokens = TokenizeStream(&sourceStream);
     CloseStream(&sourceStream);
@@ -110,16 +111,14 @@ void main(unsigned short argumentsCount, char* arguments[])
     while (ptr != tokens->nextNode);
 
     /*     PARSING      */
-    gettimeofday(&start, NULL);
     Parser parser;
     InitParser(&parser, typeStr);
     puts("");
     Parse(&parser, tokens);
     FreeParser(&parser);
-    gettimeofday(&stop, NULL);
 
     /*     PARSING      */
-
+    gettimeofday(&stop, NULL);
     printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
     printf("took %lu s\n", stop.tv_sec - start.tv_sec);
 

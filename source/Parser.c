@@ -7,17 +7,19 @@
 
 static const char** _types;
 
-BOOL CompareItems(Item *first, Item *second)
-{
-    return (first->dotPosition == second->dotPosition &&
-            first->rule == second->rule);
-}
-
-BOOL CompareItemKernels(Item *first, Item *second)
-{
-    return (first->dotPosition == second->dotPosition &&
-            first->rule == second->rule && first->lookahead == second->lookahead);
-}
+#if GENERATE_LALR
+    BOOL CompareItems(Item *first, Item *second)
+    {
+        return (first->dotPosition == second->dotPosition &&
+                first->rule == second->rule);
+    }
+#else
+    BOOL CompareItems(Item *first, Item *second)
+    {
+        return (first->dotPosition == second->dotPosition &&
+                first->rule == second->rule && first->lookahead == second->lookahead);
+    }
+#endif
 
 void PrintExpression(Expression *exp)
 {
@@ -93,8 +95,8 @@ BOOL CompareItemsLists(CircularLinearLinkedListNode *firstStart, CircularLinearL
 
 BOOL CompareKernels(CircularLinearLinkedListNode *first, CircularLinearLinkedListNode *second)
 {
-    return CompareItems(first->nextNode->info, second->nextNode->info);
-    return CompareItemsLists(first->nextNode, second->nextNode, first->nextNode->nextNode, second->nextNode->nextNode);
+    //return CompareItems(first->nextNode->info, second->nextNode->info);
+    //return CompareItemsLists(first->nextNode, second->nextNode, first->nextNode->nextNode, second->nextNode->nextNode);
     return CompareItemsLists(first->nextNode, second->nextNode, KernelEnd(first), KernelEnd(second));
 }
 
@@ -150,7 +152,7 @@ CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items, Dict
             {
                 temp = InitialItem(pRules->info, ptf->info);
 
-                if (!LookupDictionary(&visitedItems, temp, ItemKey, CompareItemKernels))
+                if (!LookupDictionary(&visitedItems, temp, ItemKey, CompareItems))
                 {
                     InsertDictionary(&visitedItems, temp, ItemKey);
                     InsertEndCircularLinearLinkedList(items);
@@ -508,9 +510,9 @@ void Parse(Parser *parser, CircularLinearLinkedListNode *tokens)
         NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
     }
 
-    printf("\n\r");
+    printf("AST:\n\r");
     Traverse(semanticStack.topOfStack->info, 0);
-    puts("");
+    puts("AST END");
 
     SymbolTable *t1 = scopeStack.symbolTables->info;
 

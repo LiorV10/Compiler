@@ -15,7 +15,7 @@ unsigned short Hash(unsigned long value)
     value *= 0xc4ceb9fe1a85ec53;
     value ^= value >> 33;
 
-    return (value & (MAX_DICTIONARY_SIZE - ONE));
+    return (value % (MAX_DICTIONARY_SIZE - ONE));
 }
 
 void InsertDictionary(Dictionary *dictionary, void *item, unsigned long(*Key)(void *item))

@@ -19,7 +19,8 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "UBUNTU BUILD" // This refers to the build task defined in tasks.json
+            "preLaunchTask": "UBUNTU BUILD", // This refers to the build task defined in tasks.json
+            "postDebugTask": "Clean"
         }
     ]
 }

@@ -9,20 +9,20 @@ function_definition:direct_declarator declaration_list compound_statement
 function_definition:direct_declarator compound_statement
 jump_statement:RETURN SEMI_COLON
 jump_statement:RETURN expression SEMI_COLON
-iteration_statement:WHILE LEFT_PAREN expression RIGHT_PAREN statement
+iteration_statement:WHILE LEFT_PAREN expression RIGHT_PAREN statement {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $2; *SetAbstractSyntaxTreeNodeChild($$) = $4;}
 iteration_statement:FOR LEFT_PAREN declaration expression_statement expression RIGHT_PAREN statement
 iteration_statement:FOR LEFT_PAREN expression_statement expression_statement expression RIGHT_PAREN statement
 selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement
 expression_statement:SEMI_COLON
 expression_statement:expression SEMI_COLON {$$ = $0;}
-statement_list:statement
-statement_list:statement_list statement
+statement_list:statement {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
+statement_list:statement_list statement {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1;}
 declaration_list:declaration {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
-declaration_list:declaration_list declaration {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1; }
+declaration_list:declaration_list declaration {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1;}
 compound_statement:LEFT_CURLY RIGHT_CURLY
 compound_statement:block_enter statement_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1;}
 compound_statement:block_enter declaration_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1;}
-compound_statement:block_enter declaration_list statement_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1;}
+compound_statement:block_enter declaration_list statement_list RIGHT_CURLY {ExitScope(scopeStack); MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $1; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
 block_enter:LEFT_CURLY {EnterScope(scopeStack); $$ = $0;}
 statement:compound_statement
 statement:expression_statement
@@ -101,11 +101,11 @@ constant_expression:conditional_expression
 expression:assignment_expression
 expression:expression COMMA assignment_expression
 assignment_operator:EQ
-assignment_operator:STAR EQ
-assignment_operator:SLASH EQ
-assignment_operator:MOD EQ
-assignment_operator:PLUS EQ
-assignment_operator:MINUS EQ
+assignment_operator:STAR_EQ
+assignment_operator:SLASH_EQ
+assignment_operator:MOD_EQ
+assignment_operator:PLUS_EQ
+assignment_operator:MINUS_EQ
 assignment_expression:conditional_expression
 assignment_expression:unary_expression assignment_operator assignment_expression
 conditional_expression:equality_expression
@@ -119,7 +119,7 @@ relational_expression:relational_expression GE shift_expression
 relational_expression:relational_expression LE shift_expression
 shift_expression:additive_expression
 additive_expression:multiplicative_expression
-additive_expression:additive_expression PLUS multiplicative_expression
+additive_expression:additive_expression PLUS multiplicative_expression {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
 additive_expression:additive_expression MINUS multiplicative_expression
 multiplicative_expression:cast_expression
 multiplicative_expression:multiplicative_expression STAR cast_expression
@@ -132,8 +132,8 @@ unary_operator:PLUS
 unary_operator:MINUS
 unary_operator:AMPERSAND
 unary_expression:postfix_expression
-unary_expression:PLUS PLUS postfix_expression
-unary_expression:MINUS MINUS postfix_expression
+unary_expression:PLUS_PLUS postfix_expression
+unary_expression:MINUS_MINUS postfix_expression
 unary_expression:unary_operator cast_expression
 argument_expression_list:assignment_expression
 argument_expression_list:argument_expression_list COMMA assignment_expression
@@ -143,8 +143,8 @@ postfix_expression:postfix_expression LEFT_PAREN RIGHT_PAREN
 postfix_expression:postfix_expression LEFT_PAREN argument_expression_list RIGHT_PAREN {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $2;}
 postfix_expression:postfix_expression DOT IDENTIFIER
 postfix_expression:postfix_expression ARROW IDENTIFIER
-postfix_expression:postfix_expression PLUS PLUS
-postfix_expression:postfix_expression MINUS MINUS
+postfix_expression:postfix_expression PLUS_PLUS
+postfix_expression:postfix_expression MINUS_MINUS
 primary_expression:IDENTIFIER
 primary_expression:INTEGER_LITERAL
 primary_expression:FLOAT_LITERAL

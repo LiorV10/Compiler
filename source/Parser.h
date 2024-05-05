@@ -24,6 +24,8 @@
     #include "../libs/AbstractSyntaxTree.h"
 #endif
 
+#define GENERATE_LALR TRUE
+
 typedef struct
 {
     Grammar *grammar;

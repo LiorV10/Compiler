@@ -84,15 +84,3 @@ BOOL IsEmptyQueue(Queue *ipqQueue)
 {
     return (!(ipqQueue->rear));
 }
-
-BOOL ContainsOneItemQueue(Queue *ipqQueue)
-{
-    return (ipqQueue->rear->nextNode == ipqQueue->rear);
-}
-
-QUEUE_TYPE Peek(Queue *ipqQueue)
-{
-    if (IsEmptyQueue(ipqQueue)) return NULL;
-    
-    return (ipqQueue->rear->nextNode->info);
-}

@@ -1,0 +1,1 @@
+{$$ = $4; AbstractSyntaxTreeNode *ifNode; MakeAbstractSyntaxTree(&ifNode); ifNode->info = NULL; $4->GenerationFunction = GenerateIfExit; ifNode->GenerationFunction = GenerateIf; *SetAbstractSyntaxTreeNodeChild($$) = ifNode; *SetAbstractSyntaxTreeNodeChild(ifNode) = $2; }

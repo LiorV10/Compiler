@@ -3,11 +3,11 @@
 #define _QUEUE_H
 
 #ifndef _COMMON_MACROS_H
-#include "CommonMacros.h"
+    #include "CommonMacros.h"
 #endif
 
 #ifndef _CIRCULAR_LINEAR_LINKED_LIST_H
-#include "CircularLinearLinkedList.h"
+    #include "CircularLinearLinkedList.h"
 #endif
 
 #define QUEUE_TYPE CIRCULAR_LINEAR_LINKED_LIST_NODE_TYPE

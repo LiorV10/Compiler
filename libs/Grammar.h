@@ -2,29 +2,18 @@
 
 #define _GRAMMAR_H
 
+typedef unsigned short TokenType;
+
 #ifndef _LINEAR_LINKED_LIST_H
     #include "LinearLinkedList.h"
-#endif
-
-#ifndef _TOKEN_H
-    #include "Token.h"
 #endif
 
 #ifndef _ABSTRACT_SYNTAX_TREE_H
     #include "AbstractSyntaxTree.h"
 #endif
 
-#ifndef _STACK_H
-    #include "Stack.h"
-#endif
-
-#ifndef _DICTIONARY_H
-    #include "Dictionary.h"
-#endif
-
 typedef struct
 {
-    BOOL visited;
     char *name;
     LinearLinkedListNode *rules;
 } NonTerminal;
@@ -37,14 +26,18 @@ typedef union
 
 typedef struct
 {
-    BOOL visited;
     BOOL isTerminal;
     ExpressionValue value;
     void *node;
+    unsigned long nodeKey;
+    unsigned long firstSet;
 } Expression;
 
 typedef struct
 {
+    int id;
+    unsigned long visited_;
+    BIT_VEC(visited, 51);
     NonTerminal *nonTerminal;
     LinearLinkedListNode *expressions;
     void*(*semanticAction)();
@@ -54,7 +47,7 @@ typedef struct
 {
     Rule *rule;
     LinearLinkedListNode *dotPosition;
-    Expression *lookahead;
+    TokenType lookahead;
 } Item;
 
 typedef struct
@@ -63,16 +56,28 @@ typedef struct
     LinearLinkedListNode *expressions;
 } Grammar;
 
-AbstractSyntaxTreeNode* DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
+#ifndef _STACK_H
+    #include "Stack.h"
+#endif
+
+#ifndef _SEMANTICS
+  #include "../grammar/semantics.h"
+#endif
+
+#ifndef _DICTIONARY_H
+    #include "Dictionary.h"
+#endif
+
+AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
+void AssignActions(Grammar *g);
+
 void InitGrammar(Grammar *grammar);
 NonTerminal* InitialNonTerminal(Grammar *grammar);
 Rule* InitialRule(Grammar *grammar);
 Expression* EODTerminal(Grammar *grammar);
 BOOL CompareNonTerminals(ExpressionValue first, ExpressionValue second);
 BOOL CompareTerminals(ExpressionValue first, ExpressionValue second);
-Dictionary* GrammarFirstSet(Grammar *grammar);
-LinearLinkedListNode *LookupFirstSet(Dictionary *firstSets, Expression *expression);
+void GrammarFirstSet(Grammar *grammar);
 Item* NextItem(Item *item);
-Item* InitialItem(Rule *rule, Expression *lookahead);
-void FreeFirstSets(Dictionary *firstSets);
+Item* InitialItem(Rule *rule, TokenType lookahead);
 void FreeGrammar(Grammar *grammar);

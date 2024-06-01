@@ -2,8 +2,6 @@
 
 #include "PushdownMachine.h"
 
-static int __numOfStates = 0;
-
 void InitPushdownMachine(PushdownMachine *pushdownMachine)
 {
     pushdownMachine->stack = malloc(sizeof(Stack));
@@ -14,9 +12,9 @@ void InitPushdownMachine(PushdownMachine *pushdownMachine)
 
 PushdownState *AddPushdownState(PushdownMachine *stateMachine)
 {
-    __numOfStates++;
     PushdownState *newState = malloc(sizeof(PushdownState));
 
+    // InitDictionary(&newState->transitions);
     InitCircularLinearLinkedList(&newState->transitionsManager);
     InitCircularLinearLinkedList(&newState->lrItems);
 
@@ -25,11 +23,42 @@ PushdownState *AddPushdownState(PushdownMachine *stateMachine)
         InsertEndCircularLinearLinkedList(&stateMachine->statesManager);
 
     newState->isAccepting = FALSE;
+    newState->key = ZERO;
     stateMachine->statesManager->info = newState;
 
     return (newState);
 }
 
+unsigned long TransitionKey1(PushdownTransition *transition)
+{
+    return (transition->symbol.nonTerminal);
+}
+
+unsigned long TransitionKey2(PushdownTransition *transition)
+{
+    return (transition->symbol.terminal);
+}
+
+unsigned long Expression1(ExpressionValue *e)
+{
+    return (e->nonTerminal);
+}
+
+unsigned long Expression2(ExpressionValue *e)
+{
+    return (e->terminal);
+}
+
+BOOL CompareTransitions1(PushdownTransition *first, ExpressionValue *expressionValue)
+{
+    return first->symbol.nonTerminal == expressionValue->nonTerminal;
+}
+
+BOOL CompareTransitions2(PushdownTransition *first, ExpressionValue *expressionValue)
+{
+    return first->symbol.terminal == expressionValue->terminal;
+}
+ 
 void AddPushdownTransition(PushdownMachine *stateMachine, PushdownState *source, PushdownState *dest, SYMBOL_TYPE symbol)
 {
     PushdownTransition *transition = malloc(sizeof(PushdownTransition));
@@ -40,6 +69,7 @@ void AddPushdownTransition(PushdownMachine *stateMachine, PushdownState *source,
 
     transition->dest = dest;
     transition->symbol = symbol;
+
     source->transitionsManager->info = transition;
 }
 
@@ -55,6 +85,7 @@ PushdownState *InitialPushdownState(PushdownMachine *stateMachine)
 
 void EmptyPushdownState(PushdownState *state)
 {
+    // EmptyDictionary(&state->transitions, NULL);
     state->transitionsManager ? EmptyCircularLinearLinkedList(&state->transitionsManager, free) : ZERO;
     state->lrItems ? EmptyCircularLinearLinkedList(&state->lrItems, free) : ZERO;
 
@@ -63,8 +94,6 @@ void EmptyPushdownState(PushdownState *state)
 
 void EmptyPushdownMachine(PushdownMachine *stateMachine)
 {
-    printf("\nNum of States: %d\n", __numOfStates);
-
     while (!IsEmptyStack(stateMachine->stack))
     {
         PopStack(stateMachine->stack);

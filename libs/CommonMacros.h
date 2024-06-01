@@ -21,4 +21,12 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
+#define BIT_VEC(name, size) unsigned char name[(((size) - 1) >> 3) + 1]
+#define BIT_VEC_ZERO(vec, size) for (short n = (size - 1) >> 3; n >= 0; n--) vec[n] = 0;
+#define BIT_BLOCK(bit) ((bit) >> 3)
+#define BIT_OFFSET(bit) ((bit) & 7)
+#define BIT_SET(vec, bit) (vec[BIT_BLOCK(bit)] |= ((unsigned char)1 << BIT_OFFSET(bit)))
+#define BIT_TEST(vec, bit) (vec[BIT_BLOCK(bit)] & ((unsigned char)1 << BIT_OFFSET(bit)))
+#define BIT_UNION(first, second, size) for (short n = (size - 1) >> 3; n >= 0; n--) first[n] |= second[n];
+
 #define SWAP(a, b, type) { type temp = (a); (a) = (b); (b) = temp; }

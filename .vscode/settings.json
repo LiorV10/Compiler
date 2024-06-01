@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "typesystem.h": "c",
+        "*.s": "csharp",
+        "semanticanalyzer.h": "c",
+        "viewer.h": "c",
+        "abstractsyntaxtree.h": "c"
+    }
+}

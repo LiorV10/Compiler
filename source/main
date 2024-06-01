@@ -1,0 +1,4316 @@
+# 0 "/media/lior/Data/C/Compiler/source/main.c"
+# 1 "/media/lior/Data/C/Compiler/source//"
+# 0 "<built-in>"
+# 0 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 0 "<command-line>" 2
+# 1 "/media/lior/Data/C/Compiler/source/main.c"
+
+
+# 1 "/media/lior/Data/C/Compiler/source/Viewer.h" 1
+
+
+
+# 1 "/usr/include/stdlib.h" 1 3 4
+# 26 "/usr/include/stdlib.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 1 3 4
+# 33 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 3 4
+# 1 "/usr/include/features.h" 1 3 4
+# 392 "/usr/include/features.h" 3 4
+# 1 "/usr/include/features-time64.h" 1 3 4
+# 20 "/usr/include/features-time64.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 21 "/usr/include/features-time64.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/timesize.h" 1 3 4
+# 19 "/usr/include/x86_64-linux-gnu/bits/timesize.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 20 "/usr/include/x86_64-linux-gnu/bits/timesize.h" 2 3 4
+# 22 "/usr/include/features-time64.h" 2 3 4
+# 393 "/usr/include/features.h" 2 3 4
+# 486 "/usr/include/features.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 1 3 4
+# 559 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 560 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/long-double.h" 1 3 4
+# 561 "/usr/include/x86_64-linux-gnu/sys/cdefs.h" 2 3 4
+# 487 "/usr/include/features.h" 2 3 4
+# 510 "/usr/include/features.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 1 3 4
+# 10 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/gnu/stubs-64.h" 1 3 4
+# 11 "/usr/include/x86_64-linux-gnu/gnu/stubs.h" 2 3 4
+# 511 "/usr/include/features.h" 2 3 4
+# 34 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 2 3 4
+# 27 "/usr/include/stdlib.h" 2 3 4
+
+
+
+
+
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 209 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 3 4
+
+# 209 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 3 4
+typedef long unsigned int size_t;
+# 321 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 3 4
+typedef int wchar_t;
+# 33 "/usr/include/stdlib.h" 2 3 4
+
+
+
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/waitflags.h" 1 3 4
+# 41 "/usr/include/stdlib.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/waitstatus.h" 1 3 4
+# 42 "/usr/include/stdlib.h" 2 3 4
+# 56 "/usr/include/stdlib.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/floatn.h" 1 3 4
+# 119 "/usr/include/x86_64-linux-gnu/bits/floatn.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/floatn-common.h" 1 3 4
+# 24 "/usr/include/x86_64-linux-gnu/bits/floatn-common.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/long-double.h" 1 3 4
+# 25 "/usr/include/x86_64-linux-gnu/bits/floatn-common.h" 2 3 4
+# 120 "/usr/include/x86_64-linux-gnu/bits/floatn.h" 2 3 4
+# 57 "/usr/include/stdlib.h" 2 3 4
+
+
+typedef struct
+  {
+    int quot;
+    int rem;
+  } div_t;
+
+
+
+typedef struct
+  {
+    long int quot;
+    long int rem;
+  } ldiv_t;
+
+
+
+
+
+__extension__ typedef struct
+  {
+    long long int quot;
+    long long int rem;
+  } lldiv_t;
+# 98 "/usr/include/stdlib.h" 3 4
+extern size_t __ctype_get_mb_cur_max (void) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+
+extern double atof (const char *__nptr)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+
+extern int atoi (const char *__nptr)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+
+extern long int atol (const char *__nptr)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+
+
+
+__extension__ extern long long int atoll (const char *__nptr)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+
+
+
+extern double strtod (const char *__restrict __nptr,
+        char **__restrict __endptr)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+extern float strtof (const char *__restrict __nptr,
+       char **__restrict __endptr) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+extern long double strtold (const char *__restrict __nptr,
+       char **__restrict __endptr)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 177 "/usr/include/stdlib.h" 3 4
+extern long int strtol (const char *__restrict __nptr,
+   char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+extern unsigned long int strtoul (const char *__restrict __nptr,
+      char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+__extension__
+extern long long int strtoq (const char *__restrict __nptr,
+        char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+__extension__
+extern unsigned long long int strtouq (const char *__restrict __nptr,
+           char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+__extension__
+extern long long int strtoll (const char *__restrict __nptr,
+         char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+__extension__
+extern unsigned long long int strtoull (const char *__restrict __nptr,
+     char **__restrict __endptr, int __base)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 386 "/usr/include/stdlib.h" 3 4
+extern char *l64a (long int __n) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+extern long int a64l (const char *__s)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__pure__)) __attribute__ ((__nonnull__ (1))) ;
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/sys/types.h" 1 3 4
+# 27 "/usr/include/x86_64-linux-gnu/sys/types.h" 3 4
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types.h" 1 3 4
+# 27 "/usr/include/x86_64-linux-gnu/bits/types.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 28 "/usr/include/x86_64-linux-gnu/bits/types.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/timesize.h" 1 3 4
+# 19 "/usr/include/x86_64-linux-gnu/bits/timesize.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 20 "/usr/include/x86_64-linux-gnu/bits/timesize.h" 2 3 4
+# 29 "/usr/include/x86_64-linux-gnu/bits/types.h" 2 3 4
+
+
+typedef unsigned char __u_char;
+typedef unsigned short int __u_short;
+typedef unsigned int __u_int;
+typedef unsigned long int __u_long;
+
+
+typedef signed char __int8_t;
+typedef unsigned char __uint8_t;
+typedef signed short int __int16_t;
+typedef unsigned short int __uint16_t;
+typedef signed int __int32_t;
+typedef unsigned int __uint32_t;
+
+typedef signed long int __int64_t;
+typedef unsigned long int __uint64_t;
+
+
+
+
+
+
+typedef __int8_t __int_least8_t;
+typedef __uint8_t __uint_least8_t;
+typedef __int16_t __int_least16_t;
+typedef __uint16_t __uint_least16_t;
+typedef __int32_t __int_least32_t;
+typedef __uint32_t __uint_least32_t;
+typedef __int64_t __int_least64_t;
+typedef __uint64_t __uint_least64_t;
+
+
+
+typedef long int __quad_t;
+typedef unsigned long int __u_quad_t;
+
+
+
+
+
+
+
+typedef long int __intmax_t;
+typedef unsigned long int __uintmax_t;
+# 141 "/usr/include/x86_64-linux-gnu/bits/types.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/typesizes.h" 1 3 4
+# 142 "/usr/include/x86_64-linux-gnu/bits/types.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/time64.h" 1 3 4
+# 143 "/usr/include/x86_64-linux-gnu/bits/types.h" 2 3 4
+
+
+typedef unsigned long int __dev_t;
+typedef unsigned int __uid_t;
+typedef unsigned int __gid_t;
+typedef unsigned long int __ino_t;
+typedef unsigned long int __ino64_t;
+typedef unsigned int __mode_t;
+typedef unsigned long int __nlink_t;
+typedef long int __off_t;
+typedef long int __off64_t;
+typedef int __pid_t;
+typedef struct { int __val[2]; } __fsid_t;
+typedef long int __clock_t;
+typedef unsigned long int __rlim_t;
+typedef unsigned long int __rlim64_t;
+typedef unsigned int __id_t;
+typedef long int __time_t;
+typedef unsigned int __useconds_t;
+typedef long int __suseconds_t;
+typedef long int __suseconds64_t;
+
+typedef int __daddr_t;
+typedef int __key_t;
+
+
+typedef int __clockid_t;
+
+
+typedef void * __timer_t;
+
+
+typedef long int __blksize_t;
+
+
+
+
+typedef long int __blkcnt_t;
+typedef long int __blkcnt64_t;
+
+
+typedef unsigned long int __fsblkcnt_t;
+typedef unsigned long int __fsblkcnt64_t;
+
+
+typedef unsigned long int __fsfilcnt_t;
+typedef unsigned long int __fsfilcnt64_t;
+
+
+typedef long int __fsword_t;
+
+typedef long int __ssize_t;
+
+
+typedef long int __syscall_slong_t;
+
+typedef unsigned long int __syscall_ulong_t;
+
+
+
+typedef __off64_t __loff_t;
+typedef char *__caddr_t;
+
+
+typedef long int __intptr_t;
+
+
+typedef unsigned int __socklen_t;
+
+
+
+
+typedef int __sig_atomic_t;
+# 30 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+
+
+typedef __u_char u_char;
+typedef __u_short u_short;
+typedef __u_int u_int;
+typedef __u_long u_long;
+typedef __quad_t quad_t;
+typedef __u_quad_t u_quad_t;
+typedef __fsid_t fsid_t;
+
+
+typedef __loff_t loff_t;
+
+
+
+
+typedef __ino_t ino_t;
+# 59 "/usr/include/x86_64-linux-gnu/sys/types.h" 3 4
+typedef __dev_t dev_t;
+
+
+
+
+typedef __gid_t gid_t;
+
+
+
+
+typedef __mode_t mode_t;
+
+
+
+
+typedef __nlink_t nlink_t;
+
+
+
+
+typedef __uid_t uid_t;
+
+
+
+
+
+typedef __off_t off_t;
+# 97 "/usr/include/x86_64-linux-gnu/sys/types.h" 3 4
+typedef __pid_t pid_t;
+
+
+
+
+
+typedef __id_t id_t;
+
+
+
+
+typedef __ssize_t ssize_t;
+
+
+
+
+
+typedef __daddr_t daddr_t;
+typedef __caddr_t caddr_t;
+
+
+
+
+
+typedef __key_t key_t;
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/clock_t.h" 1 3 4
+
+
+
+
+
+
+typedef __clock_t clock_t;
+# 127 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/clockid_t.h" 1 3 4
+
+
+
+
+
+
+typedef __clockid_t clockid_t;
+# 129 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/time_t.h" 1 3 4
+# 10 "/usr/include/x86_64-linux-gnu/bits/types/time_t.h" 3 4
+typedef __time_t time_t;
+# 130 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/timer_t.h" 1 3 4
+
+
+
+
+
+
+typedef __timer_t timer_t;
+# 131 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+# 144 "/usr/include/x86_64-linux-gnu/sys/types.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 145 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+
+
+typedef unsigned long int ulong;
+typedef unsigned short int ushort;
+typedef unsigned int uint;
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/stdint-intn.h" 1 3 4
+# 24 "/usr/include/x86_64-linux-gnu/bits/stdint-intn.h" 3 4
+typedef __int8_t int8_t;
+typedef __int16_t int16_t;
+typedef __int32_t int32_t;
+typedef __int64_t int64_t;
+# 156 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+
+typedef __uint8_t u_int8_t;
+typedef __uint16_t u_int16_t;
+typedef __uint32_t u_int32_t;
+typedef __uint64_t u_int64_t;
+
+
+typedef int register_t __attribute__ ((__mode__ (__word__)));
+# 176 "/usr/include/x86_64-linux-gnu/sys/types.h" 3 4
+# 1 "/usr/include/endian.h" 1 3 4
+# 24 "/usr/include/endian.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/endian.h" 1 3 4
+# 35 "/usr/include/x86_64-linux-gnu/bits/endian.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/endianness.h" 1 3 4
+# 36 "/usr/include/x86_64-linux-gnu/bits/endian.h" 2 3 4
+# 25 "/usr/include/endian.h" 2 3 4
+# 35 "/usr/include/endian.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/byteswap.h" 1 3 4
+# 33 "/usr/include/x86_64-linux-gnu/bits/byteswap.h" 3 4
+static __inline __uint16_t
+__bswap_16 (__uint16_t __bsx)
+{
+
+  return __builtin_bswap16 (__bsx);
+
+
+
+}
+
+
+
+
+
+
+static __inline __uint32_t
+__bswap_32 (__uint32_t __bsx)
+{
+
+  return __builtin_bswap32 (__bsx);
+
+
+
+}
+# 69 "/usr/include/x86_64-linux-gnu/bits/byteswap.h" 3 4
+__extension__ static __inline __uint64_t
+__bswap_64 (__uint64_t __bsx)
+{
+
+  return __builtin_bswap64 (__bsx);
+
+
+
+}
+# 36 "/usr/include/endian.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/uintn-identity.h" 1 3 4
+# 32 "/usr/include/x86_64-linux-gnu/bits/uintn-identity.h" 3 4
+static __inline __uint16_t
+__uint16_identity (__uint16_t __x)
+{
+  return __x;
+}
+
+static __inline __uint32_t
+__uint32_identity (__uint32_t __x)
+{
+  return __x;
+}
+
+static __inline __uint64_t
+__uint64_identity (__uint64_t __x)
+{
+  return __x;
+}
+# 37 "/usr/include/endian.h" 2 3 4
+# 177 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+
+# 1 "/usr/include/x86_64-linux-gnu/sys/select.h" 1 3 4
+# 30 "/usr/include/x86_64-linux-gnu/sys/select.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/select.h" 1 3 4
+# 31 "/usr/include/x86_64-linux-gnu/sys/select.h" 2 3 4
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h" 1 3 4
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h" 1 3 4
+
+
+
+
+typedef struct
+{
+  unsigned long int __val[(1024 / (8 * sizeof (unsigned long int)))];
+} __sigset_t;
+# 5 "/usr/include/x86_64-linux-gnu/bits/types/sigset_t.h" 2 3 4
+
+
+typedef __sigset_t sigset_t;
+# 34 "/usr/include/x86_64-linux-gnu/sys/select.h" 2 3 4
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h" 1 3 4
+
+
+
+
+
+
+
+struct timeval
+{
+
+
+
+
+  __time_t tv_sec;
+  __suseconds_t tv_usec;
+
+};
+# 38 "/usr/include/x86_64-linux-gnu/sys/select.h" 2 3 4
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h" 1 3 4
+# 11 "/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h" 3 4
+struct timespec
+{
+
+
+
+  __time_t tv_sec;
+
+
+
+
+  __syscall_slong_t tv_nsec;
+# 31 "/usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h" 3 4
+};
+# 40 "/usr/include/x86_64-linux-gnu/sys/select.h" 2 3 4
+
+
+
+typedef __suseconds_t suseconds_t;
+
+
+
+
+
+typedef long int __fd_mask;
+# 59 "/usr/include/x86_64-linux-gnu/sys/select.h" 3 4
+typedef struct
+  {
+
+
+
+
+
+
+    __fd_mask __fds_bits[1024 / (8 * (int) sizeof (__fd_mask))];
+
+
+  } fd_set;
+
+
+
+
+
+
+typedef __fd_mask fd_mask;
+# 91 "/usr/include/x86_64-linux-gnu/sys/select.h" 3 4
+
+# 102 "/usr/include/x86_64-linux-gnu/sys/select.h" 3 4
+extern int select (int __nfds, fd_set *__restrict __readfds,
+     fd_set *__restrict __writefds,
+     fd_set *__restrict __exceptfds,
+     struct timeval *__restrict __timeout);
+# 127 "/usr/include/x86_64-linux-gnu/sys/select.h" 3 4
+extern int pselect (int __nfds, fd_set *__restrict __readfds,
+      fd_set *__restrict __writefds,
+      fd_set *__restrict __exceptfds,
+      const struct timespec *__restrict __timeout,
+      const __sigset_t *__restrict __sigmask);
+# 153 "/usr/include/x86_64-linux-gnu/sys/select.h" 3 4
+
+# 180 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+
+
+
+
+typedef __blksize_t blksize_t;
+
+
+
+
+
+
+typedef __blkcnt_t blkcnt_t;
+
+
+
+typedef __fsblkcnt_t fsblkcnt_t;
+
+
+
+typedef __fsfilcnt_t fsfilcnt_t;
+# 227 "/usr/include/x86_64-linux-gnu/sys/types.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h" 1 3 4
+# 23 "/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 1 3 4
+# 44 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h" 1 3 4
+# 21 "/usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/wordsize.h" 1 3 4
+# 22 "/usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h" 2 3 4
+# 45 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 2 3 4
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h" 1 3 4
+# 25 "/usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h" 3 4
+typedef union
+{
+  __extension__ unsigned long long int __value64;
+  struct
+  {
+    unsigned int __low;
+    unsigned int __high;
+  } __value32;
+} __atomic_wide_counter;
+# 47 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 2 3 4
+
+
+
+
+typedef struct __pthread_internal_list
+{
+  struct __pthread_internal_list *__prev;
+  struct __pthread_internal_list *__next;
+} __pthread_list_t;
+
+typedef struct __pthread_internal_slist
+{
+  struct __pthread_internal_slist *__next;
+} __pthread_slist_t;
+# 76 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/struct_mutex.h" 1 3 4
+# 22 "/usr/include/x86_64-linux-gnu/bits/struct_mutex.h" 3 4
+struct __pthread_mutex_s
+{
+  int __lock;
+  unsigned int __count;
+  int __owner;
+
+  unsigned int __nusers;
+
+
+
+  int __kind;
+
+  short __spins;
+  short __elision;
+  __pthread_list_t __list;
+# 53 "/usr/include/x86_64-linux-gnu/bits/struct_mutex.h" 3 4
+};
+# 77 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 2 3 4
+# 89 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h" 1 3 4
+# 23 "/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h" 3 4
+struct __pthread_rwlock_arch_t
+{
+  unsigned int __readers;
+  unsigned int __writers;
+  unsigned int __wrphase_futex;
+  unsigned int __writers_futex;
+  unsigned int __pad3;
+  unsigned int __pad4;
+
+  int __cur_writer;
+  int __shared;
+  signed char __rwelision;
+
+
+
+
+  unsigned char __pad1[7];
+
+
+  unsigned long int __pad2;
+
+
+  unsigned int __flags;
+# 55 "/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h" 3 4
+};
+# 90 "/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h" 2 3 4
+
+
+
+
+struct __pthread_cond_s
+{
+  __atomic_wide_counter __wseq;
+  __atomic_wide_counter __g1_start;
+  unsigned int __g_refs[2] ;
+  unsigned int __g_size[2];
+  unsigned int __g1_orig_size;
+  unsigned int __wrefs;
+  unsigned int __g_signals[2];
+};
+
+typedef unsigned int __tss_t;
+typedef unsigned long int __thrd_t;
+
+typedef struct
+{
+  int __data ;
+} __once_flag;
+# 24 "/usr/include/x86_64-linux-gnu/bits/pthreadtypes.h" 2 3 4
+
+
+
+typedef unsigned long int pthread_t;
+
+
+
+
+typedef union
+{
+  char __size[4];
+  int __align;
+} pthread_mutexattr_t;
+
+
+
+
+typedef union
+{
+  char __size[4];
+  int __align;
+} pthread_condattr_t;
+
+
+
+typedef unsigned int pthread_key_t;
+
+
+
+typedef int pthread_once_t;
+
+
+union pthread_attr_t
+{
+  char __size[56];
+  long int __align;
+};
+
+typedef union pthread_attr_t pthread_attr_t;
+
+
+
+
+typedef union
+{
+  struct __pthread_mutex_s __data;
+  char __size[40];
+  long int __align;
+} pthread_mutex_t;
+
+
+typedef union
+{
+  struct __pthread_cond_s __data;
+  char __size[48];
+  __extension__ long long int __align;
+} pthread_cond_t;
+
+
+
+
+
+typedef union
+{
+  struct __pthread_rwlock_arch_t __data;
+  char __size[56];
+  long int __align;
+} pthread_rwlock_t;
+
+typedef union
+{
+  char __size[8];
+  long int __align;
+} pthread_rwlockattr_t;
+
+
+
+
+
+typedef volatile int pthread_spinlock_t;
+
+
+
+
+typedef union
+{
+  char __size[32];
+  long int __align;
+} pthread_barrier_t;
+
+typedef union
+{
+  char __size[4];
+  int __align;
+} pthread_barrierattr_t;
+# 228 "/usr/include/x86_64-linux-gnu/sys/types.h" 2 3 4
+
+
+
+# 396 "/usr/include/stdlib.h" 2 3 4
+
+
+
+
+
+
+extern long int random (void) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern void srandom (unsigned int __seed) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+extern char *initstate (unsigned int __seed, char *__statebuf,
+   size_t __statelen) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2)));
+
+
+
+extern char *setstate (char *__statebuf) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+
+
+struct random_data
+  {
+    int32_t *fptr;
+    int32_t *rptr;
+    int32_t *state;
+    int rand_type;
+    int rand_deg;
+    int rand_sep;
+    int32_t *end_ptr;
+  };
+
+extern int random_r (struct random_data *__restrict __buf,
+       int32_t *__restrict __result) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+extern int srandom_r (unsigned int __seed, struct random_data *__buf)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2)));
+
+extern int initstate_r (unsigned int __seed, char *__restrict __statebuf,
+   size_t __statelen,
+   struct random_data *__restrict __buf)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2, 4)));
+
+extern int setstate_r (char *__restrict __statebuf,
+         struct random_data *__restrict __buf)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+
+
+
+
+extern int rand (void) __attribute__ ((__nothrow__ , __leaf__));
+
+extern void srand (unsigned int __seed) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int rand_r (unsigned int *__seed) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+
+extern double drand48 (void) __attribute__ ((__nothrow__ , __leaf__));
+extern double erand48 (unsigned short int __xsubi[3]) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+extern long int lrand48 (void) __attribute__ ((__nothrow__ , __leaf__));
+extern long int nrand48 (unsigned short int __xsubi[3])
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+extern long int mrand48 (void) __attribute__ ((__nothrow__ , __leaf__));
+extern long int jrand48 (unsigned short int __xsubi[3])
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+extern void srand48 (long int __seedval) __attribute__ ((__nothrow__ , __leaf__));
+extern unsigned short int *seed48 (unsigned short int __seed16v[3])
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+extern void lcong48 (unsigned short int __param[7]) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+struct drand48_data
+  {
+    unsigned short int __x[3];
+    unsigned short int __old_x[3];
+    unsigned short int __c;
+    unsigned short int __init;
+    __extension__ unsigned long long int __a;
+
+  };
+
+
+extern int drand48_r (struct drand48_data *__restrict __buffer,
+        double *__restrict __result) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+extern int erand48_r (unsigned short int __xsubi[3],
+        struct drand48_data *__restrict __buffer,
+        double *__restrict __result) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+
+extern int lrand48_r (struct drand48_data *__restrict __buffer,
+        long int *__restrict __result)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+extern int nrand48_r (unsigned short int __xsubi[3],
+        struct drand48_data *__restrict __buffer,
+        long int *__restrict __result)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+
+extern int mrand48_r (struct drand48_data *__restrict __buffer,
+        long int *__restrict __result)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+extern int jrand48_r (unsigned short int __xsubi[3],
+        struct drand48_data *__restrict __buffer,
+        long int *__restrict __result)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+
+extern int srand48_r (long int __seedval, struct drand48_data *__buffer)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2)));
+
+extern int seed48_r (unsigned short int __seed16v[3],
+       struct drand48_data *__buffer) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+extern int lcong48_r (unsigned short int __param[7],
+        struct drand48_data *__buffer)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2)));
+
+
+
+
+extern void *malloc (size_t __size) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__))
+     __attribute__ ((__alloc_size__ (1))) ;
+
+extern void *calloc (size_t __nmemb, size_t __size)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__)) __attribute__ ((__alloc_size__ (1, 2))) ;
+
+
+
+
+
+
+extern void *realloc (void *__ptr, size_t __size)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__warn_unused_result__)) __attribute__ ((__alloc_size__ (2)));
+
+
+extern void free (void *__ptr) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+
+extern void *reallocarray (void *__ptr, size_t __nmemb, size_t __size)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__warn_unused_result__))
+     __attribute__ ((__alloc_size__ (2, 3)))
+    __attribute__ ((__malloc__ (__builtin_free, 1)));
+
+
+extern void *reallocarray (void *__ptr, size_t __nmemb, size_t __size)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__ (reallocarray, 1)));
+
+
+
+# 1 "/usr/include/alloca.h" 1 3 4
+# 24 "/usr/include/alloca.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 25 "/usr/include/alloca.h" 2 3 4
+
+
+
+
+
+
+
+extern void *alloca (size_t __size) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+# 575 "/usr/include/stdlib.h" 2 3 4
+
+
+
+
+
+extern void *valloc (size_t __size) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__))
+     __attribute__ ((__alloc_size__ (1))) ;
+
+
+
+
+extern int posix_memalign (void **__memptr, size_t __alignment, size_t __size)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1))) ;
+
+
+
+
+extern void *aligned_alloc (size_t __alignment, size_t __size)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__)) __attribute__ ((__alloc_align__ (1)))
+     __attribute__ ((__alloc_size__ (2))) ;
+
+
+
+extern void abort (void) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+
+
+
+extern int atexit (void (*__func) (void)) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+
+
+extern int at_quick_exit (void (*__func) (void)) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+
+extern int on_exit (void (*__func) (int __status, void *__arg), void *__arg)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+extern void exit (int __status) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+
+
+
+
+
+extern void quick_exit (int __status) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+
+
+
+
+
+extern void _Exit (int __status) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__noreturn__));
+
+
+
+
+extern char *getenv (const char *__name) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1))) ;
+# 654 "/usr/include/stdlib.h" 3 4
+extern int putenv (char *__string) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+extern int setenv (const char *__name, const char *__value, int __replace)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (2)));
+
+
+extern int unsetenv (const char *__name) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+
+
+
+
+extern int clearenv (void) __attribute__ ((__nothrow__ , __leaf__));
+# 682 "/usr/include/stdlib.h" 3 4
+extern char *mktemp (char *__template) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 695 "/usr/include/stdlib.h" 3 4
+extern int mkstemp (char *__template) __attribute__ ((__nonnull__ (1))) ;
+# 717 "/usr/include/stdlib.h" 3 4
+extern int mkstemps (char *__template, int __suffixlen) __attribute__ ((__nonnull__ (1))) ;
+# 738 "/usr/include/stdlib.h" 3 4
+extern char *mkdtemp (char *__template) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1))) ;
+# 791 "/usr/include/stdlib.h" 3 4
+extern int system (const char *__command) ;
+# 808 "/usr/include/stdlib.h" 3 4
+extern char *realpath (const char *__restrict __name,
+         char *__restrict __resolved) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+
+
+
+
+typedef int (*__compar_fn_t) (const void *, const void *);
+# 828 "/usr/include/stdlib.h" 3 4
+extern void *bsearch (const void *__key, const void *__base,
+        size_t __nmemb, size_t __size, __compar_fn_t __compar)
+     __attribute__ ((__nonnull__ (1, 2, 5))) ;
+
+
+
+
+
+
+
+extern void qsort (void *__base, size_t __nmemb, size_t __size,
+     __compar_fn_t __compar) __attribute__ ((__nonnull__ (1, 4)));
+# 848 "/usr/include/stdlib.h" 3 4
+extern int abs (int __x) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__)) ;
+extern long int labs (long int __x) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__)) ;
+
+
+__extension__ extern long long int llabs (long long int __x)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__)) ;
+
+
+
+
+
+
+extern div_t div (int __numer, int __denom)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__)) ;
+extern ldiv_t ldiv (long int __numer, long int __denom)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__)) ;
+
+
+__extension__ extern lldiv_t lldiv (long long int __numer,
+        long long int __denom)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__const__)) ;
+# 880 "/usr/include/stdlib.h" 3 4
+extern char *ecvt (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4))) ;
+
+
+
+
+extern char *fcvt (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4))) ;
+
+
+
+
+extern char *gcvt (double __value, int __ndigit, char *__buf)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3))) ;
+
+
+
+
+extern char *qecvt (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4))) ;
+extern char *qfcvt (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4))) ;
+extern char *qgcvt (long double __value, int __ndigit, char *__buf)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3))) ;
+
+
+
+
+extern int ecvt_r (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign, char *__restrict __buf,
+     size_t __len) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+extern int fcvt_r (double __value, int __ndigit, int *__restrict __decpt,
+     int *__restrict __sign, char *__restrict __buf,
+     size_t __len) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+
+extern int qecvt_r (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign,
+      char *__restrict __buf, size_t __len)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+extern int qfcvt_r (long double __value, int __ndigit,
+      int *__restrict __decpt, int *__restrict __sign,
+      char *__restrict __buf, size_t __len)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (3, 4, 5)));
+
+
+
+
+
+extern int mblen (const char *__s, size_t __n) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int mbtowc (wchar_t *__restrict __pwc,
+     const char *__restrict __s, size_t __n) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern int wctomb (char *__s, wchar_t __wchar) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern size_t mbstowcs (wchar_t *__restrict __pwcs,
+   const char *__restrict __s, size_t __n) __attribute__ ((__nothrow__ , __leaf__))
+    __attribute__ ((__access__ (__read_only__, 2)));
+
+extern size_t wcstombs (char *__restrict __s,
+   const wchar_t *__restrict __pwcs, size_t __n)
+     __attribute__ ((__nothrow__ , __leaf__))
+  __attribute__ ((__access__ (__write_only__, 1, 3)))
+  __attribute__ ((__access__ (__read_only__, 2)));
+
+
+
+
+
+
+extern int rpmatch (const char *__response) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1))) ;
+# 967 "/usr/include/stdlib.h" 3 4
+extern int getsubopt (char **__restrict __optionp,
+        char *const *__restrict __tokens,
+        char **__restrict __valuep)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1, 2, 3))) ;
+# 1013 "/usr/include/stdlib.h" 3 4
+extern int getloadavg (double __loadavg[], int __nelem)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 1023 "/usr/include/stdlib.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/stdlib-float.h" 1 3 4
+# 1024 "/usr/include/stdlib.h" 2 3 4
+# 1035 "/usr/include/stdlib.h" 3 4
+
+# 5 "/media/lior/Data/C/Compiler/source/Viewer.h" 2
+
+
+
+# 1 "/usr/include/stdio.h" 1 3 4
+# 27 "/usr/include/stdio.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/libc-header-start.h" 1 3 4
+# 28 "/usr/include/stdio.h" 2 3 4
+
+
+
+
+
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stddef.h" 1 3 4
+# 34 "/usr/include/stdio.h" 2 3 4
+
+
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h" 1 3 4
+# 40 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h" 3 4
+typedef __builtin_va_list __gnuc_va_list;
+# 37 "/usr/include/stdio.h" 2 3 4
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h" 1 3 4
+
+
+
+
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h" 1 3 4
+# 13 "/usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h" 3 4
+typedef struct
+{
+  int __count;
+  union
+  {
+    unsigned int __wch;
+    char __wchb[4];
+  } __value;
+} __mbstate_t;
+# 6 "/usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h" 2 3 4
+
+
+
+
+typedef struct _G_fpos_t
+{
+  __off_t __pos;
+  __mbstate_t __state;
+} __fpos_t;
+# 40 "/usr/include/stdio.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h" 1 3 4
+# 10 "/usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h" 3 4
+typedef struct _G_fpos64_t
+{
+  __off64_t __pos;
+  __mbstate_t __state;
+} __fpos64_t;
+# 41 "/usr/include/stdio.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/__FILE.h" 1 3 4
+
+
+
+struct _IO_FILE;
+typedef struct _IO_FILE __FILE;
+# 42 "/usr/include/stdio.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/FILE.h" 1 3 4
+
+
+
+struct _IO_FILE;
+
+
+typedef struct _IO_FILE FILE;
+# 43 "/usr/include/stdio.h" 2 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h" 1 3 4
+# 35 "/usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h" 3 4
+struct _IO_FILE;
+struct _IO_marker;
+struct _IO_codecvt;
+struct _IO_wide_data;
+
+
+
+
+typedef void _IO_lock_t;
+
+
+
+
+
+struct _IO_FILE
+{
+  int _flags;
+
+
+  char *_IO_read_ptr;
+  char *_IO_read_end;
+  char *_IO_read_base;
+  char *_IO_write_base;
+  char *_IO_write_ptr;
+  char *_IO_write_end;
+  char *_IO_buf_base;
+  char *_IO_buf_end;
+
+
+  char *_IO_save_base;
+  char *_IO_backup_base;
+  char *_IO_save_end;
+
+  struct _IO_marker *_markers;
+
+  struct _IO_FILE *_chain;
+
+  int _fileno;
+  int _flags2;
+  __off_t _old_offset;
+
+
+  unsigned short _cur_column;
+  signed char _vtable_offset;
+  char _shortbuf[1];
+
+  _IO_lock_t *_lock;
+
+
+
+
+
+
+
+  __off64_t _offset;
+
+  struct _IO_codecvt *_codecvt;
+  struct _IO_wide_data *_wide_data;
+  struct _IO_FILE *_freeres_list;
+  void *_freeres_buf;
+  size_t __pad5;
+  int _mode;
+
+  char _unused2[15 * sizeof (int) - 4 * sizeof (void *) - sizeof (size_t)];
+};
+# 44 "/usr/include/stdio.h" 2 3 4
+# 52 "/usr/include/stdio.h" 3 4
+typedef __gnuc_va_list va_list;
+# 84 "/usr/include/stdio.h" 3 4
+typedef __fpos_t fpos_t;
+# 133 "/usr/include/stdio.h" 3 4
+# 1 "/usr/include/x86_64-linux-gnu/bits/stdio_lim.h" 1 3 4
+# 134 "/usr/include/stdio.h" 2 3 4
+# 143 "/usr/include/stdio.h" 3 4
+extern FILE *stdin;
+extern FILE *stdout;
+extern FILE *stderr;
+
+
+
+
+
+
+extern int remove (const char *__filename) __attribute__ ((__nothrow__ , __leaf__));
+
+extern int rename (const char *__old, const char *__new) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int renameat (int __oldfd, const char *__old, int __newfd,
+       const char *__new) __attribute__ ((__nothrow__ , __leaf__));
+# 178 "/usr/include/stdio.h" 3 4
+extern int fclose (FILE *__stream);
+# 188 "/usr/include/stdio.h" 3 4
+extern FILE *tmpfile (void)
+  __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (fclose, 1))) ;
+# 205 "/usr/include/stdio.h" 3 4
+extern char *tmpnam (char[20]) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+
+
+extern char *tmpnam_r (char __s[20]) __attribute__ ((__nothrow__ , __leaf__)) ;
+# 222 "/usr/include/stdio.h" 3 4
+extern char *tempnam (const char *__dir, const char *__pfx)
+   __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (__builtin_free, 1)));
+
+
+
+
+
+
+extern int fflush (FILE *__stream);
+# 239 "/usr/include/stdio.h" 3 4
+extern int fflush_unlocked (FILE *__stream);
+# 258 "/usr/include/stdio.h" 3 4
+extern FILE *fopen (const char *__restrict __filename,
+      const char *__restrict __modes)
+  __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (fclose, 1))) ;
+
+
+
+
+extern FILE *freopen (const char *__restrict __filename,
+        const char *__restrict __modes,
+        FILE *__restrict __stream) ;
+# 293 "/usr/include/stdio.h" 3 4
+extern FILE *fdopen (int __fd, const char *__modes) __attribute__ ((__nothrow__ , __leaf__))
+  __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (fclose, 1))) ;
+# 308 "/usr/include/stdio.h" 3 4
+extern FILE *fmemopen (void *__s, size_t __len, const char *__modes)
+  __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (fclose, 1))) ;
+
+
+
+
+extern FILE *open_memstream (char **__bufloc, size_t *__sizeloc) __attribute__ ((__nothrow__ , __leaf__))
+  __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (fclose, 1))) ;
+# 328 "/usr/include/stdio.h" 3 4
+extern void setbuf (FILE *__restrict __stream, char *__restrict __buf) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int setvbuf (FILE *__restrict __stream, char *__restrict __buf,
+      int __modes, size_t __n) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+extern void setbuffer (FILE *__restrict __stream, char *__restrict __buf,
+         size_t __size) __attribute__ ((__nothrow__ , __leaf__));
+
+
+extern void setlinebuf (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+
+
+extern int fprintf (FILE *__restrict __stream,
+      const char *__restrict __format, ...);
+
+
+
+
+extern int printf (const char *__restrict __format, ...);
+
+extern int sprintf (char *__restrict __s,
+      const char *__restrict __format, ...) __attribute__ ((__nothrow__));
+
+
+
+
+
+extern int vfprintf (FILE *__restrict __s, const char *__restrict __format,
+       __gnuc_va_list __arg);
+
+
+
+
+extern int vprintf (const char *__restrict __format, __gnuc_va_list __arg);
+
+extern int vsprintf (char *__restrict __s, const char *__restrict __format,
+       __gnuc_va_list __arg) __attribute__ ((__nothrow__));
+
+
+
+extern int snprintf (char *__restrict __s, size_t __maxlen,
+       const char *__restrict __format, ...)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 4)));
+
+extern int vsnprintf (char *__restrict __s, size_t __maxlen,
+        const char *__restrict __format, __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__)) __attribute__ ((__format__ (__printf__, 3, 0)));
+# 403 "/usr/include/stdio.h" 3 4
+extern int vdprintf (int __fd, const char *__restrict __fmt,
+       __gnuc_va_list __arg)
+     __attribute__ ((__format__ (__printf__, 2, 0)));
+extern int dprintf (int __fd, const char *__restrict __fmt, ...)
+     __attribute__ ((__format__ (__printf__, 2, 3)));
+
+
+
+
+
+
+
+extern int fscanf (FILE *__restrict __stream,
+     const char *__restrict __format, ...) ;
+
+
+
+
+extern int scanf (const char *__restrict __format, ...) ;
+
+extern int sscanf (const char *__restrict __s,
+     const char *__restrict __format, ...) __attribute__ ((__nothrow__ , __leaf__));
+# 434 "/usr/include/stdio.h" 3 4
+extern int fscanf (FILE *__restrict __stream, const char *__restrict __format, ...) __asm__ ("" "__isoc99_fscanf")
+
+                               ;
+extern int scanf (const char *__restrict __format, ...) __asm__ ("" "__isoc99_scanf")
+                              ;
+extern int sscanf (const char *__restrict __s, const char *__restrict __format, ...) __asm__ ("" "__isoc99_sscanf") __attribute__ ((__nothrow__ , __leaf__))
+
+                      ;
+# 459 "/usr/include/stdio.h" 3 4
+extern int vfscanf (FILE *__restrict __s, const char *__restrict __format,
+      __gnuc_va_list __arg)
+     __attribute__ ((__format__ (__scanf__, 2, 0))) ;
+
+
+
+
+
+extern int vscanf (const char *__restrict __format, __gnuc_va_list __arg)
+     __attribute__ ((__format__ (__scanf__, 1, 0))) ;
+
+
+extern int vsscanf (const char *__restrict __s,
+      const char *__restrict __format, __gnuc_va_list __arg)
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__format__ (__scanf__, 2, 0)));
+
+
+
+
+
+extern int vfscanf (FILE *__restrict __s, const char *__restrict __format, __gnuc_va_list __arg) __asm__ ("" "__isoc99_vfscanf")
+
+
+
+     __attribute__ ((__format__ (__scanf__, 2, 0))) ;
+extern int vscanf (const char *__restrict __format, __gnuc_va_list __arg) __asm__ ("" "__isoc99_vscanf")
+
+     __attribute__ ((__format__ (__scanf__, 1, 0))) ;
+extern int vsscanf (const char *__restrict __s, const char *__restrict __format, __gnuc_va_list __arg) __asm__ ("" "__isoc99_vsscanf") __attribute__ ((__nothrow__ , __leaf__))
+
+
+
+     __attribute__ ((__format__ (__scanf__, 2, 0)));
+# 513 "/usr/include/stdio.h" 3 4
+extern int fgetc (FILE *__stream);
+extern int getc (FILE *__stream);
+
+
+
+
+
+extern int getchar (void);
+
+
+
+
+
+
+extern int getc_unlocked (FILE *__stream);
+extern int getchar_unlocked (void);
+# 538 "/usr/include/stdio.h" 3 4
+extern int fgetc_unlocked (FILE *__stream);
+# 549 "/usr/include/stdio.h" 3 4
+extern int fputc (int __c, FILE *__stream);
+extern int putc (int __c, FILE *__stream);
+
+
+
+
+
+extern int putchar (int __c);
+# 565 "/usr/include/stdio.h" 3 4
+extern int fputc_unlocked (int __c, FILE *__stream);
+
+
+
+
+
+
+
+extern int putc_unlocked (int __c, FILE *__stream);
+extern int putchar_unlocked (int __c);
+
+
+
+
+
+
+extern int getw (FILE *__stream);
+
+
+extern int putw (int __w, FILE *__stream);
+
+
+
+
+
+
+
+extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
+     __attribute__ ((__access__ (__write_only__, 1, 2)));
+# 632 "/usr/include/stdio.h" 3 4
+extern __ssize_t __getdelim (char **__restrict __lineptr,
+                             size_t *__restrict __n, int __delimiter,
+                             FILE *__restrict __stream) ;
+extern __ssize_t getdelim (char **__restrict __lineptr,
+                           size_t *__restrict __n, int __delimiter,
+                           FILE *__restrict __stream) ;
+
+
+
+
+
+
+
+extern __ssize_t getline (char **__restrict __lineptr,
+                          size_t *__restrict __n,
+                          FILE *__restrict __stream) ;
+
+
+
+
+
+
+
+extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
+
+
+
+
+
+extern int puts (const char *__s);
+
+
+
+
+
+
+extern int ungetc (int __c, FILE *__stream);
+
+
+
+
+
+
+extern size_t fread (void *__restrict __ptr, size_t __size,
+       size_t __n, FILE *__restrict __stream) ;
+
+
+
+
+extern size_t fwrite (const void *__restrict __ptr, size_t __size,
+        size_t __n, FILE *__restrict __s);
+# 702 "/usr/include/stdio.h" 3 4
+extern size_t fread_unlocked (void *__restrict __ptr, size_t __size,
+         size_t __n, FILE *__restrict __stream) ;
+extern size_t fwrite_unlocked (const void *__restrict __ptr, size_t __size,
+          size_t __n, FILE *__restrict __stream);
+
+
+
+
+
+
+
+extern int fseek (FILE *__stream, long int __off, int __whence);
+
+
+
+
+extern long int ftell (FILE *__stream) ;
+
+
+
+
+extern void rewind (FILE *__stream);
+# 736 "/usr/include/stdio.h" 3 4
+extern int fseeko (FILE *__stream, __off_t __off, int __whence);
+
+
+
+
+extern __off_t ftello (FILE *__stream) ;
+# 760 "/usr/include/stdio.h" 3 4
+extern int fgetpos (FILE *__restrict __stream, fpos_t *__restrict __pos);
+
+
+
+
+extern int fsetpos (FILE *__stream, const fpos_t *__pos);
+# 786 "/usr/include/stdio.h" 3 4
+extern void clearerr (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__));
+
+extern int feof (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+extern int ferror (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+
+extern void clearerr_unlocked (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__));
+extern int feof_unlocked (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+extern int ferror_unlocked (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+
+
+
+
+
+extern void perror (const char *__s);
+
+
+
+
+extern int fileno (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+
+
+extern int fileno_unlocked (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+# 823 "/usr/include/stdio.h" 3 4
+extern int pclose (FILE *__stream);
+
+
+
+
+
+extern FILE *popen (const char *__command, const char *__modes)
+  __attribute__ ((__malloc__)) __attribute__ ((__malloc__ (pclose, 1))) ;
+
+
+
+
+
+
+extern char *ctermid (char *__s) __attribute__ ((__nothrow__ , __leaf__))
+  __attribute__ ((__access__ (__write_only__, 1)));
+# 867 "/usr/include/stdio.h" 3 4
+extern void flockfile (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+extern int ftrylockfile (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__)) ;
+
+
+extern void funlockfile (FILE *__stream) __attribute__ ((__nothrow__ , __leaf__));
+# 885 "/usr/include/stdio.h" 3 4
+extern int __uflow (FILE *);
+extern int __overflow (FILE *, int);
+# 902 "/usr/include/stdio.h" 3 4
+
+# 9 "/media/lior/Data/C/Compiler/source/Viewer.h" 2
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/CommonMacros.h" 1
+# 13 "/media/lior/Data/C/Compiler/source/Viewer.h" 2
+
+
+
+
+
+# 17 "/media/lior/Data/C/Compiler/source/Viewer.h"
+typedef struct
+{
+    FILE *fp;
+    char buffer[100];
+} Stream;
+
+void InitStream(Stream *stream, char *path, char *mode);
+char* NextLine(Stream *stream);
+void ResetStream(Stream *stream);
+void CloseStream(Stream *stream);
+void ExitWithError(char *error);
+unsigned char EndOfStream(Stream *stream);
+# 4 "/media/lior/Data/C/Compiler/source/main.c" 2
+# 1 "/media/lior/Data/C/Compiler/source/Lexer.c" 1
+
+
+# 1 "/media/lior/Data/C/Compiler/source/Lexer.h" 1
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 1
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/Regex.h" 1
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c" 1
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.h" 1
+# 10 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.h"
+# 1 "/media/lior/Data/C/Compiler/source/../libs/CircularLinearLinkedList.h" 1
+# 15 "/media/lior/Data/C/Compiler/source/../libs/CircularLinearLinkedList.h"
+typedef struct CircularLinearLinkedListNode
+{
+    void* info;
+    struct CircularLinearLinkedListNode *nextNode;
+} CircularLinearLinkedListNode;
+
+void InitCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
+void InsertAfterCircularLinearLinkedList(CircularLinearLinkedListNode *node);
+void InsertLastCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
+void InsertEndCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
+void DeleteAfterCircularLinearLinkedList(CircularLinearLinkedListNode *node);
+void DeleteLastCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
+void DeleteEndCircularLinearLinkedList(CircularLinearLinkedListNode **manager);
+void ConcatCircularLinearLinkedLists(CircularLinearLinkedListNode **first,
+                                     CircularLinearLinkedListNode *second);
+void EmptyCircularLinearLinkedList(CircularLinearLinkedListNode **manager, void(*Free)(void *));
+# 11 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.h" 2
+
+
+
+
+
+typedef struct
+{
+    CircularLinearLinkedListNode *ec;
+    int flag;
+    unsigned short info;
+    unsigned char visited;
+    CircularLinearLinkedListNode *transitionsManager;
+} State;
+
+typedef struct
+{
+    char symbol;
+    State *dest;
+} Transition;
+
+typedef struct
+{
+    CircularLinearLinkedListNode *statesManager;
+} StateMachine;
+
+void InitStateMachine(StateMachine *stateMachine);
+State *AddState(StateMachine *stateMachine);
+void AddTransition(StateMachine *stateMachine, State *source, State *dest, char symbol);
+State *FinalState(StateMachine *stateMachine);
+State *InitialState(StateMachine *stateMachine);
+void SetAllVisited(StateMachine *stateMachine, unsigned char visited);
+void ConcatStateMachines(StateMachine *first, StateMachine *second);
+StateMachine *FromSymbol(char symbol);
+StateMachine *Concat(StateMachine *first, StateMachine *second, unsigned char applyTransition);
+StateMachine *Union(StateMachine *first, StateMachine *second);
+StateMachine *OneOrMore(StateMachine *previous);
+StateMachine *Star(StateMachine *previous);
+StateMachine *Alternate(StateMachine *previous);
+void SelectNextStates(StateMachine *nfa,
+                   CircularLinearLinkedListNode **currentStates,
+                   CircularLinearLinkedListNode **nextStates,
+                   char symbol);
+void SelectSymbolTransitions(CircularLinearLinkedListNode *currentStates,
+                           CircularLinearLinkedListNode *startPtr,
+                           CircularLinearLinkedListNode **nextStates,
+                           char symbol);
+void EmptyStateMachine(StateMachine *stateMachine);
+# 5 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c" 2
+
+
+void InitStateMachine(StateMachine *stateMachine)
+{
+    InitCircularLinearLinkedList(&stateMachine->statesManager);
+}
+
+State *AddState(StateMachine *stateMachine)
+{
+    State *newState = malloc(sizeof(State));
+
+    InitCircularLinearLinkedList(&newState->transitionsManager);
+
+    !stateMachine->statesManager ?
+        InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
+        InsertEndCircularLinearLinkedList(&stateMachine->statesManager);
+
+    newState->info = 0;
+    newState->visited = 0;
+
+    stateMachine->statesManager->info = newState;
+
+    return (newState);
+}
+
+void AddTransition(StateMachine *stateMachine, State *source, State *dest, char symbol)
+{
+    Transition *transition = malloc(sizeof(Transition));
+
+    !source->transitionsManager ?
+        InsertLastCircularLinearLinkedList(&source->transitionsManager) :
+        InsertEndCircularLinearLinkedList(&source->transitionsManager);
+
+    transition->dest = dest;
+    transition->symbol = symbol;
+    source->transitionsManager->info = transition;
+}
+
+State *FinalState(StateMachine *stateMachine)
+{
+    return (stateMachine->statesManager->info);
+}
+
+State *InitialState(StateMachine *stateMachine)
+{
+    return (stateMachine->statesManager->nextNode->info);
+}
+
+void SetAllVisited(StateMachine *stateMachine, unsigned char visited)
+{
+    CircularLinearLinkedListNode *states = stateMachine->statesManager;
+
+    do
+    {
+        ((State*)states->info)->visited = visited;
+        states = states->nextNode;
+    }
+    while (states != stateMachine->statesManager);
+}
+
+void ConcatStateMachines(StateMachine *first, StateMachine *second)
+{
+    ConcatCircularLinearLinkedLists(&first->statesManager, second->statesManager);
+}
+
+StateMachine *FromSymbol(char symbol)
+{
+    StateMachine *stateMachine = malloc(sizeof(StateMachine));
+    InitStateMachine(stateMachine);
+
+    State *start = AddState(stateMachine);
+    State *end = AddState(stateMachine);
+
+    AddTransition(stateMachine, start, end, symbol);
+
+    return (stateMachine);
+}
+
+StateMachine *Concat(StateMachine *first, StateMachine *second, unsigned char applyTransition)
+{
+    State *firstEnd = FinalState(first);
+    State *secondStart = InitialState(second);
+
+    ConcatStateMachines(first, second);
+    applyTransition ? AddTransition(first, firstEnd, secondStart, '\000') : 0;
+
+    free(second);
+
+    return (first);
+}
+
+State* PushState(StateMachine *stateMachine)
+{
+    State *newState = malloc(sizeof(State));
+
+    InitCircularLinearLinkedList(&newState->transitionsManager);
+
+    !stateMachine->statesManager ?
+        InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
+        InsertAfterCircularLinearLinkedList(stateMachine->statesManager);
+
+    newState->info = 0;
+    newState->visited = 0;
+
+    stateMachine->statesManager->nextNode->info = newState;
+
+    return (newState);
+}
+
+StateMachine *Union(StateMachine *first, StateMachine *second)
+{
+    State *firstStart = InitialState(first);
+    State *firstEnd = FinalState(first);
+
+    State *secondStart = InitialState(second);
+    State *secondEnd = FinalState(second);
+
+    State *temp = PushState(first);
+
+    first = Concat(first, second, 0);
+    AddTransition(first, temp, firstStart, '\000');
+    AddTransition(first, temp, secondStart, '\000');
+
+    temp = AddState(first);
+    AddTransition(first, firstEnd, temp, '\000');
+    AddTransition(first, secondEnd, temp, '\000');
+
+    return (first);
+}
+
+StateMachine *OneOrMore(StateMachine *stateMachine)
+{
+    State *start = InitialState(stateMachine);
+    State *end = FinalState(stateMachine);
+
+    AddTransition(stateMachine, end, start, '\000');
+
+    return (stateMachine);
+}
+
+StateMachine *Star(StateMachine *stateMachine)
+{
+    stateMachine = OneOrMore(stateMachine);
+
+    AddTransition(stateMachine, InitialState(stateMachine), FinalState(stateMachine), '\000');
+
+    return (stateMachine);
+}
+
+StateMachine *Alternate(StateMachine *stateMachine)
+{
+    AddTransition(stateMachine, InitialState(stateMachine), FinalState(stateMachine), '\000');
+
+    return (stateMachine);
+}
+
+void InsertState(CircularLinearLinkedListNode **states, State *state)
+{
+    *states ?
+        InsertEndCircularLinearLinkedList(states) :
+        InsertLastCircularLinearLinkedList(states);
+
+    state->visited = 1;
+    (*states)->info = state;
+}
+
+void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
+                           CircularLinearLinkedListNode **nextStates,
+                           char symbol)
+{
+    Transition *currentTransition;
+    CircularLinearLinkedListNode *ptr = transitions->nextNode;
+
+    do
+    {
+        currentTransition = ptr->info;
+
+        !currentTransition->dest->visited && currentTransition->symbol == symbol ?
+            InsertState(nextStates, currentTransition->dest) :
+            0;
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != transitions->nextNode);
+}
+
+void SelectSymbolTransitions(CircularLinearLinkedListNode *currentStates,
+                           CircularLinearLinkedListNode *startPtr,
+                           CircularLinearLinkedListNode **nextStates,
+                           char symbol)
+{
+    Transition *currentTransition;
+    CircularLinearLinkedListNode *currentStatesPtr = startPtr;
+    CircularLinearLinkedListNode *transitions;
+
+    do
+    {
+        transitions = ((State *)currentStatesPtr->info)->transitionsManager;
+
+        transitions ?
+            SelectNextTransitions(transitions, nextStates, symbol) :
+            0;
+
+        currentStatesPtr = currentStatesPtr->nextNode;
+    }
+    while (currentStatesPtr != currentStates->nextNode);
+}
+
+void SelectAllTransitions(CircularLinearLinkedListNode *currentStates,
+                        CircularLinearLinkedListNode **nextStates,
+                        char symbol)
+{
+    SelectSymbolTransitions(currentStates, currentStates->nextNode, nextStates, symbol);
+    !*nextStates ? SelectSymbolTransitions(currentStates, currentStates->nextNode, nextStates, '\001') : 0;
+}
+
+void EpsilonClosure(CircularLinearLinkedListNode **states)
+{
+    CircularLinearLinkedListNode *epsilonStates;
+    CircularLinearLinkedListNode *previousEpsilonStates;
+
+    InitCircularLinearLinkedList(&epsilonStates);
+    SelectSymbolTransitions(*states, (*states)->nextNode, &epsilonStates, '\000');
+
+    while (epsilonStates)
+    {
+        previousEpsilonStates = epsilonStates->nextNode;
+        ConcatCircularLinearLinkedLists(states, epsilonStates);
+        epsilonStates = 
+# 233 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c" 3 4
+                       ((void *)0)
+# 233 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c"
+                           ;
+        SelectSymbolTransitions(*states, previousEpsilonStates, &epsilonStates, '\000');
+    }
+}
+
+unsigned char Exists(CircularLinearLinkedListNode *l, void *v)
+{
+    if (!l) return 0;
+
+    CircularLinearLinkedListNode *p = l;
+    do
+    {
+        if (p->info == v) return 1;
+
+        p = p->nextNode;
+    }
+    while (p != l);
+
+    return 0;
+}
+
+void f(StateMachine *nfa,
+                   CircularLinearLinkedListNode **currentStates,
+                   CircularLinearLinkedListNode **nextStates,
+                   char symbol)
+{
+        CircularLinearLinkedListNode *ppp = *nextStates;
+
+    do
+    {
+        !*currentStates ?
+            InsertLastCircularLinearLinkedList(currentStates) :
+            InsertEndCircularLinearLinkedList(currentStates);
+
+        (*currentStates)->info = ppp->info;
+
+        ppp = ppp->nextNode;
+    }
+    while (ppp != *nextStates);
+
+    CircularLinearLinkedListNode *s = (*currentStates)->nextNode;
+    CircularLinearLinkedListNode *e = s;
+
+    do
+    {
+        CircularLinearLinkedListNode *p = ((State*)s->info)->ec;
+
+        if (p) do
+        {
+            InsertEndCircularLinearLinkedList(nextStates);
+            (*nextStates)->info = p->info;
+
+            p = p->nextNode;
+        }
+        while (p != ((State*)s->info)->ec);
+
+        s = s->nextNode;
+    }
+    while (s != e);
+
+    EpsilonClosure(currentStates);
+
+    ppp = *currentStates;
+
+    do
+    {
+        int a = Exists(*nextStates, ppp->info);
+
+        if (!a)
+        {
+            puts("moshe");
+            { CircularLinearLinkedListNode* temp = (*nextStates); (*nextStates) = (*currentStates); (*currentStates) = temp; };
+            break;
+        }
+
+        ppp = ppp->nextNode;
+    }
+    while (ppp != *currentStates);
+
+    EmptyCircularLinearLinkedList(currentStates, 
+# 312 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c" 3 4
+                                                ((void *)0)
+# 312 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c"
+                                                    );
+}
+
+void SelectNextStates(StateMachine *nfa,
+                   CircularLinearLinkedListNode **currentStates,
+                   CircularLinearLinkedListNode **nextStates,
+                   char symbol)
+{
+    EmptyCircularLinearLinkedList(currentStates, 
+# 320 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c" 3 4
+                                                ((void *)0)
+# 320 "/media/lior/Data/C/Compiler/source/../libs/StateMachine.c"
+                                                    );
+    EpsilonClosure(nextStates);
+
+    { CircularLinearLinkedListNode* temp = (*nextStates); (*nextStates) = (*currentStates); (*currentStates) = temp; };
+
+    SetAllVisited(nfa, 0);
+    SelectAllTransitions(*currentStates, nextStates, symbol);
+}
+
+void EmptyState(State *state)
+{
+    state->transitionsManager ? EmptyCircularLinearLinkedList(&state->transitionsManager, free) : 0;
+    free(state);
+}
+
+void EmptyStateMachine(StateMachine *stateMachine)
+{
+    EmptyCircularLinearLinkedList(&stateMachine->statesManager, EmptyState);
+    free(stateMachine);
+}
+# 7 "/media/lior/Data/C/Compiler/source/../libs/Regex.h" 2
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/Stack.h" 1
+# 10 "/media/lior/Data/C/Compiler/source/../libs/Stack.h"
+# 1 "/media/lior/Data/C/Compiler/source/../libs/LinearLinkedList.h" 1
+# 15 "/media/lior/Data/C/Compiler/source/../libs/LinearLinkedList.h"
+typedef struct LinearLinkedListNode
+{
+    void* info;
+    struct LinearLinkedListNode *nextNode;
+} LinearLinkedListNode;
+
+void InitLinearLinkedList(LinearLinkedListNode **manager);
+unsigned char IsEmptyLinearLinkedList(LinearLinkedListNode *manager);
+void PushLinearLinkedList(LinearLinkedListNode **manager);
+void AddAfterLinearLinkedList(LinearLinkedListNode *node);
+void PopLinearLinkedList(LinearLinkedListNode **manager);
+void DeleteAfterLinearLinkedList(LinearLinkedListNode *node);
+void EmptyLinearLinkedList(LinearLinkedListNode **manager, void(*Free)(void *));
+# 11 "/media/lior/Data/C/Compiler/source/../libs/Stack.h" 2
+
+
+
+
+
+typedef struct
+{
+    LinearLinkedListNode *topOfStack;
+} Stack;
+
+
+void InitStack(Stack *iopstkStack);
+unsigned char IsEmptyStack(Stack *ipstkStack);
+void PushStack(Stack *iopstkStack, void* itItem);
+void* PopStack(Stack *iopstkStack);
+# 11 "/media/lior/Data/C/Compiler/source/../libs/Regex.h" 2
+# 23 "/media/lior/Data/C/Compiler/source/../libs/Regex.h"
+struct Match
+{
+    char *start;
+    char *end;
+    unsigned short matchType;
+};
+
+StateMachine* RegexToNFA(char *pattern, unsigned short matchType);
+struct Match* ExecuteRegex(StateMachine *nfa, char *input);
+# 4 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 2
+
+StateMachine *RegexToENFA(char *pattern)
+{
+    Stack stack;
+
+    InitStack(&stack);
+
+    for (; *pattern; pattern++)
+    {
+        switch (*pattern)
+        {
+            case '\003':
+                PushStack(&stack, RegexToENFA("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010\010"));
+                break;
+
+            case '\004':
+                PushStack(&stack, RegexToENFA("0123456789\010\010\010\010\010\010\010\010\010"));
+                break;
+
+            case '\002':
+                PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), 1));
+                break;
+
+            case '\005':
+                PushStack(&stack, Star(PopStack(&stack)));
+                break;
+
+            case '\007':
+                PushStack(&stack, Alternate(PopStack(&stack)));
+                break;
+
+            case '\010':
+                PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
+                break;
+
+            case '\006':
+                PushStack(&stack, OneOrMore(PopStack(&stack)));
+                break;
+
+            default:
+                PushStack(&stack, FromSymbol(*pattern));
+                break;
+        }
+    }
+
+    return (PopStack(&stack));
+}
+
+CircularLinearLinkedListNode* EpsilonClosureByState(State* state)
+{
+    CircularLinearLinkedListNode *states;
+    CircularLinearLinkedListNode *epsilonStates;
+    CircularLinearLinkedListNode *previousEpsilonStates;
+
+    InitCircularLinearLinkedList(&states);
+    InitCircularLinearLinkedList(&epsilonStates);
+
+    InsertLastCircularLinearLinkedList(&states);
+    states->info = state;
+
+    SelectSymbolTransitions(states, states->nextNode, &epsilonStates, '\000');
+
+    while (epsilonStates)
+    {
+        previousEpsilonStates = epsilonStates->nextNode;
+        ConcatCircularLinearLinkedLists(&states, epsilonStates);
+        epsilonStates = 
+# 70 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 3 4
+                       ((void *)0)
+# 70 "/media/lior/Data/C/Compiler/source/../libs/Regex.c"
+                           ;
+        SelectSymbolTransitions(states, previousEpsilonStates, &epsilonStates, '\000');
+    }
+
+    return states;
+}
+
+StateMachine *ENFAToNFA(StateMachine *enfa)
+{
+    StateMachine *nfa = malloc(sizeof(StateMachine));
+    CircularLinearLinkedListNode *sp = enfa->statesManager->nextNode;
+
+    int x = 0;
+    InitStateMachine(nfa);
+
+    do
+    {
+        ((State*)sp->info)->flag = x++;
+        sp = sp->nextNode;
+    }
+    while (sp != enfa->statesManager->nextNode);
+
+    State *arr[x];
+
+    do
+    {
+        State *current = AddState(nfa);
+        arr[((State*)sp->info)->flag] = current;
+        current->flag = ((State*)sp->info)->flag;
+        current->visited = 0;
+        sp = sp->nextNode;
+    }
+    while (sp != enfa->statesManager->nextNode);
+
+    do
+    {
+        SetAllVisited(enfa, 0);
+        CircularLinearLinkedListNode *closure = EpsilonClosureByState(sp->info);
+        CircularLinearLinkedListNode *sc = closure->nextNode;
+
+        do
+        {
+            if (!arr[((State*)sp->info)->flag]->info)
+                arr[((State*)sp->info)->flag]->info = ((State*)sc->info)->info;
+
+            CircularLinearLinkedListNode *transitions = ((State*)sc->info)->transitionsManager;
+
+            if (transitions) do
+            {
+                if (((Transition*)transitions->info)->symbol != '\000')
+                {
+                    AddTransition(nfa, arr[((State*)sp->info)->flag],
+                        arr[((Transition*)transitions->info)->dest->flag],
+                        ((Transition*)transitions->info)->symbol);
+                }
+
+                transitions = transitions->nextNode;
+            }
+            while (transitions != ((State*)sc->info)->transitionsManager);
+
+            sc = sc->nextNode;
+        }
+        while (sc != closure->nextNode);
+
+        EmptyCircularLinearLinkedList(&closure, 
+# 134 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 3 4
+                                               ((void *)0)
+# 134 "/media/lior/Data/C/Compiler/source/../libs/Regex.c"
+                                                   );
+
+        sp = sp->nextNode;
+    }
+    while (sp != enfa->statesManager->nextNode);
+
+    EmptyStateMachine(enfa);
+
+    return (nfa);
+}
+
+void EC(State *state)
+{
+    CircularLinearLinkedListNode *p = state->transitionsManager;
+
+    state->visited = 1;
+
+    if (!Exists(state->ec, state))
+    {
+        !state->ec ?
+                InsertLastCircularLinearLinkedList(&state->ec) :
+                InsertEndCircularLinearLinkedList(&state->ec);
+
+        state->ec->info = state;
+    }
+
+    if (!p)
+    {
+        return;
+    }
+
+    do
+    {
+        if (((Transition*)p->info)->symbol == '\000' && !((Transition*)p->info)->dest->visited)
+        {
+            EC(((Transition*)p->info)->dest);
+
+            CircularLinearLinkedListNode *pp = ((Transition*)p->info)->dest->ec;
+
+            if (pp) do
+            {
+                if (!Exists(state->ec, pp->info))
+                {
+                    !state->ec ?
+                            InsertLastCircularLinearLinkedList(&state->ec) :
+                            InsertEndCircularLinearLinkedList(&state->ec);
+
+                    state->ec->info = pp->info;
+                }
+
+                pp = pp->nextNode;
+            }
+            while (pp != ((Transition*)p->info)->dest->ec);
+        }
+        else if (((Transition*)p->info)->symbol == '\000' && (((Transition*)p->info)->dest->visited))
+        {
+            CircularLinearLinkedListNode *pp = ((Transition*)p->info)->dest->ec;
+
+            if (pp) do
+            {
+                if (!Exists(state->ec, pp->info))
+                {
+                    !state->ec ?
+                            InsertLastCircularLinearLinkedList(&state->ec) :
+                            InsertEndCircularLinearLinkedList(&state->ec);
+
+                    state->ec->info = pp->info;
+                }
+
+                pp = pp->nextNode;
+            }
+            while (pp != ((Transition*)p->info)->dest->ec);
+        }
+
+        p = p->nextNode;
+    }
+    while (p != state->transitionsManager);
+}
+
+StateMachine *RegexToNFA(char *pattern, unsigned short matchType)
+{
+    StateMachine *enfa = RegexToENFA(pattern);
+    FinalState(enfa)->info = ++matchType;
+
+    return (enfa);
+}
+
+State* FindAcceptingState(CircularLinearLinkedListNode *currentStates, char *s, char *e)
+{
+    CircularLinearLinkedListNode *ptr = currentStates;
+    State *acceptingState = ptr->info;
+
+    do
+    {
+        ((State*)ptr->info)->info > acceptingState->info ? acceptingState = ptr->info : 0;
+        ptr = ptr->nextNode;
+    }
+    while (ptr != currentStates);
+
+    return (acceptingState->info ? acceptingState : 
+# 233 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 3 4
+                                                   ((void *)0)
+# 233 "/media/lior/Data/C/Compiler/source/../libs/Regex.c"
+                                                       );
+}
+
+struct Match* MakeMatch(char *start, char *end, unsigned short matchType)
+{
+    char *ptr;
+    struct Match *match = malloc(sizeof(struct Match));
+
+    match->start = malloc(sizeof(char) * (end - start));
+    ptr = match->start;
+
+    for (; start != end;)
+    {
+        *ptr++ = *start++;
+    }
+
+    *ptr ^= *ptr;
+    match->end = ptr;
+    match->matchType = --matchType;
+}
+
+void InitStatesList(CircularLinearLinkedListNode **states, State *state)
+{
+    InitCircularLinearLinkedList(states);
+    InsertLastCircularLinearLinkedList(states);
+    (*states)->info = state;
+}
+
+struct Match* ExecuteRegex(StateMachine *nfa, char *input)
+{
+    CircularLinearLinkedListNode *currentStates;
+    CircularLinearLinkedListNode *nextStates;
+    State *acceptingState;
+    struct Match *match;
+    char *inputStart = input;
+
+    InitCircularLinearLinkedList(&currentStates);
+    InitStatesList(&nextStates, InitialState(nfa));
+
+    SelectNextStates(nfa, &currentStates, &nextStates, *input);
+
+    while (*input && nextStates)
+    {
+        SelectNextStates(nfa, &currentStates, &nextStates, *++input);
+    }
+
+    match = (acceptingState = FindAcceptingState(currentStates, inputStart, input)) ?
+        MakeMatch(inputStart, input, acceptingState->info) :
+        
+# 281 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 3 4
+       ((void *)0)
+# 281 "/media/lior/Data/C/Compiler/source/../libs/Regex.c"
+           ;
+
+    SetAllVisited(nfa, 0);
+
+    EmptyCircularLinearLinkedList(&currentStates, 
+# 285 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 3 4
+                                                 ((void *)0)
+# 285 "/media/lior/Data/C/Compiler/source/../libs/Regex.c"
+                                                     );
+    nextStates ? EmptyCircularLinearLinkedList(&nextStates, 
+# 286 "/media/lior/Data/C/Compiler/source/../libs/Regex.c" 3 4
+                                                           ((void *)0)
+# 286 "/media/lior/Data/C/Compiler/source/../libs/Regex.c"
+                                                               ) : 0;
+
+    return (match);
+}
+# 5 "/media/lior/Data/C/Compiler/source/Lexer.h" 2
+
+
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/semantics.h" 1
+
+
+
+
+enum {STRING_LITERAL, IDENTIFIER, MAIN, VOID, INT, LONG, FLOAT, DOUBLE, SHORT, CHAR, UNSIGNED, STRUCT, FOR, IF, ELSE, WHILE, RETURN, PLUS, PLUS_PLUS, MINUS, MINUS_MINUS, PLUS_EQ, MINUS_EQ, STAR_EQ, SLASH_EQ, MOD_EQ, GT, LT, EQ, GE, LE, EEQ, NEQ, STAR, SLASH, MOD, DOT, ARROW, COMMA, SEMI_COLON, LEFT_BRACKET, RIGHT_BRACKET, LEFT_CURLY, RIGHT_CURLY, LEFT_PAREN, RIGHT_PAREN, AMPERSAND, FLOAT_LITERAL, INTEGER_LITERAL, WHITESPACE, EOD, TOKENS_NUM };
+
+
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/AbstractSyntaxTree.h" 1
+# 14 "/media/lior/Data/C/Compiler/source/../grammar/../libs/AbstractSyntaxTree.h"
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/SymbolTable.h" 1
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/StringsDictionary.h" 1
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/TernaryTree.h" 1
+# 13 "/media/lior/Data/C/Compiler/source/../grammar/../libs/TernaryTree.h"
+typedef struct TernaryTreeNode
+{
+    char info;
+    void *wordData;
+    struct TernaryTreeNode *leftSubTree;
+    struct TernaryTreeNode *middleSubTree;
+    struct TernaryTreeNode *rightSubTree;
+} TernaryTreeNode;
+
+void MakeTernaryTree(TernaryTreeNode **manager);
+TernaryTreeNode* SetLeftTernaryTree(TernaryTreeNode *root);
+TernaryTreeNode* SetMiddleTernaryTree(TernaryTreeNode *root);
+TernaryTreeNode* SetRightTernaryTree(TernaryTreeNode *root);
+unsigned char IsLeafTernaryTree(TernaryTreeNode *node);
+void InsertToTernarySearchTree(TernaryTreeNode **root, char *word, void *wordData);
+void *SerchInTernarySearchTree(TernaryTreeNode *root, char *word);
+void EmptyTernarySearchTree(TernaryTreeNode *root);
+# 7 "/media/lior/Data/C/Compiler/source/../grammar/../libs/StringsDictionary.h" 2
+
+
+
+
+typedef struct
+{
+    TernaryTreeNode *buckets[32];
+} StringsDictionary;
+
+void InitStringsDictionary(StringsDictionary *stringsDictionary);
+void InsertStringsDictionary(StringsDictionary *stringsDictionary, char *string, void *data);
+void* LookupStringsDictionary(StringsDictionary *stringsDictionary, char *string);
+void EmptyStringsDictionary(StringsDictionary *stringsDictionary);
+# 7 "/media/lior/Data/C/Compiler/source/../grammar/../libs/SymbolTable.h" 2
+
+
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Token.h" 1
+# 15 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Token.h"
+typedef unsigned short TokenType;
+
+typedef struct
+{
+    char *lexeme;
+    TokenType type;
+} Token;
+# 15 "/media/lior/Data/C/Compiler/source/../grammar/../libs/SymbolTable.h" 2
+
+
+typedef struct
+{
+    char *name;
+    unsigned short type;
+    short memoryAddress;
+} Symbol;
+
+typedef struct
+{
+    LinearLinkedListNode *symbolTables;
+} ScopeStack;
+
+void MakeSymbol(Symbol **symbol);
+void InitScopeStack(ScopeStack *scopeStack);
+void EnterScope(ScopeStack *scopeStack);
+void ExitScope(ScopeStack *scopeStack);
+void InsertSymbol(ScopeStack *scopeStack, Symbol *symbol);
+Symbol* LookupSymbol(ScopeStack *scopeStack, char *name);
+# 15 "/media/lior/Data/C/Compiler/source/../grammar/../libs/AbstractSyntaxTree.h" 2
+
+
+typedef struct AbstractSyntaxTreeNode AbstractSyntaxTreeNode;
+
+struct AbstractSyntaxTreeNode
+{
+    void *reg;
+    char label;
+    void *info;
+    void (*GenerationFunction)(void *codeGenerator, AbstractSyntaxTreeNode *astRoot);
+    CircularLinearLinkedListNode *childrenManager;
+};
+
+void MakeAbstractSyntaxTree(AbstractSyntaxTreeNode **root);
+AbstractSyntaxTreeNode** SetAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node);
+AbstractSyntaxTreeNode** SetFirstAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node);
+# 14 "/media/lior/Data/C/Compiler/source/../grammar/semantics.h" 2
+
+
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Grammar.h" 1
+
+
+
+
+typedef unsigned short TokenType;
+# 15 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Grammar.h"
+typedef struct
+{
+    char *name;
+    LinearLinkedListNode *rules;
+} NonTerminal;
+
+typedef union
+{
+    NonTerminal *nonTerminal;
+    TokenType terminal;
+} ExpressionValue;
+
+typedef struct
+{
+    unsigned char isTerminal;
+    ExpressionValue value;
+    void *node;
+    unsigned long nodeKey;
+    unsigned long firstSet;
+} Expression;
+
+typedef struct
+{
+    int id;
+    unsigned long visited_;
+    unsigned char visited[(((51) - 1) >> 3) + 1];
+    NonTerminal *nonTerminal;
+    LinearLinkedListNode *expressions;
+    void*(*semanticAction)();
+} Rule;
+
+typedef struct
+{
+    Rule *rule;
+    LinearLinkedListNode *dotPosition;
+    TokenType lookahead;
+} Item;
+
+typedef struct
+{
+    LinearLinkedListNode *nonTerminals;
+    LinearLinkedListNode *expressions;
+} Grammar;
+# 68 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Grammar.h"
+# 1 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Dictionary.h" 1
+# 11 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Dictionary.h"
+typedef struct
+{
+    LinearLinkedListNode *buckets[512];
+} Dictionary;
+
+void InitDictionary(Dictionary *dictionary);
+void InsertDictionary(Dictionary *dictionary, void *item, unsigned long(*Key)(void *item));
+void* LookupDictionary(Dictionary *dictionary, void *item, unsigned long(*Key)(void *item),
+                      unsigned char(*Compare)(void *firstItem, void *secondItem));
+void EmptyDictionary(Dictionary *dictionary, void(*Free)(void *));
+# 69 "/media/lior/Data/C/Compiler/source/../grammar/../libs/Grammar.h" 2
+
+
+AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
+void AssignActions(Grammar *g);
+
+void InitGrammar(Grammar *grammar);
+NonTerminal* InitialNonTerminal(Grammar *grammar);
+Rule* InitialRule(Grammar *grammar);
+Expression* EODTerminal(Grammar *grammar);
+unsigned char CompareNonTerminals(ExpressionValue first, ExpressionValue second);
+unsigned char CompareTerminals(ExpressionValue first, ExpressionValue second);
+void GrammarFirstSet(Grammar *grammar);
+Item* NextItem(Item *item);
+Item* InitialItem(Rule *rule, TokenType lookahead);
+void FreeGrammar(Grammar *grammar);
+# 22 "/media/lior/Data/C/Compiler/source/../grammar/semantics.h" 2
+
+
+AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
+void AssignActions(Grammar *g);
+
+void GenerateAddition(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateIntegerLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateMult(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateDivision(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateSymbol(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateAdditionAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateReturn(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateIf(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateIncrement(void *codeGenerator, AbstractSyntaxTreeNode *astNode);
+void GenerateStatements(void *generator, AbstractSyntaxTreeNode *astRoot);
+void GenerateExpression(void *generator, AbstractSyntaxTreeNode *astRoot);
+void GenerateCall(void *generator, AbstractSyntaxTreeNode *astRoot);
+# 13 "/media/lior/Data/C/Compiler/source/Lexer.h" 2
+
+
+
+
+
+
+typedef struct
+{
+    StateMachine *nfa;
+} Lexer;
+
+void InitLexer(Lexer *lexer);
+void FreeLexer(Lexer *lexer);
+CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source);
+# 4 "/media/lior/Data/C/Compiler/source/Lexer.c" 2
+# 39 "/media/lior/Data/C/Compiler/source/Lexer.c"
+Token* CreateToken(struct Match *info, TokenType type)
+{
+    Token *token = malloc(sizeof(Token));
+
+    *token = (Token){.lexeme = info->start, .type = type};
+
+    return (token);
+}
+
+Token* NextToken(char **source, StateMachine *nfa)
+{
+    struct Match *currentMatch;
+    TokenType type;
+    Token *token = 
+# 52 "/media/lior/Data/C/Compiler/source/Lexer.c" 3 4
+                  ((void *)0)
+# 52 "/media/lior/Data/C/Compiler/source/Lexer.c"
+                      ;
+
+    currentMatch = ExecuteRegex(nfa, *source);
+    type = currentMatch->matchType;
+
+    *source += (currentMatch->end - currentMatch->start);
+
+    type != WHITESPACE ?
+        token = CreateToken(currentMatch, type) :
+        free(currentMatch->start);
+
+    free(currentMatch);
+
+    return (token);
+}
+
+void InitLexer(Lexer *lexer)
+{
+    TokenType tokenType;
+    unsigned short patternsSize;
+
+    char *patterns[] = {"\"\001\005\002\"\002", "_\003\010_\003\010\004\010\005\002", "ma\002_\002i\002n\002", "vo\002i\002d\002", "in\002t\002", "lo\002n\002g\002", "fl\002o\002a\002t\002", "do\002u\002b\002l\002e\002", "sh\002o\002r\002t\002", "ch\002a\002r\002", "un\002s\002i\002g\002n\002e\002d\002", "st\002r\002u\002c\002t\002", "fo\002r\002", "if\002", "el\002s\002e\002", "wh\002i\002l\002e\002", "re\002t\002u\002r\002n\002", "+", "++\002", "-", "--\002", "+=\002", "-=\002", "*=\002", "/=\002", "%=\002", ">", "<", "=", ">=\002", "<=\002", "==\002", "!=\002", "*", "/", "%", ".", "->\002", ",", ";", "[", "]", "{", "}", "(", ")", "&", "-\007\004\006.\002\004\006\002\002", "-\007\004\006\002", " \n\r\t\010\010\010\006", ""};
+# 129 "/media/lior/Data/C/Compiler/source/Lexer.c"
+    patternsSize = TOKENS_NUM - 1;
+    lexer->nfa = RegexToNFA(*patterns, 0);
+
+    for (tokenType = 1; tokenType < patternsSize; tokenType++)
+    {
+        lexer->nfa = Union(lexer->nfa, RegexToNFA(patterns[tokenType], tokenType));
+    }
+}
+
+void FreeLexer(Lexer *lexer)
+{
+    EmptyStateMachine(lexer->nfa);
+}
+
+CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source)
+{
+    CircularLinearLinkedListNode *tokens;
+
+    InitCircularLinearLinkedList(&tokens);
+
+    while (*source)
+    {
+        tokens ?
+            InsertEndCircularLinearLinkedList(&tokens) :
+            InsertLastCircularLinearLinkedList(&tokens);
+
+        while(*source && !(tokens->info = NextToken(&source, lexer->nfa)));
+    }
+
+    if (!tokens->info)
+    {
+        tokens == tokens->nextNode ?
+            DeleteLastCircularLinearLinkedList(&tokens) :
+            DeleteEndCircularLinearLinkedList(&tokens);
+    }
+
+    return (tokens);
+}
+# 5 "/media/lior/Data/C/Compiler/source/main.c" 2
+# 1 "/media/lior/Data/C/Compiler/source/Parser.c" 1
+
+
+# 1 "/media/lior/Data/C/Compiler/source/Parser.h" 1
+
+
+
+
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/PushdownMachine.h" 1
+# 27 "/media/lior/Data/C/Compiler/source/../libs/PushdownMachine.h"
+typedef struct
+{
+    unsigned char isAccepting : 2;
+    CircularLinearLinkedListNode *lrItems;
+    CircularLinearLinkedListNode *transitionsManager;
+
+    unsigned long key;
+} PushdownState;
+
+typedef struct
+{
+    ExpressionValue symbol;
+    PushdownState *dest;
+} PushdownTransition;
+
+typedef struct
+{
+    CircularLinearLinkedListNode *statesManager;
+    Stack *stack;
+} PushdownMachine;
+
+void InitPushdownMachine(PushdownMachine *pushdownMachine);
+PushdownState *AddPushdownState(PushdownMachine *stateMachine);
+void AddPushdownTransition(PushdownMachine *stateMachine, PushdownState *source, PushdownState *dest, ExpressionValue symbol);
+PushdownState *FinalPushdownState(PushdownMachine *stateMachine);
+PushdownState *InitialPushdownState(PushdownMachine *stateMachine);
+void EmptyPushdownMachine(PushdownMachine *stateMachine);
+# 9 "/media/lior/Data/C/Compiler/source/Parser.h" 2
+
+
+
+# 1 "/media/lior/Data/C/Compiler/source/../libs/Queue.h" 1
+# 17 "/media/lior/Data/C/Compiler/source/../libs/Queue.h"
+typedef struct
+{
+    CircularLinearLinkedListNode *rear;
+} Queue;
+
+
+void InitQueue(Queue *iopqQueue);
+void InsertQueue(Queue *iopqQueue, void* itItem);
+void* RemoveQueue(Queue *iopqQueue);
+unsigned char IsEmptyQueue(Queue *ipqQueue);
+void* Peek(Queue *ipqQueue);
+# 13 "/media/lior/Data/C/Compiler/source/Parser.h" 2
+# 29 "/media/lior/Data/C/Compiler/source/Parser.h"
+typedef struct
+{
+    Grammar *grammar;
+    PushdownMachine *pushdownMachine;
+} Parser;
+
+void InitParser(Parser *parser, const char **);
+AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens);
+# 4 "/media/lior/Data/C/Compiler/source/Parser.c" 2
+
+
+
+
+static const char** _types;
+
+unsigned char CompareItems(Item *first, Item *second)
+{
+    return (first->dotPosition == second->dotPosition &&
+            first->rule == second->rule && first->lookahead == second->lookahead);
+}
+
+
+    unsigned char CompareItemKernels(Item *first, Item *second)
+    {
+        return (first->dotPosition == second->dotPosition && first->rule == second->rule);
+    }
+
+
+
+
+
+
+
+void PrintExpression(Expression *exp)
+{
+    if (exp->isTerminal)
+        printf("%s ", _types[exp->value.terminal]);
+    else
+        printf("%s ", exp->value.nonTerminal->name);
+}
+
+void PrintRule(Rule *rule)
+{
+    LinearLinkedListNode *p = rule->expressions;
+
+    for (; p; p = p->nextNode)
+    {
+        PrintExpression(p->info);
+    }
+
+    printf("\n\r\t");
+}
+
+void PrintGrammar(Grammar *grammar)
+{
+    LinearLinkedListNode *ptr = grammar->nonTerminals;
+    LinearLinkedListNode *p;
+    NonTerminal *current;
+
+    for (; ptr; ptr = ptr->nextNode)
+    {
+        current = ptr->info;
+        printf("%s ::= \n\r\t", current->name);
+
+        for (p = current->rules; p; p = p->nextNode)
+        {
+            PrintRule(p->info);
+        }
+
+        printf("\r");
+    }
+}
+
+CircularLinearLinkedListNode *KernelEnd(CircularLinearLinkedListNode *lrItems)
+{
+    CircularLinearLinkedListNode *ptr = lrItems->nextNode;
+    unsigned char isKernelItem = 1;
+
+    do
+    {
+        isKernelItem = ((Item*)ptr->info)->dotPosition != ((Item*)ptr->info)->rule->expressions;
+        ptr = ptr->nextNode;
+    }
+    while (ptr != lrItems->nextNode && isKernelItem);
+
+    return (ptr);
+}
+
+unsigned char CompareItemsLists(CircularLinearLinkedListNode *firstStart, CircularLinearLinkedListNode *secondStart,
+                       CircularLinearLinkedListNode *firstEnd, CircularLinearLinkedListNode *secondEnd)
+{
+    unsigned char areEqual = 1;
+
+    do
+    {
+        areEqual = CompareItemKernels(firstStart->info, secondStart->info);
+
+        firstStart = firstStart->nextNode;
+        secondStart = secondStart->nextNode;
+    }
+    while (areEqual && firstStart != firstEnd && secondStart != secondEnd);
+
+    return (areEqual);
+}
+
+unsigned char CompareKernels(CircularLinearLinkedListNode *first, CircularLinearLinkedListNode *second)
+{
+
+
+    return CompareItemsLists(first->nextNode, second->nextNode, KernelEnd(first), KernelEnd(second));
+}
+
+unsigned char StatesComparator(PushdownState* first, Expression *second)
+{
+
+    return first->key == second->nodeKey && CompareKernels(first->lrItems, second->node);
+}
+
+unsigned long PointerKey(void *ptr)
+{
+
+
+    return (unsigned long)ptr & sizeof(void*);
+}
+
+unsigned long ItemKey(Item *item)
+{
+    return (PointerKey(item->rule) + PointerKey(item->dotPosition) + item->lookahead - 1);
+}
+
+CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items)
+{
+    Item *currentItem;
+    Stack closureStack;
+    NonTerminal *nextNonTerminal;
+    CircularLinearLinkedListNode *itemsPtr = (*items)->nextNode;
+
+    InitStack(&closureStack);
+
+    do
+    {
+        ((Item*)itemsPtr->info)->dotPosition && !((Expression*)((Item*)itemsPtr->info)->dotPosition->info)->isTerminal ?
+            PushStack(&closureStack, itemsPtr->info) :
+            0;
+
+        itemsPtr = itemsPtr->nextNode;
+    }
+    while (itemsPtr != (*items)->nextNode);
+
+    while (!IsEmptyStack(&closureStack))
+    {
+        currentItem = PopStack(&closureStack);
+        nextNonTerminal = ((Expression*)currentItem->dotPosition->info)->value.nonTerminal;
+
+        for (LinearLinkedListNode *pRules = nextNonTerminal->rules; pRules; pRules = pRules->nextNode)
+        {
+            Item *temp;
+
+            unsigned long firstset = currentItem->dotPosition->nextNode ?
+                ((Expression*)currentItem->dotPosition->nextNode->info)->firstSet :
+                ((unsigned long)1 << currentItem->lookahead);
+
+            TokenType terminal = 0;
+
+            for (; firstset; firstset >>= 1)
+            {
+                if (firstset & 1)
+                {
+                    if (!(((Rule*)pRules->info)->visited[((terminal) >> 3)] & ((unsigned char)1 << ((terminal) & 7))))
+
+                    {
+                        temp = InitialItem(pRules->info, terminal);
+                        (temp->rule->visited[((terminal) >> 3)] |= ((unsigned char)1 << ((terminal) & 7)));
+
+                        InsertEndCircularLinearLinkedList(items);
+                        (*items)->info = temp;
+
+                        if (!((Expression*)temp->dotPosition->info)->isTerminal)
+                            PushStack(&closureStack, (*items)->info);
+                    }
+                }
+
+                terminal++;
+            }
+        }
+    }
+
+    return (*items);
+}
+
+void MakeInitialGotoItem(Item *item, LinearLinkedListNode **expressions)
+{
+    Expression *expression = item->dotPosition->info;
+
+    PushLinearLinkedList(expressions);
+    (*expressions)->info = expression;
+
+    InitCircularLinearLinkedList(&expression->node);
+    InsertLastCircularLinearLinkedList(&expression->node);
+}
+
+unsigned long KeyState(PushdownState *state)
+{
+    return state->key;
+}
+
+void HandleNextItem(Item *item, LinearLinkedListNode **expressions)
+{
+    Expression *expression = item->dotPosition->info;
+    CircularLinearLinkedListNode *nextStateItems;
+    PushdownState *currentState;
+    Item *nextItem = NextItem(item);
+
+    !expression->node ?
+        MakeInitialGotoItem(item, expressions) :
+        InsertEndCircularLinearLinkedList(&expression->node);
+
+    ((CircularLinearLinkedListNode*)expression->node)->info = nextItem;
+    expression->nodeKey += ItemKey(nextItem);
+}
+
+void HandleFinalItem(Parser *parser, PushdownState *currentState, Item *item)
+{
+    PushdownState *reducingState = AddPushdownState(parser->pushdownMachine);
+    Item* reducingItem;
+
+    InsertLastCircularLinearLinkedList(&reducingState->lrItems);
+
+    reducingItem = reducingState->lrItems->info = malloc(sizeof(Item));
+    reducingItem->rule = item->rule;
+    reducingItem->lookahead = item->lookahead;
+    reducingItem->dotPosition = item->dotPosition;
+
+    reducingState->isAccepting |= (0b01 |
+        (0b10 & (item->rule->nonTerminal == InitialNonTerminal(parser->grammar)) << 1));
+
+    AddPushdownTransition(parser->pushdownMachine, currentState, reducingState, (ExpressionValue)item->lookahead);
+}
+
+PushdownTransition* NextState(PushdownState **current, ExpressionValue expression, unsigned char(*ComapreExpressions)(ExpressionValue, ExpressionValue));
+
+void MakeGotoState(PushdownMachine *machine, PushdownState *currentState,
+                   Expression *expression, Queue *nextStates, Dictionary *visitedStates)
+{
+    PushdownState *nextState;
+    CircularLinearLinkedListNode *gotoItems = expression->node;
+    PushdownTransition *tr = 
+# 241 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                            ((void *)0)
+# 241 "/media/lior/Data/C/Compiler/source/Parser.c"
+                                ;
+    nextState = currentState;
+
+    unsigned char(*__ComapreExpressions)(ExpressionValue, ExpressionValue) = CompareTerminals;
+
+    !expression->isTerminal ? __ComapreExpressions = CompareNonTerminals : 
+# 246 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                                                                          ((void *)0)
+# 246 "/media/lior/Data/C/Compiler/source/Parser.c"
+                                                                              ;
+
+    if (nextState->transitionsManager)
+    {
+         tr = NextState(&nextState, expression->value, __ComapreExpressions);
+    }
+
+    if (!(nextState = LookupDictionary(visitedStates, expression, KeyState, StatesComparator)))
+    {
+        nextState = AddPushdownState(machine);
+        nextState->lrItems = gotoItems;
+        nextState->key = expression->nodeKey;
+        InsertQueue(nextStates, nextState);
+        InsertDictionary(visitedStates, nextState, KeyState);
+    }
+    else
+    {
+        EmptyCircularLinearLinkedList(&gotoItems, free);
+    }
+
+    if (!tr)
+    AddPushdownTransition(machine, currentState, nextState, expression->value);
+    else
+    tr->dest = nextState;
+}
+
+void MakeGotoStates(Parser *parser, PushdownState *currentState, Queue *nextStates, Dictionary *visitedStates)
+{
+    CircularLinearLinkedListNode *ptr = currentState->lrItems->nextNode;
+    PushdownState *nextState;
+    LinearLinkedListNode* visitedExpressions;
+    LinearLinkedListNode* expressionsPtr;
+
+    InitLinearLinkedList(&visitedExpressions);
+
+    do
+    {
+        ((Item*)ptr->info)->dotPosition ?
+            HandleNextItem(ptr->info, &visitedExpressions):
+            HandleFinalItem(parser, currentState, ptr->info);
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != currentState->lrItems->nextNode);
+
+    for (expressionsPtr = visitedExpressions; expressionsPtr; expressionsPtr = expressionsPtr->nextNode)
+    {
+        MakeGotoState(parser->pushdownMachine, currentState, expressionsPtr->info, nextStates, visitedStates);
+        ((Expression*)expressionsPtr->info)->node = 
+# 294 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                                                   ((void *)0)
+# 294 "/media/lior/Data/C/Compiler/source/Parser.c"
+                                                       ;
+        ((Expression*)expressionsPtr->info)->nodeKey = 0;
+    }
+
+    EmptyLinearLinkedList(&visitedExpressions, 
+# 298 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                                              ((void *)0)
+# 298 "/media/lior/Data/C/Compiler/source/Parser.c"
+                                                  );
+}
+
+void PrintFirst(LinearLinkedListNode *first)
+{
+    for (; first; first = first->nextNode)
+    {
+        printf("%s ", _types[((Expression*)first->info)->value.terminal]);
+    }
+
+    puts("\n");
+}
+
+void BuildLRStates(Parser *parser)
+{
+    PushdownState* initialState = AddPushdownState(parser->pushdownMachine);
+    PushdownState *currentState;
+    Dictionary visitedStates;
+    Queue queue;
+
+    GrammarFirstSet(parser->grammar);
+    InitDictionary(&visitedStates);
+    InitQueue(&queue);
+
+    InsertLastCircularLinearLinkedList(&initialState->lrItems);
+    initialState->lrItems->info = InitialItem(InitialRule(parser->grammar), EOD);
+
+    InsertQueue(&queue, initialState);
+
+    while (!IsEmptyQueue(&queue))
+    {
+        currentState = RemoveQueue(&queue);
+
+        for (LinearLinkedListNode *p = parser->grammar->nonTerminals; p; p = p->nextNode)
+        {
+            for (LinearLinkedListNode *rp = ((NonTerminal*)p->info)->rules; rp; rp = rp->nextNode)
+            {
+                for (short n = (TOKENS_NUM - 1) >> 3; n >= 0; n--) ((Rule*)rp->info)->visited[n] = 0;;
+
+            }
+        }
+
+        Closure(&currentState->lrItems);
+
+        for (LinearLinkedListNode *p = parser->grammar->nonTerminals; p; p = p->nextNode)
+        {
+            for (LinearLinkedListNode *rp = ((NonTerminal*)p->info)->rules; rp; rp = rp->nextNode)
+            {
+                for (short n = (TOKENS_NUM - 1) >> 3; n >= 0; n--) ((Rule*)rp->info)->visited[n] = 0;;
+
+            }
+        }
+
+        MakeGotoStates(parser, currentState, &queue, &visitedStates);
+    }
+
+    EmptyDictionary(&visitedStates, 
+# 354 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                                   ((void *)0)
+# 354 "/media/lior/Data/C/Compiler/source/Parser.c"
+                                       );
+}
+
+void InitParser(Parser *parser, const char **types)
+{
+    _types = types;
+
+    parser->pushdownMachine = malloc(sizeof(PushdownMachine));
+    parser->grammar = malloc(sizeof(Grammar));
+
+    InitPushdownMachine(parser->pushdownMachine);
+    InitGrammar(parser->grammar);
+
+
+
+    BuildLRStates(parser);
+}
+
+PushdownTransition* NextState(PushdownState **current, ExpressionValue expression, unsigned char(*ComapreExpressions)(ExpressionValue, ExpressionValue))
+{
+    CircularLinearLinkedListNode *ptr = (*current)->transitionsManager;
+    PushdownTransition *currentTransition;
+    ExpressionValue symbol;
+
+    PushdownState *next = 
+# 378 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                         ((void *)0)
+# 378 "/media/lior/Data/C/Compiler/source/Parser.c"
+                             ;
+    PushdownTransition *tr = 
+# 379 "/media/lior/Data/C/Compiler/source/Parser.c" 3 4
+                            ((void *)0)
+# 379 "/media/lior/Data/C/Compiler/source/Parser.c"
+                                ;
+
+    do
+    {
+        currentTransition = ptr->info;
+
+        ComapreExpressions(currentTransition->symbol, expression) ?
+            (next = currentTransition->dest, (tr = currentTransition)) :
+            0;
+
+        ptr = ptr->nextNode;
+    }
+    while (ptr != (*current)->transitionsManager);
+
+    *current = next;
+
+    return tr;
+
+}
+
+void PrintItem(Item *item)
+{
+    LinearLinkedListNode *p = item->rule->expressions;
+
+    printf("[%s-> ", item->rule->nonTerminal->name);
+
+    for (; p; p = p->nextNode)
+    {
+        if (p == item->dotPosition) printf("•");
+        PrintExpression(p->info);
+    }
+
+    if (!item->dotPosition) printf("•");
+
+    printf("  |%s]\n\t", _types[item->lookahead]);
+}
+
+void PrintItems(CircularLinearLinkedListNode *items)
+{
+    CircularLinearLinkedListNode *p = items->nextNode;
+
+    do
+    {
+        PrintItem(p->info);
+        p = p->nextNode;
+    }
+    while (p != items->nextNode);
+
+    puts("");
+}
+
+void PrintState(PushdownState *state)
+{
+    printf("Item #%p:\n\t", state);
+    PrintItems(state->lrItems);
+    printf("Transitions: [");
+
+    CircularLinearLinkedListNode *tr = state->transitionsManager;
+
+    if (tr) do
+    {
+        printf("%p:", ((PushdownTransition*)tr->info)->dest);
+
+        if(((PushdownTransition*)tr->info)->symbol.terminal <= EOD)
+        {
+            printf("%s ", _types[((PushdownTransition*)tr->info)->symbol.terminal]);
+        }
+        else
+        {
+            printf("%s ", ((PushdownTransition*)tr->info)->symbol.nonTerminal->name);
+        }
+
+
+        printf(" ");
+        tr = tr->nextNode;
+    }
+    while (tr != state->transitionsManager);
+
+    puts("]");
+}
+
+void Shift(Stack *states, PushdownState *state, CircularLinearLinkedListNode **tokenPtr, Stack *semanticStack)
+{
+    AbstractSyntaxTreeNode *astNode;
+
+    PushStack(states, state);
+
+    MakeAbstractSyntaxTree(&astNode);
+    PushStack(semanticStack, astNode);
+    astNode->info = (*tokenPtr)->info;
+
+    *tokenPtr = (*tokenPtr)->nextNode;
+}
+
+PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *semanticStack)
+{
+    LinearLinkedListNode *ptr;
+    PushdownState *nextState;
+
+
+
+
+    rule->semanticAction = rule->semanticAction ? rule->semanticAction : DefaultSemanticAction;
+    PushStack(semanticStack, rule->semanticAction(scopeStack, semanticStack));
+
+    for (ptr = rule->expressions; ptr; ptr = ptr->nextNode)
+    {
+        PopStack(states);
+    }
+
+    PushStack(states, (nextState = PopStack(states)));
+    NextState(&nextState, (ExpressionValue)rule->nonTerminal, CompareNonTerminals);
+    PushStack(states, nextState);
+
+    return (nextState);
+}
+
+void padding ( char ch, int n )
+{
+  int i;
+
+  for ( i = 0; i < n; i++ )
+    putchar ( ch );
+}
+
+void Traverse(AbstractSyntaxTreeNode *root, int level)
+{
+    return;
+
+    if (!root)
+    {
+        padding('\t', level);
+        puts("~");
+        return;
+    }
+
+    padding('\t', level);
+
+    if (root->info)
+    {
+        if (root->info == (void*)(1))
+        {
+            puts("Return");
+
+
+        }
+        else
+        {
+            printf("%s:%s\n", ((Symbol*)root->info)->name, _types[((Symbol*)root->info)->type]);
+        }
+    }
+    else
+    {
+        printf("Program:%p\n", root->GenerationFunction);
+    }
+
+    if (root->childrenManager)
+    {
+        CircularLinearLinkedListNode *p = root->childrenManager->nextNode;
+
+        do
+        {
+            Traverse(p->info, level + 1);
+            p = p->nextNode;
+        }
+        while (p != root->childrenManager->nextNode);
+    }
+
+
+
+
+
+}
+
+PushdownState* sync(Stack *stack, CircularLinearLinkedListNode **tokens)
+{
+    while (((Token*)(*tokens)->info)->type != SEMI_COLON) *tokens = (*tokens)->nextNode;
+
+    *tokens = (*tokens)->nextNode;
+
+    while (!IsEmptyStack(stack))
+    {
+        PushdownState *state = PopStack(stack);
+
+        NextState(&state, (ExpressionValue)((Token*)(*tokens)->info)->type, CompareTerminals);
+
+        if (~state->isAccepting & 0b01) return state;
+    }
+}
+
+AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens)
+{
+    PushdownState *currentState = InitialPushdownState(parser->pushdownMachine);
+    CircularLinearLinkedListNode *tokensPtr = tokens->nextNode;
+    Stack semanticStack;
+    ScopeStack scopeStack;
+
+    InitScopeStack(&scopeStack);
+    InitStack(&semanticStack);
+    EnterScope(&scopeStack);
+
+    PushStack(parser->pushdownMachine->stack, currentState);
+    NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
+
+    while (currentState && ~currentState->isAccepting & 0b10)
+    {
+        currentState->isAccepting & 0b01 ?
+            currentState = Reduce(parser->pushdownMachine->stack, ((Item*)currentState->lrItems->info)->rule, &scopeStack, &semanticStack) :
+            Shift(parser->pushdownMachine->stack, currentState, &tokensPtr, &semanticStack);
+
+        NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
+
+
+
+
+
+
+    }
+
+    AbstractSyntaxTreeNode *res;
+
+    if (currentState)
+    {
+        Traverse((res = PopStack(&semanticStack)), 0);
+        ExitScope(&scopeStack);
+    }
+    else
+    {
+        printf("Unexcpected token '%s'\n", ((Token*)tokensPtr->info)->lexeme);
+    }
+
+    return res;
+}
+
+void FreeParser(Parser *parser)
+{
+    FreeGrammar(parser->grammar);
+    EmptyPushdownMachine(parser->pushdownMachine);
+}
+# 6 "/media/lior/Data/C/Compiler/source/main.c" 2
+# 1 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 1
+
+
+# 1 "/media/lior/Data/C/Compiler/source/CodeGenerator.h" 1
+# 4 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 2
+
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/11/include/stdarg.h" 1 3 4
+# 6 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 2
+# 22 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+typedef unsigned short Register;
+
+typedef struct
+{
+    Stack *availableRegisters;
+    char *registers[sizeof((char*[]){"eax", "ebx", "ecx", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d", "rax", "rbx", "rcx", "r10", "r11", "r12", "r13", "r14", "r15"}) / sizeof(char*)];
+    short currentMemoryOffset;
+    void (*Emit)(void *stream, char *buffer, va_list args);
+    void *stream;
+} CodeGenerator;
+
+
+int LabelAst(AbstractSyntaxTreeNode *astRoot, unsigned char left);
+void GenerateAst_2(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, unsigned char left);
+
+void Emit(CodeGenerator *generator, char *buffer, ...)
+{
+    va_list args;
+
+    
+# 41 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 3 4
+   __builtin_va_start(
+# 41 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+   args
+# 41 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 3 4
+   ,
+# 41 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+   generator
+# 41 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 3 4
+   )
+# 41 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+                            ;
+
+    generator->Emit(generator->stream, buffer, args);
+
+    
+# 45 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 3 4
+   __builtin_va_end(
+# 45 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+   args
+# 45 "/media/lior/Data/C/Compiler/source/CodeGenerator.c" 3 4
+   )
+# 45 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+               ;
+}
+
+void InitCodeGenerator(CodeGenerator *generator, void (*Emit)(char *buffer, void *stream), void *stream)
+{
+    Register currentRegister;
+
+    *generator = (CodeGenerator){.registers = {"eax", "ebx", "ecx", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d", "rax", "rbx", "rcx", "r10", "r11", "r12", "r13", "r14", "r15"}};
+
+    generator->Emit = Emit;
+    generator->stream = stream;
+
+    generator->availableRegisters = malloc(sizeof(Stack));
+    InitStack(generator->availableRegisters);
+
+    for (currentRegister = 9; currentRegister != 0; currentRegister--)
+    {
+        PushStack(generator->availableRegisters, (void *)currentRegister);
+    }
+
+    generator->currentMemoryOffset = 0;
+}
+
+Register GetRegister(CodeGenerator *generator)
+{
+    return ((Register)PopStack(generator->availableRegisters));
+}
+
+void FreeRegister(CodeGenerator *generator, Register reg)
+{
+    PushStack(generator->availableRegisters, (void *)reg);
+}
+
+void EmitMemoryAddress(CodeGenerator *generator, short memoryAddress)
+{
+    Emit(generator, "%d(%%rbp)", memoryAddress);
+}
+
+void EmitRegister(CodeGenerator *generator, Register reg)
+{
+    Emit(generator, "%%%s", generator->registers[reg]);
+}
+
+void EmitRegisterOrAddress(CodeGenerator *generator, AbstractSyntaxTreeNode *node)
+{
+    if (node->reg != -1)
+    {
+        EmitRegister(generator, node->reg);
+    }
+    else
+    {
+        if (!((Symbol *)node->info)->memoryAddress)
+            Emit(generator, "$%s", ((Symbol *)node->info)->name);
+        else
+            EmitMemoryAddress(generator, ((Symbol *)node->info)->memoryAddress);
+    }
+}
+static int currentBranchNum = 0;
+
+int EmitLabel(CodeGenerator *generator, int id, char *extra)
+{
+    Emit(generator, "AG%d_%s:\n", id != -1 ? id : currentBranchNum, extra);
+
+    return (currentBranchNum++);
+}
+# 229 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+void GenerateIncrement(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *expression = astNode->childrenManager->nextNode->info;
+
+    expression->GenerationFunction(codeGenerator, expression);
+
+    Emit(codeGenerator, "mov ");
+    EmitMemoryAddress(codeGenerator, ((Symbol*)expression->info)->memoryAddress);
+    Emit(codeGenerator, ", ");
+    EmitRegister(codeGenerator, expression->reg);
+    Emit(codeGenerator, "\n");
+
+    Emit(codeGenerator, "incl ");
+    EmitMemoryAddress(codeGenerator, ((Symbol*)expression->info)->memoryAddress);
+    Emit(codeGenerator, "\n");
+
+    astNode->reg = expression->reg;
+}
+
+void GenerateIf(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *condition = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *body = astNode->childrenManager->info;
+
+    GenerateExpression(codeGenerator, condition);
+
+
+    Emit(codeGenerator, "test ");
+    EmitRegisterOrAddress(codeGenerator, condition);
+    Emit(codeGenerator, ", ");
+    EmitRegisterOrAddress(codeGenerator, condition);
+    Emit(codeGenerator, "\n");
+    Emit(codeGenerator, "jnz AG%d_true\n", currentBranchNum);
+    Emit(codeGenerator, "jmp AG%d_false\n", currentBranchNum);
+    int next = EmitLabel(codeGenerator, -1, "true");
+    body->GenerationFunction(codeGenerator, body);
+    EmitLabel(codeGenerator, next, "false");
+}
+
+void GenerateIntegerLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    Emit(codeGenerator, "mov $%s, ", ((Symbol*)astNode->info)->name);
+    EmitRegister(codeGenerator, astNode->reg = astNode->reg != -1 ? astNode->reg : GetRegister(codeGenerator));
+    Emit(codeGenerator, "\n");
+}
+
+void GenerateSymbol(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    Emit(codeGenerator, "mov ");
+    EmitRegisterOrAddress(codeGenerator, astNode);
+    Emit(codeGenerator, ", ");
+    EmitRegister(codeGenerator, (astNode->reg = astNode->reg != -1 ? astNode->reg : GetRegister(codeGenerator)));
+    Emit(codeGenerator, "\n");
+}
+
+void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    Symbol *decl = astNode->info;
+    ((CodeGenerator *)codeGenerator)->currentMemoryOffset -= 4;
+    decl->memoryAddress = ((CodeGenerator *)codeGenerator)->currentMemoryOffset;
+}
+
+void GenerateAddition(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
+
+    Emit(codeGenerator, "add ");
+    EmitRegisterOrAddress(codeGenerator, right);
+    Emit(codeGenerator, ",");
+    EmitRegister(codeGenerator, left->reg);
+    Emit(codeGenerator, "\n");
+
+    FreeRegister(codeGenerator, right->reg);
+    astNode->reg = left->reg;
+}
+
+void GenerateMult(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
+
+    Emit(codeGenerator, "mov ");
+    EmitRegister(codeGenerator, (left->reg + 9));
+    Emit(codeGenerator, ", %%rax\nimull ");
+
+    EmitRegisterOrAddress(codeGenerator, right);
+
+    Emit(codeGenerator, "\nmov %%rax, ");
+    EmitRegister(codeGenerator, (left->reg + 9));
+    Emit(codeGenerator, "\n");
+
+    FreeRegister(codeGenerator, right->reg);
+    astNode->reg = left->reg;
+}
+
+void GenerateExpression(void *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    LabelAst(astRoot, 0);
+    GenerateAst_2(generator, astRoot, 0);
+
+    while (!IsEmptyStack(((CodeGenerator*)generator)->availableRegisters))
+    {
+        PopStack(((CodeGenerator*)generator)->availableRegisters);
+    }
+
+    for (Register currentRegister = 9; currentRegister != 0; currentRegister--)
+    {
+        PushStack(((CodeGenerator*)generator)->availableRegisters, (void *)currentRegister);
+    }
+}
+
+void GenerateAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
+
+    left->GenerationFunction(codeGenerator, left);
+    GenerateExpression(codeGenerator, right);
+
+    Emit(codeGenerator, "mov ");
+    EmitRegisterOrAddress(codeGenerator, right);
+    Emit(codeGenerator, ", ");
+    EmitMemoryAddress(codeGenerator, ((Symbol *)left->info)->memoryAddress);
+    Emit(codeGenerator, "\n");
+
+    if (left->reg != -1)
+    {
+        Emit(codeGenerator, "mov ");
+        EmitRegisterOrAddress(codeGenerator, right);
+        Emit(codeGenerator, ", ");
+        EmitRegister(codeGenerator, left->reg);
+        Emit(codeGenerator, "\n");
+    }
+
+    astNode->reg = left->reg;
+}
+
+void GenerateAdditionAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+
+}
+
+void GenerateDivision(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
+
+    Emit(codeGenerator, "xor %%edx, %%edx\n");
+    Emit(codeGenerator, "mov ");
+    EmitRegister(codeGenerator, (left->reg + 9));
+    Emit(codeGenerator, ", %%rax\nidivl ");
+
+    EmitRegisterOrAddress(codeGenerator, right);
+
+    Emit(codeGenerator, "\nmov %%rax, ");
+    EmitRegister(codeGenerator, (left->reg + 9));
+    Emit(codeGenerator, "\n");
+
+    FreeRegister(codeGenerator, right->reg);
+    astNode->reg = left->reg;
+}
+
+void GenerateReturn(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *value = astNode->childrenManager->info;
+
+    GenerateExpression(codeGenerator, value);
+
+    Emit(codeGenerator, "mov ");
+    EmitRegisterOrAddress(codeGenerator, value);
+    Emit(codeGenerator, ", %%eax\n");
+}
+
+int LabelAst(AbstractSyntaxTreeNode *astRoot, unsigned char left)
+{
+    int leftL = 0;
+    int rightL = 0;
+
+    if (!astRoot->childrenManager)
+    {
+        astRoot->label = left;
+        return left;
+    }
+
+
+    {
+        leftL = LabelAst(astRoot->childrenManager->nextNode->info, 1);
+
+        if (astRoot->childrenManager)
+            rightL = LabelAst(astRoot->childrenManager->info, 0);
+
+        astRoot->label = ((leftL) > (rightL) ? (leftL) : (rightL));
+        astRoot->label += leftL == rightL;
+    }
+
+    return astRoot->label;
+}
+
+void GenerateAst_2(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, unsigned char left)
+{
+    if (!astRoot->childrenManager)
+    {
+        astRoot->GenerationFunction(generator, astRoot);
+        return;
+    }
+
+
+    if (astRoot->childrenManager && !((AbstractSyntaxTreeNode *)astRoot->childrenManager->info)->childrenManager)
+    {
+        GenerateAst_2(generator, astRoot->childrenManager->nextNode->info, 1);
+
+        if (((AbstractSyntaxTreeNode *)astRoot->childrenManager->info)->GenerationFunction)
+        ((AbstractSyntaxTreeNode *)astRoot->childrenManager->info)->GenerationFunction(generator, astRoot->childrenManager->info);
+        astRoot->GenerationFunction(generator, astRoot);
+
+        return;
+    }
+
+    AbstractSyntaxTreeNode *leftT = astRoot->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *rightT = astRoot->childrenManager->info;
+    AbstractSyntaxTreeNode *maxT = leftT->label > rightT->label ? leftT : rightT;
+
+    GenerateAst_2(generator, maxT, (maxT == leftT));
+    GenerateAst_2(generator, (maxT == leftT ? rightT : leftT), (maxT != leftT));
+
+    if (astRoot->GenerationFunction)
+        astRoot->GenerationFunction(generator, astRoot);
+}
+
+void GenerateStatements(void *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    CircularLinearLinkedListNode *p = astRoot->childrenManager->nextNode;
+
+    do
+    {
+        if (((AbstractSyntaxTreeNode *)p->info)->GenerationFunction)
+            ((AbstractSyntaxTreeNode *)p->info)->GenerationFunction(generator, p->info);
+        p = p->nextNode;
+    } while (p != astRoot->childrenManager->nextNode);
+}
+
+void EmitFunctionStart(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    Symbol *function = astRoot->info;
+
+    Emit(generator, ".text\n.globl %s\n.type %s, @function\n%s:\n", function->name, function->name, function->name);
+    Emit(generator, "pushq %rbp\nmovq %rsp, %rbp\n");
+}
+
+void EmitFunctionEnd(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    Symbol *function = astRoot->info;
+
+    Emit(generator, "popq %rbp\nret\n");
+
+}
+
+void GenerateCall(void *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    Symbol *function = astRoot->info;
+    AbstractSyntaxTreeNode *parameters;
+
+    if (astRoot->childrenManager)
+    {
+        parameters = astRoot->childrenManager->info;
+
+        GenerateExpression(generator, parameters);
+
+        Emit(generator, "push ");
+        EmitRegister(generator, (parameters->reg + 9));
+        Emit(generator, "\n");
+    }
+
+    Emit(generator, "call %s\n", function->name);
+
+    astRoot->reg = GetRegister(generator);
+
+    Emit(generator, "mov %%eax, ");
+    EmitRegister(generator, astRoot->reg);
+    Emit(generator, "\n");
+}
+
+void GenerateFunctions(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
+{
+
+
+    CircularLinearLinkedListNode *p = astRoot->childrenManager->nextNode;
+
+    do
+    {
+        EmitFunctionStart(generator, p->info);
+        GenerateStatements(generator, p->info);
+        EmitFunctionEnd(generator, p->info);
+        p = p->nextNode;
+    }
+    while (p != astRoot->childrenManager->nextNode);
+}
+
+void GenerateAst(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    GenerateFunctions(generator, astRoot);
+# 567 "/media/lior/Data/C/Compiler/source/CodeGenerator.c"
+}
+
+void GenerateCode(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    GenerateAst(generator, astRoot);
+}
+# 7 "/media/lior/Data/C/Compiler/source/main.c" 2
+
+#pragma region TESTING
+
+
+
+const char* typeStr[] = {
+              [STRING_LITERAL] = "STRING_LITERAL", [MAIN] = "MAIN", [IDENTIFIER] = "IDENTIFIER", [VOID] = "VOID", [INT] = "INT",
+              [FLOAT] = "FLOAT", [LONG] = "LONG", [DOUBLE] = "DOUBLE", [SHORT] = "SHORT", [CHAR] = "CHAR", [UNSIGNED] = "UNSIGNED", [STRUCT] = "STRUCT",
+              [FOR] = "FOR", [IF] = "IF", [ELSE] = "ELSE", [WHILE] = "WHILE", [RETURN] = "RETURN", [PLUS] = "PLUS",
+              [PLUS_PLUS] = "PLUS_PLUS", [MINUS] = "MINUS", [MINUS_MINUS] = "MINUS_MINUS", [PLUS_EQ] = "PLUS_EQ", [MINUS_EQ] = "MINUS_EQ",
+              [STAR_EQ] = "STAR_EQ", [SLASH_EQ] = "SLASH_EQ", [MOD_EQ] = "MOD_EQ", [GT] = "GT", [LT] = "LT", [EQ] = "EQ",
+              [GE] = "GE", [LE] = "LE", [EEQ] = "EEQ", [NEQ] = "NEQ", [STAR] = "STAR", [SLASH] = "SLASH", [MOD] = "MOD",
+              [DOT] = "DOT", [ARROW] = "ARROW", [COMMA] = "COMMA", [SEMI_COLON] = "SEMI_COLON", [LEFT_BRACKET] = "LEFT_BRACKET", [RIGHT_BRACKET] = "RIGHT_BRACKET",
+              [LEFT_CURLY] = "LEFT_CURLY", [RIGHT_CURLY] = "RIGHT_CURLY", [LEFT_PAREN] = "LEFT_PAREN", [RIGHT_PAREN] = "RIGHT_PAREN", [AMPERSAND] = "AMPERSAND",
+              [FLOAT_LITERAL] = "FLOAT_LITERAL", [INTEGER_LITERAL] = "INTEGER_LITERAL", [WHITESPACE] = "WHITESPACE", [EOD] = "EOD"
+            };
+
+# 1 "/usr/include/x86_64-linux-gnu/sys/time.h" 1 3 4
+# 34 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+
+# 52 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+
+# 52 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+struct timezone
+  {
+    int tz_minuteswest;
+    int tz_dsttime;
+  };
+# 67 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+extern int gettimeofday (struct timeval *__restrict __tv,
+    void *__restrict __tz) __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 86 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+extern int settimeofday (const struct timeval *__tv,
+    const struct timezone *__tz)
+     __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+
+extern int adjtime (const struct timeval *__delta,
+      struct timeval *__olddelta) __attribute__ ((__nothrow__ , __leaf__));
+# 114 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+enum __itimer_which
+  {
+
+    ITIMER_REAL = 0,
+
+
+    ITIMER_VIRTUAL = 1,
+
+
+
+    ITIMER_PROF = 2
+
+  };
+
+
+
+struct itimerval
+  {
+
+    struct timeval it_interval;
+
+    struct timeval it_value;
+  };
+
+
+
+
+
+
+typedef int __itimer_which_t;
+
+
+
+
+
+extern int getitimer (__itimer_which_t __which,
+        struct itimerval *__value) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+extern int setitimer (__itimer_which_t __which,
+        const struct itimerval *__restrict __new,
+        struct itimerval *__restrict __old) __attribute__ ((__nothrow__ , __leaf__));
+
+
+
+
+extern int utimes (const char *__file, const struct timeval __tvp[2])
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+# 189 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+extern int lutimes (const char *__file, const struct timeval __tvp[2])
+     __attribute__ ((__nothrow__ , __leaf__)) __attribute__ ((__nonnull__ (1)));
+
+
+extern int futimes (int __fd, const struct timeval __tvp[2]) __attribute__ ((__nothrow__ , __leaf__));
+# 258 "/usr/include/x86_64-linux-gnu/sys/time.h" 3 4
+
+# 25 "/media/lior/Data/C/Compiler/source/main.c" 2
+
+# 25 "/media/lior/Data/C/Compiler/source/main.c"
+struct timeval stop, start;
+
+#pragma endregion
+
+CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream)
+{
+    Lexer lexer;
+    CircularLinearLinkedListNode *tokens;
+    CircularLinearLinkedListNode *current;
+
+    InitLexer(&lexer);
+
+    tokens = Tokenize(&lexer, NextLine(sourceStream));
+
+    while (!EndOfStream(sourceStream))
+    {
+        current = Tokenize(&lexer, NextLine(sourceStream));
+        current ? ConcatCircularLinearLinkedLists(&tokens, current) : 0;
+    }
+
+    InsertEndCircularLinearLinkedList(&tokens);
+    tokens->info = malloc(sizeof(Token));
+    ((Token*)tokens->info)->type = EOD;
+    ((Token*)tokens->info)->lexeme = 
+# 48 "/media/lior/Data/C/Compiler/source/main.c" 3 4
+                                    ((void *)0)
+# 48 "/media/lior/Data/C/Compiler/source/main.c"
+                                        ;
+
+    FreeLexer(&lexer);
+    ResetStream(sourceStream);
+
+    return (tokens);
+}
+
+void FreeToken(Token *token)
+{
+    free(token->lexeme);
+    free(token);
+}
+
+void EmitFunc(void *stream, char *buffer, va_list args)
+{
+    vfprintf(stream, buffer, args);
+}
+
+void main(unsigned short argumentsCount, char* arguments[])
+{
+    Stream sourceStream;
+    CircularLinearLinkedListNode *tokens;
+
+    Parser parser;
+    AbstractSyntaxTreeNode *ast;
+
+    CodeGenerator generator;
+
+    argumentsCount < 2 ? ExitWithError("Source file was not specified.") : 0;
+
+    InitStream(&sourceStream, arguments[1], "rt");
+    tokens = TokenizeStream(&sourceStream);
+    CloseStream(&sourceStream);
+
+    gettimeofday(&start, 
+# 83 "/media/lior/Data/C/Compiler/source/main.c" 3 4
+                        ((void *)0)
+# 83 "/media/lior/Data/C/Compiler/source/main.c"
+                            );
+
+    InitParser(&parser, typeStr);
+
+    ast = Parse(&parser, tokens);
+
+    FILE *p = fopen("out.s", "w");
+    InitCodeGenerator(&generator, EmitFunc, p);
+    GenerateCode(&generator, ast);
+    fclose(p);
+
+    gettimeofday(&stop, 
+# 94 "/media/lior/Data/C/Compiler/source/main.c" 3 4
+                       ((void *)0)
+# 94 "/media/lior/Data/C/Compiler/source/main.c"
+                           );
+    printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
+    printf("took %lu s\n", stop.tv_sec - start.tv_sec);
+
+    system("gcc out.s -o out.o && ./out.o ; echo $?");
+
+    FreeParser(&parser);
+    EmptyCircularLinearLinkedList(&tokens, FreeToken);
+}

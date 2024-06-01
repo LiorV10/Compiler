@@ -18,6 +18,10 @@
     #include "Grammar.h"
 #endif
 
+#ifndef _DICTIONARY_H
+    #include "Dictionary.h"
+#endif
+
 #define SYMBOL_TYPE ExpressionValue
 
 typedef struct
@@ -25,6 +29,8 @@ typedef struct
     BOOL isAccepting : TWO;
     CircularLinearLinkedListNode *lrItems;
     CircularLinearLinkedListNode *transitionsManager;
+    // Dictionary transitions;
+    unsigned long key;
 } PushdownState;
 
 typedef struct

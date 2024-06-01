@@ -20,7 +20,7 @@ typedef struct
     char buffer[MAX_LINE_LENGTH];
 } Stream;
 
-void InitStream(Stream *stream, char *path);
+void InitStream(Stream *stream, char *path, char *mode);
 char* NextLine(Stream *stream);
 void ResetStream(Stream *stream);
 void CloseStream(Stream *stream);

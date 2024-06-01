@@ -1,13 +1,10 @@
 // Regex.c
 
-#ifndef _REGEX_H
-    #include "Regex.h"
-#endif
+#include "Regex.h"
 
 StateMachine *RegexToENFA(char *pattern)
 {
     Stack stack;
-    StateMachine *nfa;
 
     InitStack(&stack);
 
@@ -18,24 +15,31 @@ StateMachine *RegexToENFA(char *pattern)
             case LTETTERS_CHAR:
                 PushStack(&stack, RegexToENFA(LETTERS_PATTERN));
                 break;
+
             case DIGIT_CHAR:
                 PushStack(&stack, RegexToENFA(DIGIT_PATTERN));
                 break;
+
             case CONCAT_CHAR:
                 PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
                 break;
+
             case STAR_OPERATOR:
                 PushStack(&stack, Star(PopStack(&stack)));
                 break;
+
             case ALTERNATION_OPERATOR:
                 PushStack(&stack, Alternate(PopStack(&stack)));
                 break;
+
             case UNION_OPERATOR:
                 PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
                 break;
+
             case PLUS_OPERATOR:
                 PushStack(&stack, OneOrMore(PopStack(&stack)));
                 break;
+
             default:
                 PushStack(&stack, FromSymbol(*pattern));
                 break;
@@ -57,14 +61,14 @@ CircularLinearLinkedListNode* EpsilonClosureByState(State* state)
     InsertLastCircularLinearLinkedList(&states);
     states->info = state;
 
-    MakeSymbolTransitions(states, states->nextNode, &epsilonStates, EPSILON_TRANSITION);
+    SelectSymbolTransitions(states, states->nextNode, &epsilonStates, EPSILON_TRANSITION);
 
     while (epsilonStates)
     {
         previousEpsilonStates = epsilonStates->nextNode;
         ConcatCircularLinearLinkedLists(&states, epsilonStates);
         epsilonStates = NULL;
-        MakeSymbolTransitions(states, previousEpsilonStates, &epsilonStates, EPSILON_TRANSITION);
+        SelectSymbolTransitions(states, previousEpsilonStates, &epsilonStates, EPSILON_TRANSITION);
     }
 
     return states;
@@ -138,12 +142,78 @@ StateMachine *ENFAToNFA(StateMachine *enfa)
     return (nfa);
 }
 
+void EC(State *state)
+{
+    CircularLinearLinkedListNode *p = state->transitionsManager;
+
+    state->visited = TRUE;
+
+    if (!Exists(state->ec, state))
+    {
+        !state->ec ? 
+                InsertLastCircularLinearLinkedList(&state->ec) : 
+                InsertEndCircularLinearLinkedList(&state->ec);
+
+        state->ec->info = state;
+    }
+
+    if (!p)
+    {
+        return;
+    }
+
+    do
+    {
+        if (((Transition*)p->info)->symbol == EPSILON_TRANSITION && !((Transition*)p->info)->dest->visited)
+        {
+            EC(((Transition*)p->info)->dest);
+
+            CircularLinearLinkedListNode *pp = ((Transition*)p->info)->dest->ec;
+
+            if (pp) do
+            {
+                if (!Exists(state->ec, pp->info))
+                {
+                    !state->ec ? 
+                            InsertLastCircularLinearLinkedList(&state->ec) : 
+                            InsertEndCircularLinearLinkedList(&state->ec);
+
+                    state->ec->info = pp->info;
+                }
+
+                pp = pp->nextNode;
+            }
+            while (pp != ((Transition*)p->info)->dest->ec);
+        }
+        else if (((Transition*)p->info)->symbol == EPSILON_TRANSITION && (((Transition*)p->info)->dest->visited))
+        {
+            CircularLinearLinkedListNode *pp = ((Transition*)p->info)->dest->ec;
+
+            if (pp) do
+            {
+                if (!Exists(state->ec, pp->info))
+                {
+                    !state->ec ? 
+                            InsertLastCircularLinearLinkedList(&state->ec) : 
+                            InsertEndCircularLinearLinkedList(&state->ec);
+
+                    state->ec->info = pp->info;
+                }
+
+                pp = pp->nextNode;
+            }
+            while (pp != ((Transition*)p->info)->dest->ec);
+        }
+
+        p = p->nextNode;
+    }
+    while (p != state->transitionsManager);
+}
+
 StateMachine *RegexToNFA(char *pattern, unsigned short matchType)
 {
     StateMachine *enfa = RegexToENFA(pattern);
     FinalState(enfa)->info = ++matchType;
-    
-    //enfa = ENFAToNFA(enfa);
 
     return (enfa);
 }

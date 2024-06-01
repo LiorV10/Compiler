@@ -1,0 +1,30 @@
+// SemanticAnalyzer.c
+
+#include "SemanticAnalyzer.h"
+
+#define OPERATORS_COUNT 4
+
+#define ERROR_TYPE TYPES_COUNT
+
+Type typesMatrix[TYPES_COUNT][TYPES_COUNT][OPERATORS_COUNT] = 
+{
+    //   +  -  *  /
+
+    [CHAR_TYPE] = 
+    {
+        [CHAR_TYPE] = {CHAR_TYPE, CHAR_TYPE, CHAR_TYPE, CHAR_TYPE},
+        [SHORT_TYPE] = {SHORT_TYPE, SHORT_TYPE, SHORT_TYPE, SHORT_TYPE},
+        [INTEGER_TYPE] = {INTEGER_TYPE, INTEGER_TYPE, INTEGER_TYPE ,INTEGER_TYPE},
+        [LONG_TYPE] = {LONG_TYPE, LONG_TYPE, LONG_TYPE, LONG_TYPE},
+        [FLOAT_TYPE] = {FLOAT_TYPE, FLOAT_TYPE, FLOAT_TYPE, FLOAT_TYPE},
+        [DOUBLE_TYPE] = {DOUBLE_TYPE, DOUBLE_TYPE, DOUBLE_TYPE, DOUBLE_TYPE},
+        [VOID_TYPE] = {ERROR_TYPE, ERROR_TYPE, ERROR_TYPE, ERROR_TYPE},
+        [POINTER_TYPE] = {POINTER_TYPE, POINTER_TYPE, ERROR_TYPE, ERROR_TYPE},
+        [ARRAY_TYPE] = {},
+    }
+};
+
+void Semantics()
+{
+    printf("%d\n", typesMatrix[CHAR_TYPE][FLOAT_TYPE][3]);
+}

@@ -43,11 +43,7 @@ TernaryTreeNode* SetLeftTernaryTree(TernaryTreeNode *root)
 {
     // Code section
 
-    root->leftSubTree = malloc(sizeof(TernaryTreeNode));
-    root->leftSubTree->wordData = NULL;
-    root->leftSubTree->leftSubTree = NULL;
-    root->leftSubTree->middleSubTree = NULL;
-    root->leftSubTree->rightSubTree = NULL;
+    MakeTernaryTree(&root->leftSubTree);
 
     return (root->leftSubTree);
 }
@@ -69,11 +65,7 @@ TernaryTreeNode* SetMiddleTernaryTree(TernaryTreeNode *root)
 {
     // Code section
 
-    root->middleSubTree = malloc(sizeof(TernaryTreeNode));
-    root->middleSubTree->wordData = NULL;
-    root->middleSubTree->leftSubTree = NULL;
-    root->middleSubTree->middleSubTree = NULL;
-    root->middleSubTree->rightSubTree = NULL;
+    MakeTernaryTree(&root->middleSubTree);
 
     return (root->middleSubTree);
 }
@@ -95,11 +87,7 @@ TernaryTreeNode* SetRightTernaryTree(TernaryTreeNode *root)
 {
     // Code section
 
-    root->rightSubTree = malloc(sizeof(TernaryTreeNode));
-    root->rightSubTree->wordData = NULL;
-    root->rightSubTree->leftSubTree = NULL;
-    root->rightSubTree->middleSubTree = NULL;
-    root->rightSubTree->rightSubTree = NULL;
+    MakeTernaryTree(&root->rightSubTree);
 
     return (root->rightSubTree);
 }

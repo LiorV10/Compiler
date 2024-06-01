@@ -6,7 +6,7 @@
     #include "../libs/LinearLinkedList.h"
 #endif
 
-#define MAX_DICTIONARY_SIZE 128
+#define MAX_DICTIONARY_SIZE 512
 
 typedef struct
 {

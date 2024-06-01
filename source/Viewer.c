@@ -2,9 +2,9 @@
 
 #include "Viewer.h"
 
-void InitStream(Stream *stream, char *path)
+void InitStream(Stream *stream, char *path, char *mode)
 {
-    stream->fp = fopen(path, "rt");
+    stream->fp = fopen(path, mode);
     !stream->fp ? ExitWithError("Could not find the source file.") : ZERO;
 }
 

@@ -2,143 +2,188 @@
 
 #include "Grammar.h"
 
-struct ExpressionFirstSet
+#include "../source/Construction.c"
+
+void InitGrammar(Grammar *grammar)
 {
-    Expression *expression;
-    LinearLinkedListNode *firstSet;
-};
+    InitLinearLinkedList(&grammar->nonTerminals);
+    InitLinearLinkedList(&grammar->expressions);
 
-#include "../grammar/GrammarConstruction.c"
+    *grammar = BUILD();
+    AssignActions(grammar);
+}
 
+//-----------------------------------------------------------------------------
+//                                  Initial Non-Terminal                                     
+//                                  --------------------                                 
+//                                                                             
+// General      : The function finds the initial non terminal of 
+//                the inital rule of a grammar.                                 
+//                                                                             
+// Parameters   :                                                              
+//      grammar - The grammar (In)                                     
+//                                                                             
+// Return Value : The initial non terminal.             
+//-----------------------------------------------------------------------------
+// T(n) = d
+//-----------------------------------------------------------------------------
 NonTerminal* InitialNonTerminal(Grammar *grammar)
 {
     return (grammar->nonTerminals->info);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Initial Rule                                     
+//                                      ------------                               
+//                                                                             
+// General      : The function finds the initial rule of a grammar.                                 
+//                                                                             
+// Parameters   :                                                              
+//      grammar - The grammar (In)                                     
+//                                                                             
+// Return Value : The initial rule.             
+//-----------------------------------------------------------------------------
+// T(n) = d
+//-----------------------------------------------------------------------------
 Rule* InitialRule(Grammar *grammar)
 {
     return (InitialNonTerminal(grammar)->rules->info);
 }
 
+//-----------------------------------------------------------------------------
+//                                      EOD Terminal                                    
+//                                      ------------                               
+//                                                                             
+// General      : The function finds the EOD terminal 
+//                (which appears at the end of every legal unit) of a grammar.                                 
+//                                                                             
+// Parameters   :                                                              
+//      grammar - The grammar (In)                                     
+//                                                                             
+// Return Value : The EOD terminal.             
+//-----------------------------------------------------------------------------
+// T(n) = d
+//-----------------------------------------------------------------------------
 Expression* EODTerminal(Grammar *grammar)
 {
     return (grammar->expressions->info);
 }
 
+//-----------------------------------------------------------------------------
+//                              Compare Non-Terminals                                     
+//                              ---------------------                                  
+//                                                                             
+// General      : The function compares two non terminals.                                 
+//                                                                             
+// Parameters   :                                                              
+//      first - The first non terminal (In)                                     
+//      second - The second non terminal (In)                                     
+//                                                                             
+// Return Value : Whether the expressions are eqaul.             
+//-----------------------------------------------------------------------------
+// T(n) = d 
+//-----------------------------------------------------------------------------
 BOOL CompareNonTerminals(ExpressionValue first, ExpressionValue second)
 {
     return (first.nonTerminal == second.nonTerminal);
 }
 
+//-----------------------------------------------------------------------------
+//                              Compare Terminals                                     
+//                              -----------------                              
+//                                                                             
+// General      : The function compares two terminals.                                 
+//                                                                             
+// Parameters   :                                                              
+//      first - The first terminal (In)                                     
+//      second - The second terminal (In)                                     
+//                                                                             
+// Return Value : Whether the expressions are equal.             
+//-----------------------------------------------------------------------------
+// T(n) = d 
+//-----------------------------------------------------------------------------
 BOOL CompareTerminals(ExpressionValue first, ExpressionValue second)
 {
     return (first.terminal == second.terminal);
 }
 
+//-----------------------------------------------------------------------------
+//                                  Expression Key                                     
+//                                  --------------                                  
+//                                                                             
+// General      : The key function for an expression.                                 
+//                                                                             
+// Parameters   :                                                              
+//      expression - The expression (In)                                     
+//                                                                             
+// Return Value : The expression's key.             
+//-----------------------------------------------------------------------------
+// T(n) = d
+//-----------------------------------------------------------------------------
 unsigned long ExpressionKey(Expression *expression)
 {
     return ((unsigned long)expression);
 }
 
+//-----------------------------------------------------------------------------
+//                              Compare Expressions                                     
+//                              -------------------                            
+//                                                                             
+// General      : The function compares two expressions.                                 
+//                                                                             
+// Parameters   :                                                              
+//      first - The first expression (In)                                     
+//      second - The second expression (In)                                     
+//                                                                             
+// Return Value : Whether the first is greater.             
+//-----------------------------------------------------------------------------
+// T(n) = d 
+//-----------------------------------------------------------------------------
 BOOL CompareExpressions(Expression *first, Expression *second)
 {
     return (first == second);
 }
 
-unsigned long ExpressionFirstSetKey(struct ExpressionFirstSet *expression)
+#define SET_BIT(set, offset) ((set |= (((unsigned long)ONE << offset))))
+
+void ExpressionFirstSet(Expression *expression)
 {
-    return ExpressionKey(expression->expression);
-}
-
-BOOL CompareExpressionsFirstSet(struct ExpressionFirstSet *first, Expression *second)
-{
-    return CompareExpressions(first->expression, second);
-}
-
-LinearLinkedListNode* TerminalFirstSet(Expression *terminal)
-{
-    LinearLinkedListNode *firstSet;
-
-    InitLinearLinkedList(&firstSet);
-    PushLinearLinkedList(&firstSet);
-
-    firstSet->info = terminal;
-
-    return (firstSet);
-}
-
-void CurrentFirst(NonTerminal *current, Stack *nextNonTerminals, Dictionary *visitedExpressions, LinearLinkedListNode **firstSet)
-{
-    Expression *currentExpression;
+    Expression *nextExpression;
     LinearLinkedListNode *rulesPtr;
 
-    for (rulesPtr = current->rules; rulesPtr; rulesPtr = rulesPtr->nextNode)
+    if (expression->isTerminal)
     {
-        currentExpression = ((Rule*)rulesPtr->info)->expressions->info;
+        SET_BIT(expression->firstSet, expression->value.terminal);
+        return;
+    }
 
-        if (!LookupDictionary(visitedExpressions, currentExpression, ExpressionKey, CompareExpressions))
+    for (rulesPtr = expression->value.nonTerminal->rules; rulesPtr; rulesPtr = rulesPtr->nextNode)
+    {
+        nextExpression = ((Rule*)rulesPtr->info)->expressions->info;
+
+        if (!nextExpression->firstSet && nextExpression != expression)
         {
-            InsertDictionary(visitedExpressions, currentExpression, ExpressionKey);
-
-            currentExpression->isTerminal ?
-                (PushLinearLinkedList(firstSet), (*firstSet)->info = currentExpression) :
-                PushStack(nextNonTerminals, currentExpression->value.nonTerminal);
+            ExpressionFirstSet(nextExpression);
         }
+        
+        expression->firstSet |= nextExpression->firstSet;
     }
 }
 
-LinearLinkedListNode* NonTerminalFirstSet(NonTerminal *nonTerminal)
-{
-    Stack nonTerminalsStack;
-    LinearLinkedListNode *firstSet;
-    Dictionary visitedExpressions;
-    Expression *currentExpression;
-
-    InitStack(&nonTerminalsStack);
-    InitLinearLinkedList(&firstSet);
-    InitDictionary(&visitedExpressions);
-    
-    PushStack(&nonTerminalsStack, nonTerminal);
-
-    while (!IsEmptyStack(&nonTerminalsStack))
-    {
-        CurrentFirst(PopStack(&nonTerminalsStack), &nonTerminalsStack, &visitedExpressions, &firstSet);
-    }
-
-    EmptyDictionary(&visitedExpressions, NULL);
-
-    return (firstSet);
-}
-
-void ExpressionFirstSet(Expression *expression, Dictionary *expressionFirstSets)
-{
-    LinearLinkedListNode *firstSet = expression->isTerminal ? 
-        TerminalFirstSet(expression) : NonTerminalFirstSet(expression->value.nonTerminal);
-
-    struct ExpressionFirstSet *item = malloc(sizeof(struct ExpressionFirstSet));
-    *item = (struct ExpressionFirstSet){.expression = expression, .firstSet = firstSet};
-
-    InsertDictionary(expressionFirstSets, item, ExpressionFirstSetKey);
-}
-
-Dictionary* GrammarFirstSet(Grammar *grammar)
+void GrammarFirstSet(Grammar *grammar)
 {
     LinearLinkedListNode *ptr;
-    Dictionary *expressionFirstSets = malloc(sizeof(Dictionary)); 
-
-    InitDictionary(expressionFirstSets);
 
     for (ptr = grammar->expressions; ptr; ptr = ptr->nextNode)
     {
-        ExpressionFirstSet(ptr->info, expressionFirstSets);
+        ((Expression*)ptr->info)->firstSet = ZERO;
     }
 
-    return (expressionFirstSets);
-}
-
-LinearLinkedListNode *LookupFirstSet(Dictionary *firstSets, Expression *expression)
-{
-    return ((struct ExpressionFirstSet*)LookupDictionary(firstSets,expression, ExpressionKey, CompareExpressionsFirstSet))->firstSet;
+    for (ptr = grammar->expressions; ptr; ptr = ptr->nextNode)
+    {
+        !((Expression*)ptr->info)->firstSet ?
+            ExpressionFirstSet(ptr->info) : ZERO;
+    }
 }
 
 Item* NextItem(Item *item)
@@ -152,7 +197,7 @@ Item* NextItem(Item *item)
     return (next);
 }
 
-Item* InitialItem(Rule *rule, Expression *lookahead)
+Item* InitialItem(Rule *rule, TokenType lookahead)
 {
     Item *item = malloc(sizeof(Item));
 
@@ -161,17 +206,6 @@ Item* InitialItem(Rule *rule, Expression *lookahead)
     item->lookahead = lookahead;
 
     return (item);
-}
-
-void FreeFirstSet(struct ExpressionFirstSet *firstSet)
-{
-    EmptyLinearLinkedList(&firstSet->firstSet, NULL);
-}
-
-void FreeFirstSets(Dictionary *firstSets)
-{
-    EmptyDictionary(firstSets, FreeFirstSet);
-    free(firstSets);
 }
 
 void FreeRule(Rule *rule)

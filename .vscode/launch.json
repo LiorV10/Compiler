@@ -5,10 +5,34 @@
             "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${fileDirname}/mc", // Adjust the executable file path accordingly
+            "program": "${fileDirname}/cc",
+            "args": [
+                "/media/lior/Data/C/Compiler/source/demo.c"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/source/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "includePath": "../libs/",
+                    "ignoreFailures": true
+                }
+            ],
+            "miDebuggerPath": "/usr/bin/gdb",
+            "miDebuggerArgs": "-ex 'dir ../libs/'"
+        },
+        {
+            "name": "C/C++: bash build and debug active file",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${fileDirname}/cc",
             "args": ["/media/lior/Data/C/Compiler/source/demo.c"],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
+            "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
@@ -17,10 +41,16 @@
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "UBUNTU BUILD", // This refers to the build task defined in tasks.json
-            "postDebugTask": "Clean"
+            "postDebugTask": "Clean",
+            "preLaunchTask": "C/C++: cpp build active file",
+            "miDebuggerPath": "gdb"
         }
     ]
 }

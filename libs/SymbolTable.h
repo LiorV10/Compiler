@@ -2,8 +2,8 @@
 
 #define _SYMBOL_TABLE_H
 
-#ifndef _TERNARY_TREE_H
-    #include "TernaryTree.h"
+#ifndef _STRINGS_DICTIONARY_H
+    #include "StringsDictionary.h"
 #endif
 
 #ifndef _LINEAR_LINKED_LIST_H
@@ -14,18 +14,12 @@
     #include "Token.h"
 #endif
 
-#define MAX_SIZE 32
-
 typedef struct
 {
     char *name;
-    TokenType type;
+    unsigned short type;
+    short memoryAddress;
 } Symbol;
-
-typedef struct
-{
-    TernaryTreeNode *buckets[MAX_SIZE];
-} SymbolTable;
 
 typedef struct
 {

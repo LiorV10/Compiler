@@ -38,7 +38,7 @@ grammar_rules += '''void InitGrammar(Grammar *grammar)
 
 with open(definitions, 'r') as file:
     for line in reversed(file.readlines()):
-        line = line.replace('\n', '')
+        line = line.strip()
         if line == '':
             is_token = True
             continue
@@ -49,14 +49,12 @@ PushLinearLinkedList(&grammar->expressions);
 grammar->expressions->info = {line}expression;
 {line}expression->isTerminal = TRUE;
 {line}expression->value.terminal = {line};
-{line}expression->visited = FALSE;
 {line}expression->node = NULL;\n'''
         else:
             grammar_rules += f'''NonTerminal *{line} = malloc(sizeof(NonTerminal));
 PushLinearLinkedList(&grammar->nonTerminals);
 grammar->nonTerminals->info = {line};
 {line}->name = "{line}";
-{line}->visited = FALSE;
 InitLinearLinkedList(&{line}->rules);\n'''
             
             grammar_rules += f'''Expression *{line}expression = malloc(sizeof(Expression));
@@ -64,7 +62,6 @@ PushLinearLinkedList(&grammar->expressions);
 grammar->expressions->info = {line}expression;
 {line}expression->isTerminal = FALSE;
 {line}expression->value.nonTerminal = {line};
-{line}expression->visited = FALSE;
 {line}expression->node = NULL;\n'''
 
 with open(grammar, 'r') as file:

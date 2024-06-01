@@ -3,7 +3,7 @@
 #define _REGEX_H
 
 #ifndef _STATE_MACHINE_H
-    #include "StateMachine.h"
+    #include "StateMachine.c"
 #endif
 
 #ifndef _STACK_H
@@ -27,5 +27,5 @@ struct Match
     unsigned short matchType;
 };
 
-StateMachine *RegexToNFA(char *pattern, unsigned short matchType);
+StateMachine* RegexToNFA(char *pattern, unsigned short matchType);
 struct Match* ExecuteRegex(StateMachine *nfa, char *input);

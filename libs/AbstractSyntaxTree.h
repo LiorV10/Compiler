@@ -22,8 +22,10 @@ struct AbstractSyntaxTreeNode
     void *info;
     BOOL lvalue;
     unsigned char label;
-    unsigned char type;
+    void *type;
+    void *field;
     void (*GenerationFunction)(void *codeGenerator, AbstractSyntaxTreeNode *astRoot);
+    void (*AnalysisFunction)(AbstractSyntaxTreeNode *astRoot);
     CircularLinearLinkedListNode *childrenManager;
 };
 

@@ -5,7 +5,7 @@ LIBS			:= $(filter-out ../libs/Regex.c ../libs/StateMachine.c , $(wildcard ../li
 LIBS_OBJS		:= $(patsubst ../libs/%.c,../libs/%.o,$(LIBS))
 SEMANTICS		:= $(wildcard ../grammar/*.c)
 SEMANTICS_OBJS	:= $(patsubst ../grammar/%.c,../grammar/%.o,$(SEMANTICS))
-SRCS			:= $(filter-out ../source/Construction.c ../source/Lexer.c ../source/Parser.c ../source/CodeGenerator.c ../source/main.c ../source/demo.c, $(wildcard ../source/*.c))
+SRCS			:= $(filter-out ../source/Construction.c ../source/SemanticAnalyzer.c ../source/Lexer.c ../source/Parser.c ../source/CodeGenerator.c ../source/main.c ../source/demo.c, $(wildcard ../source/*.c))
 SRCS_OBJS		:= $(patsubst ../source/%.c,../source/%.o,$(SRCS))
 MAIN			:= main.c
 

@@ -69,16 +69,46 @@ Grammar BUILD()
     FILE *grammar_defs = fopen(GRAMMAR_DEFINITIONS, "rt");
     FILE *grammar_rules = fopen(GRAMMAR_RULES, "rt");
     FILE *semantics = fopen(SEMANTICS_FILE, "wt");
+    FILE *semantics_h = fopen(SEMANTICS_H_FILE, "wt");
 
     fprintf(semantics, "#include \"semantics.h\"\n");
+
+    if (UPDATE_HEADER)
+    {
+            fprintf(semantics_h, "#define _SEMANTICS\n");
+            fprintf(semantics_h, "#ifndef _COMMON_MACROS_H\n\
+            #include \"../libs/CommonMacros.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _ABSTRACT_SYNTAX_TREE_H\n\
+                #include \"../libs/AbstractSyntaxTree.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _STACK_H\n\
+                #include \"../libs/Stack.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _GRAMMAR_H\n\
+                #include \"../libs/Grammar.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _TYPE_SYSTEM_H\n\
+                #include \"../libs/TypeSystem.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _ACTIONS\n\
+                #include \"actions.h\"\n\
+            #endif\n");
+    }
+
     // fprintf(semantics, "#define _SEMANTICS\ntypedef enum {");
 
-    StringsDictionary tbl;
+    StringsDictionary *tbl = malloc(sizeof(StringsDictionary));
 
-    InitStringsDictionary(&tbl);
+    InitStringsDictionary(tbl);
 
-    char line[512] = {ZERO};
-    char line_[512] = {ZERO};
+    char line[2048] = {ZERO};
+    char line_[2048] = {ZERO};
 
     char *nonTerminal;
     char *expressions;
@@ -87,6 +117,9 @@ Grammar BUILD()
     Grammar g = {.expressions = NULL, .nonTerminals = NULL};
 
     fgets(line, 256, grammar_defs);
+
+    if (UPDATE_HEADER)
+        fprintf(semantics_h, "enum {");
 
     while (!feof(grammar_defs))
     {
@@ -102,47 +135,52 @@ Grammar BUILD()
             char *terminal = strtok(line, " ");
 
             sscanf(terminal, "%s", terminal);
-            // fprintf(semantics, "%s, ", terminal);
+            
+            if (UPDATE_HEADER)
+                fprintf(semantics_h, "%s, ", terminal);
         }
 
         sscanf(line, "%s", line_);
-        InsertStringsDictionary(&tbl, line_, MakeExpression(&g, line_));        
+        InsertStringsDictionary(tbl, line_, MakeExpression(&g, line_));        
     
         // puts(line_);
 
         fgets(line, 256, grammar_defs);
     }
 
-    // fprintf(semantics, "TOKENS_NUM } TokenType;\n#define PATTERNS {");
-
-    fseek(grammar_defs, ZERO, SEEK_SET);
-    fgets(line, 256, grammar_defs);
-
-    terminals = TRUE;
-
-    while (terminals)
+    if (UPDATE_HEADER)
     {
-        if (*line == '\n')
-        {
-            terminals = !terminals;
-            fgets(line, 256, grammar_defs);
-            continue;
-        }
+        fprintf(semantics_h, "TOKENS_NUM };\n#define PATTERNS {");
 
-        char *terminal = strtok(line, " ");
-        char *pattern = strtok(NULL, "\n");
-
-        if (pattern)
-        {
-           // fprintf(semantics, "%s, ", pattern);
-        }
-        
+        fseek(grammar_defs, ZERO, SEEK_SET);
         fgets(line, 256, grammar_defs);
+
+        terminals = TRUE;
+
+        while (terminals)
+        {
+            if (*line == '\n')
+            {
+                terminals = !terminals;
+                fgets(line, 256, grammar_defs);
+                continue;
+            }
+
+            char *terminal = strtok(line, " ");
+            char *pattern = strtok(NULL, "\n");
+
+            if (pattern)
+            {
+                fprintf(semantics_h, "%s, ", pattern);
+            }
+            
+            fgets(line, 256, grammar_defs);
+        }
+
+        fprintf(semantics_h, "\"\"}\n");
     }
 
-    // fprintf(semantics, "\"\"}\n");
-
-    fgets(line, 512, grammar_rules);
+    fgets(line, 2048, grammar_rules);
 
     fputs("AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack)"
           "{ return PopStack(semanticStack); }\n", semantics);
@@ -168,14 +206,14 @@ Grammar BUILD()
 
         expressions = strtok(expressions, " ");
 
-        Expression *e = LookupStringsDictionary(&tbl, nonTerminal);
+        Expression *e = LookupStringsDictionary(tbl, nonTerminal);
 
         // printf("RULE_%d: %s\n", rule, e->value.nonTerminal->name);
 
         // puts("");
 
         rule++;
-        fgets(line, 512, grammar_rules);
+        fgets(line, 2048, grammar_rules);
     }
 
     fprintf(semantics, "void AssignActions(Grammar *g)\n{\n"
@@ -188,7 +226,7 @@ Grammar BUILD()
           "rules[currentRule++] = rulesPtr->info;\n}\n}\n", rule);
 
     fseek(grammar_rules, ZERO, SEEK_SET);
-    fgets(line, 512, grammar_rules);
+    fgets(line, 2048, grammar_rules);
 
     rule = ZERO;
 
@@ -198,7 +236,7 @@ Grammar BUILD()
         expressions = strtok(NULL, "{");        
         semantic = strtok(NULL, "}");
 
-        NonTerminal *current = ((Expression*)LookupStringsDictionary(&tbl, nonTerminal))->value.nonTerminal;
+        NonTerminal *current = ((Expression*)LookupStringsDictionary(tbl, nonTerminal))->value.nonTerminal;
         Rule *r = malloc(sizeof(Rule));
         Stack temp;
 
@@ -212,7 +250,7 @@ Grammar BUILD()
         for (expressions = strtok(expressions, " ") ; expressions; expressions = strtok(NULL, " "))
         {
             sscanf(expressions, "%s", expressions);
-            PushStack(&temp, LookupStringsDictionary(&tbl, expressions));
+            PushStack(&temp, LookupStringsDictionary(tbl, expressions));
         }
 
         while (!IsEmptyStack(&temp))
@@ -225,11 +263,11 @@ Grammar BUILD()
         current->rules->info = r;
 
         rule++;
-        fgets(line, 512, grammar_rules);
+        fgets(line, 2048, grammar_rules);
     }
     
     fseek(grammar_rules, ZERO, SEEK_SET);
-    fgets(line, 512, grammar_rules);
+    fgets(line, 2048, grammar_rules);
 
     LinearLinkedListNode *nonTerminalsPtr, *rulesPtr;
     int rules[rule];
@@ -251,31 +289,16 @@ Grammar BUILD()
 
     rule = ZERO;
 
-    if (0)
-    while (!feof(grammar_rules))
-    {
-        nonTerminal = strtok(line, ":");
-        expressions = strtok(NULL, "@");        
-        semantic = strtok(NULL, "@");
-
-        NonTerminal *current = ((Expression*)LookupStringsDictionary(&tbl, nonTerminal))->value.nonTerminal;
-        Rule *r = malloc(sizeof(Rule));
-        Stack temp;
-
-        if (semantic)
-        {
-            fprintf(semantics, "rules[%d]->semanticAction = Semantic_%d;\n", rule, rule);
-        }
-
-        rule++;
-        fgets(line, 512, grammar_rules);
-    }
-
     fputs("}\n", semantics);
 
     fclose(grammar_defs);
     fclose(grammar_rules);
     fclose(semantics);
+
+    EmptyStringsDictionary(tbl);
+
+    if (UPDATE_HEADER)
+        fclose(semantics_h);
 
     return g;
 }

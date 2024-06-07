@@ -99,7 +99,7 @@ BOOL CompareItemsLists(CircularLinearLinkedListNode *firstStart, CircularLinearL
 
 BOOL CompareKernels(CircularLinearLinkedListNode *first, CircularLinearLinkedListNode *second)
 {
-    // return CompareItemKernels(first->nextNode->info, second->nextNode->info);
+    //return CompareItemKernels(first->nextNode->info, second->nextNode->info);
     // return CompareItemsLists(first->nextNode, second->nextNode, first->nextNode, second->nextNode);
     return CompareItemsLists(first->nextNode, second->nextNode, KernelEnd(first), KernelEnd(second));
 }
@@ -119,7 +119,7 @@ unsigned long PointerKey(void *ptr)
 
 unsigned long ItemKey(Item *item)
 {
-    return (PointerKey(item->rule) + PointerKey(item->dotPosition) + item->lookahead - ONE);
+    return (PointerKey(item->rule) + PointerKey(item->dotPosition) + item->lookahead);
 }
 
 CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items)
@@ -238,17 +238,17 @@ void MakeGotoState(PushdownMachine *machine, PushdownState *currentState,
 {
     PushdownState *nextState;
     CircularLinearLinkedListNode *gotoItems = expression->node;
-    PushdownTransition *tr = NULL;
+    // PushdownTransition *tr = NULL;
     nextState = currentState;
 
-    BOOL(*__ComapreExpressions)(ExpressionValue, ExpressionValue) = CompareTerminals;
+    // BOOL(*__ComapreExpressions)(ExpressionValue, ExpressionValue) = CompareTerminals;
 
-    !expression->isTerminal ? __ComapreExpressions = CompareNonTerminals : NULL;
+    // !expression->isTerminal ? __ComapreExpressions = CompareNonTerminals : NULL;
 
-    if (nextState->transitionsManager)
-    {
-        tr = NextState(&nextState, expression->value, __ComapreExpressions);
-    }
+    // if (nextState->transitionsManager)
+    // {
+        // tr = NextState(&nextState, expression->value, __ComapreExpressions);
+    // }
 
     if (!(nextState = LookupDictionary(visitedStates, expression, KeyState, StatesComparator)))
     {
@@ -263,10 +263,10 @@ void MakeGotoState(PushdownMachine *machine, PushdownState *currentState,
         EmptyCircularLinearLinkedList(&gotoItems, free);
     }
 
-    if (!tr)
+    // if (!tr)
     AddPushdownTransition(machine, currentState, nextState, expression->value);
-    else
-    tr->dest = nextState;
+    // else
+    // tr->dest = nextState;
 }
 
 void MakeGotoStates(Parser *parser, PushdownState *currentState, Queue *nextStates, Dictionary *visitedStates)
@@ -280,6 +280,8 @@ void MakeGotoStates(Parser *parser, PushdownState *currentState, Queue *nextStat
 
     do
     {
+        BIT_VEC_ZERO(((Item*)ptr->info)->rule->visited, TOKENS_NUM);
+
         ((Item*)ptr->info)->dotPosition ?
             HandleNextItem(ptr->info, &visitedExpressions): 
             HandleFinalItem(parser, currentState, ptr->info);
@@ -328,26 +330,7 @@ void BuildLRStates(Parser *parser)
     {
         currentState = RemoveQueue(&queue);
 
-        for (LinearLinkedListNode *p = parser->grammar->nonTerminals; p; p = p->nextNode)
-        {
-            for (LinearLinkedListNode *rp = ((NonTerminal*)p->info)->rules; rp; rp = rp->nextNode)
-            {
-                BIT_VEC_ZERO(((Rule*)rp->info)->visited, TOKENS_NUM);
-                // ((Rule*)rp->info)->visited = FALSE;
-            }
-        }
-
         Closure(&currentState->lrItems);
-
-        for (LinearLinkedListNode *p = parser->grammar->nonTerminals; p; p = p->nextNode)
-        {
-            for (LinearLinkedListNode *rp = ((NonTerminal*)p->info)->rules; rp; rp = rp->nextNode)
-            {
-                BIT_VEC_ZERO(((Rule*)rp->info)->visited, TOKENS_NUM);
-                // ((Rule*)rp->info)->visited = FALSE;
-            }
-        }
-
         MakeGotoStates(parser, currentState, &queue, &visitedStates);
     }
 
@@ -589,11 +572,6 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
 
     while (currentState && ~currentState->isAccepting & ACCEPTING_STATE_MASK)
     {
-        if (((Token*)tokensPtr->info)->type == PLUS)
-        {
-            int x = 0;
-        }
-
         currentState->isAccepting & REDUCING_STATE_MASK ? 
             currentState = Reduce(parser->pushdownMachine->stack, ((Item*)currentState->lrItems->info)->rule, &scopeStack, &semanticStack) : 
             Shift(parser->pushdownMachine->stack, currentState, &tokensPtr, &semanticStack);

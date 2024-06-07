@@ -12,7 +12,7 @@
     #include "../libs/CommonMacros.h"
 #endif
 
-#define MAX_LINE_LENGTH 100
+#define MAX_LINE_LENGTH 128
 
 typedef struct
 {

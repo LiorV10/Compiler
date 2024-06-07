@@ -8,6 +8,8 @@ void MakeSymbol(Symbol **symbol)
     
     (*symbol)->name = NULL;
     (*symbol)->memoryAddress = ZERO;
+    (*symbol)->_type = NULL;
+    (*symbol)->type = ZERO;
 }
 
 void InitScopeStack(ScopeStack *scopeStack)

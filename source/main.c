@@ -4,7 +4,7 @@
 #include "Lexer.c"
 #include "Parser.c"
 #include "CodeGenerator.c"
-#include "SemanticAnalyzer.h"
+#include "SemanticAnalyzer.c"
 
 #pragma region TESTING
 
@@ -19,7 +19,8 @@ const char* typeStr[] = {
               TO_STR(GE), TO_STR(LE), TO_STR(EEQ), TO_STR(NEQ), TO_STR(STAR), TO_STR(SLASH), TO_STR(MOD), 
               TO_STR(DOT), TO_STR(ARROW), TO_STR(COMMA), TO_STR(SEMI_COLON), TO_STR(LEFT_BRACKET), TO_STR(RIGHT_BRACKET), 
               TO_STR(LEFT_CURLY), TO_STR(RIGHT_CURLY), TO_STR(LEFT_PAREN), TO_STR(RIGHT_PAREN), TO_STR(AMPERSAND), 
-              TO_STR(FLOAT_LITERAL), TO_STR(INTEGER_LITERAL), TO_STR(TYPEDEF), TO_STR(WHITESPACE), TO_STR(EOD)
+              TO_STR(FLOAT_LITERAL), TO_STR(INTEGER_LITERAL), TO_STR(LOG_NOT), TO_STR(TYPEDEF), TO_STR(LSHIFT), TO_STR(LOG_AND),
+              TO_STR(RSHIFT), TO_STR(WHITESPACE), TO_STR(EOD)
             };
 
 #include <sys/time.h>
@@ -62,7 +63,7 @@ void FreeToken(Token *token)
 
 void EmitFunc(void *stream, char *buffer, va_list args)
 {
-    vfprintf(stream, buffer, args);
+    vfprintf(stream, buffer, args);    
 }
 
 void main(unsigned short argumentsCount, char* arguments[])
@@ -87,7 +88,7 @@ void main(unsigned short argumentsCount, char* arguments[])
 
     ast = Parse(&parser, tokens);
 
-    Semantics();
+    Semantics(ast);
 
     FILE *p = fopen("out.s", "w");
     InitCodeGenerator(&generator, EmitFunc, p);

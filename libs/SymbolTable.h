@@ -19,6 +19,7 @@ typedef struct
     char *name;
     unsigned short type;
     short memoryAddress;
+    void *_type;
 } Symbol;
 
 typedef struct

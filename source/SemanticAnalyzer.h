@@ -4,4 +4,8 @@
     #include "../libs/TypeSystem.h"
 #endif
 
+#ifndef _ABSTRACT_SYNTAX_TREE_H
+    #include "../libs/AbstractSyntaxTree.h"
+#endif
+
 void Semantics();

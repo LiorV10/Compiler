@@ -1,9 +1,18 @@
 {
-    "files.associations": {
+    "files.associations": 
+    {
         "typesystem.h": "c",
         "*.s": "csharp",
         "semanticanalyzer.h": "c",
         "viewer.h": "c",
-        "abstractsyntaxtree.h": "c"
+        "abstractsyntaxtree.h": "c",
+        "actions.h": "c",
+        "construction.h": "c",
+        "semantics.h": "c",
+        "grammar.h": "c",
+        "commonmacros.h": "c",
+        "stringsdictionary.h": "c",
+        "symboltable.h": "c",
+        "stack.h": "c"
     }
 }

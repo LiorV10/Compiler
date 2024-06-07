@@ -23,7 +23,11 @@ void MakeAbstractSyntaxTree(AbstractSyntaxTreeNode **root)
     (*root)->info = NULL;
     (*root)->reg = -ONE;
     (*root)->GenerationFunction = NULL;
+    (*root)->AnalysisFunction = NULL;
     (*root)->label = ZERO;
+    (*root)->type = NULL;
+    (*root)->lvalue = ZERO;
+    (*root)->field = NULL;
 }
 
 //-----------------------------------------------------------------------------

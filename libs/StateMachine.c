@@ -322,7 +322,17 @@ void SelectNextStates(StateMachine *nfa,
     
     SWAP(*nextStates, *currentStates, CircularLinearLinkedListNode*);
 
-    SetAllVisited(nfa, FALSE);
+    // SetAllVisited(nfa, FALSE);
+
+    CircularLinearLinkedListNode *states = *currentStates;
+
+    do
+    {
+        ((State*)states->info)->visited = FALSE;
+        states = states->nextNode;
+    } 
+    while (states != *currentStates);
+
     SelectAllTransitions(*currentStates, nextStates, symbol);
 }
 

@@ -759,7 +759,7 @@ AbstractSyntaxTreeNode* Semantic_143(void *scopeStack, Stack *semanticStack)
 // primary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-_$_$ = _$0; _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); printf("ID: %s -> %p - [%p]\n", id->lexeme, _$_$->info, ((Symbol*)_$_$->info)->_type); _$_$->type = ((Symbol*)_$_$->info)->_type; _$_$->lvalue = TRUE;  
+_$_$ = _$0; _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); _$_$->type = ((Symbol*)_$_$->info)->_type; _$_$->lvalue = TRUE; 
 return _$_$;
 }
 AbstractSyntaxTreeNode* Semantic_144(void *scopeStack, Stack *semanticStack)

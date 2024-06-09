@@ -63,7 +63,7 @@ void FreeToken(Token *token)
 
 void EmitFunc(void *stream, char *buffer, va_list args)
 {
-    vfprintf(stream, buffer, args);    
+    vfprintf(stream, buffer, args);
 }
 
 void main(unsigned short argumentsCount, char* arguments[])

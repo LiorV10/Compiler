@@ -47,6 +47,7 @@ void AnalyzeStructAccess(AbstractSyntaxTreeNode **astNode)
     AbstractSyntaxTreeNode *fieldNode = (*astNode)->childrenManager->info;
 
     (*astNode)->type = ((Field*)fieldNode->field)->type;
+    (*astNode)->lvalue = TRUE;
 }
 
 void AnalyzeReference(AbstractSyntaxTreeNode **astRoot)
@@ -75,13 +76,19 @@ void AnalyzeReference(AbstractSyntaxTreeNode **astRoot)
 void AnalyzeDereference(AbstractSyntaxTreeNode **astRoot)
 {
     AbstractSyntaxTreeNode *operand = (*astRoot)->childrenManager->info;
+    (*astRoot)->lvalue = TRUE;
+    operand->lvalue = TRUE;
+
+    if (operand->AnalysisFunction == AnalyzeReference)
+    {
+        *astRoot = operand->childrenManager->info;
+    }
 
     if (operand->type)
         (*astRoot)->type = ((Type*)operand->type)->baseType;
     else 
         {(*astRoot)->type = ((Type*)((Field*)operand->field)->type)->baseType;}
 
-    //(*astRoot)->lvalue = !!((Type*)(*astRoot)->type)->baseType;
 }
 
 void AnalyzeAddition(AbstractSyntaxTreeNode **astRoot)

@@ -44,19 +44,18 @@ void push(struct Node **lst, int info)
 {
     struct Node *new = malloc(12);
 
-    new->next = *lst;
-    new->info = info;
+    (*new).next = *lst;
+    (*new).info = info;
 
     *lst = new;
 }
 
 int pop(struct Node **lst)
 {
-    int value = (*lst)->info;
-
     struct Node *temp = *lst;
+    int value = temp->info;
 
-    *lst = temp->next;
+    *lst = (**lst).next;
     free(temp);
 
     return (value);
@@ -67,11 +66,24 @@ int is_empty(struct Node *lst)
     return (lst == 0);
 }
 
+void print_list_iter(struct Node *lst, int *length)
+{
+    struct Node *ptr;
+
+    for (ptr = lst; ptr; ptr = ptr->next)
+    {
+        printf("%d->", ptr->info);
+        (*length) = *length + 1;
+    }
+
+    puts("||");
+}
+
 void print_list_rec();
 
 void print_list_rec(struct Node *lst)
 {
-    if (!lst)
+    if (is_empty(lst))
     {
         puts("||");
         return;
@@ -79,18 +91,6 @@ void print_list_rec(struct Node *lst)
 
     printf("%d->", lst->info);
     print_list_rec(lst->next);
-}
-
-void print_list_iter(struct Node *lst)
-{
-    struct Node *ptr;
-
-    for (ptr = lst; ptr; ptr = (*ptr).next)
-    {
-        printf("%d->", (*ptr).info);
-    }
-
-    puts("||");
 }
 
 int main()
@@ -133,15 +133,6 @@ int main()
 
     printf("malloc'd value: %d\n", x);
 
-    if (!(mosh.k + 1))
-    {
-        printf("%lu is max!\n", mosh.k);
-    }
-    else
-    {
-        printf("%lu is not max\n", mosh.k);
-    }
-
     char *ptr = "Result:\t%d\t%d\t%d\t%d\t%d\n";
 
     char *string = strdup("hello, world!");
@@ -150,6 +141,7 @@ int main()
     puts(string);
 
     printf("\n");
+    printf(ptr, mosh.aa, *mosh.bb, *&mosh.aa, **&mosh.bb, *mosh.qq);
     printf(ptr, mosh.aa, *mosh.bb, *&mosh.aa, **&mosh.bb, *mosh.qq);
     printf("Char:\t%c\t%c\t%c\t%c\t%c\n", *ptr, *(ptr + (*mosh.zz - 2 * mosh.xx)), ptr[mosh.aa], ptr[***mosh.dd + *mosh.bb],
         (ptr + mosh.aa)[ptr[*mosh.zz - 2 * mosh.xx] - ptr[***mosh.dd + *mosh.bb] - (mosh.aa + 1)]);
@@ -169,8 +161,8 @@ int main()
 
     struct MOSHE *tpm = malloc(80);
 
-    tpm->aa = x;
-    printf("AA:%d\n", tpm->aa);
+    (*tpm).aa = x;
+    printf("AA:%d\n", (*tpm).aa);
     
     free(tpm);
 
@@ -184,32 +176,38 @@ int main()
     }
 
     struct Node *lst;
-    int empty;
+    int length = 0;
 
     init(&lst);
 
+    push(&lst, 3);
     push(&lst, 5);
     push(&lst, 7);
     push(&lst, 9);
 
+    print_list_iter(lst, &length);
     print_list_rec(lst);
-    print_list_iter(lst);
 
-    struct Node *lists[3];
-    int off = 2;
-
-    for (lists[off] = lst; !is_empty(lists[off]); )
+    for (; !is_empty(lst); )
     {
-        printf("%d->", pop(lists + off));
+        printf("%d->", pop(&lst));
     }
     
     puts("||");
+    printf("length: %d\n", length);
 
-    int *arr = malloc(80);
-    int _arr[20];
+    int arr[10];
+    int mat[10][4];
+    int y = ***mosh.dd;
 
-    arr[0] = 2 * x;
-    _arr[x] = 0;
+    mat[2 * x][x * 4] = 100;
 
-    return (arr[_arr[x]]);
+    arr[0] = x + x;
+    arr[x] = arr[0] - 2 * x;
+    y = x = arr[arr[x]];
+    x = x + arr[arr[x/2]];
+
+    printf("%d\n", mat[x][y] == *(*(mat + x) + y));
+
+    return (mat[x][y]);
 }

@@ -458,8 +458,8 @@ PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *
     LinearLinkedListNode *ptr;
     PushdownState *nextState;
 
-    printf("Reduce by: %s -> ", rule->nonTerminal->name);
-    PrintRule(rule);
+    // printf("Reduce by: %s -> ", rule->nonTerminal->name);
+    // PrintRule(rule);
 
     rule->semanticAction = rule->semanticAction ? rule->semanticAction : DefaultSemanticAction;
     PushStack(semanticStack, rule->semanticAction(scopeStack, semanticStack));

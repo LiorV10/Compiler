@@ -7,7 +7,8 @@
             "request": "launch",
             "program": "${fileDirname}/cc",
             "args": [
-                "/media/lior/Data/C/Compiler/source/demo.c"
+                "/media/lior/Data/C/Compiler/source/demo.c",
+                "/media/lior/Data/C/Compiler/source/out.s"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/source/",
@@ -30,7 +31,7 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${fileDirname}/cc",
-            "args": ["/media/lior/Data/C/Compiler/source/demo.c"],
+            "args": ["/media/lior/Data/C/Compiler/source/demo.c", "/media/lior/Data/C/Compiler/source/out.s" ],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],

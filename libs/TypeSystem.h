@@ -15,7 +15,7 @@ typedef struct Type Type;
 struct Type
 {
     TypeKind type;
-    unsigned char size;
+    unsigned short size;
     Type *baseType;
     Symbol *structDef;
     void *fields;

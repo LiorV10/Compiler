@@ -41,17 +41,24 @@ TypeKind typesMatrix[TYPES_COUNT][TYPES_COUNT][OPERATORS_COUNT] =
     },
 };
 
-void AnalyzeStructAccess(AbstractSyntaxTreeNode *astNode)
+void AnalyzeStructAccess(AbstractSyntaxTreeNode **astNode)
 {
-    AbstractSyntaxTreeNode *structNode = astNode->childrenManager->nextNode->info;
-    AbstractSyntaxTreeNode *fieldNode = astNode->childrenManager->info;
+    AbstractSyntaxTreeNode *structNode = (*astNode)->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *fieldNode = (*astNode)->childrenManager->info;
 
-    astNode->type = ((Field*)fieldNode->field)->type;
+    (*astNode)->type = ((Field*)fieldNode->field)->type;
 }
 
-void AnalyzeReference(AbstractSyntaxTreeNode *astRoot)
+void AnalyzeReference(AbstractSyntaxTreeNode **astRoot)
 {
-    AbstractSyntaxTreeNode *operand = astRoot->childrenManager->info;
+    AbstractSyntaxTreeNode *operand = (*astRoot)->childrenManager->info;
+    operand->lvalue = TRUE;
+    (*astRoot)->lvalue = FALSE;
+
+    if (operand->AnalysisFunction == AnalyzeDereference)
+    {
+        *astRoot = operand->childrenManager->info;
+    }
 
     Type *type = malloc(sizeof(Type));
     type->type = POINTER_TYPE;
@@ -62,23 +69,25 @@ void AnalyzeReference(AbstractSyntaxTreeNode *astRoot)
     else
         type->baseType = ((Symbol*)operand->info)->_type;
 
-    astRoot->type = type;
+    (*astRoot)->type = type;
 }
 
-void AnalyzeDereference(AbstractSyntaxTreeNode *astRoot)
+void AnalyzeDereference(AbstractSyntaxTreeNode **astRoot)
 {
-    AbstractSyntaxTreeNode *operand = astRoot->childrenManager->info;
+    AbstractSyntaxTreeNode *operand = (*astRoot)->childrenManager->info;
 
     if (operand->type)
-        astRoot->type = ((Type*)operand->type)->baseType;
+        (*astRoot)->type = ((Type*)operand->type)->baseType;
     else 
-        {astRoot->type = ((Type*)((Field*)operand->field)->type)->baseType;}
+        {(*astRoot)->type = ((Type*)((Field*)operand->field)->type)->baseType;}
+
+    //(*astRoot)->lvalue = !!((Type*)(*astRoot)->type)->baseType;
 }
 
-void AnalyzeAddition(AbstractSyntaxTreeNode *astRoot)
+void AnalyzeAddition(AbstractSyntaxTreeNode **astRoot)
 {
-    AbstractSyntaxTreeNode *left = astRoot->childrenManager->nextNode->info;
-    AbstractSyntaxTreeNode *right = astRoot->childrenManager->info;
+    AbstractSyntaxTreeNode *left = (*astRoot)->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = (*astRoot)->childrenManager->info;
 
     Type *leftType = left->type;
     Type *rightType = right->type;
@@ -91,30 +100,30 @@ void AnalyzeAddition(AbstractSyntaxTreeNode *astRoot)
         int a = 0;
     }
 
-    astRoot->type = leftType;
+    (*astRoot)->type = leftType;
 
-    if (leftType && leftType->type == t) astRoot->type = leftType;
-    if (rightType && rightType->type == t) astRoot->type = rightType;
+    if (leftType && leftType->type == t) (*astRoot)->type = leftType;
+    if (rightType && rightType->type == t) (*astRoot)->type = rightType;
 
     printf("%p --- %p\n", leftType, rightType);
 }
 
-void Semantics(AbstractSyntaxTreeNode *astRoot)
+void Semantics(AbstractSyntaxTreeNode **astRoot)
 {
-    if (!astRoot->childrenManager)
+    if (!(*astRoot)->childrenManager)
     {
         return;
     }
 
-    CircularLinearLinkedListNode *child = astRoot->childrenManager->nextNode;
+    CircularLinearLinkedListNode *child = (*astRoot)->childrenManager->nextNode;
 
     do
     {
-        Semantics(child->info);
+        Semantics(&child->info);
         child = child->nextNode;
     }
-    while (child != astRoot->childrenManager->nextNode);
+    while (child != (*astRoot)->childrenManager->nextNode);
 
-    if (astRoot->AnalysisFunction)
-        astRoot->AnalysisFunction(astRoot);
+    if ((*astRoot)->AnalysisFunction)
+        (*astRoot)->AnalysisFunction(astRoot);
 }

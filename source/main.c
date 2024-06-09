@@ -76,7 +76,7 @@ void main(unsigned short argumentsCount, char* arguments[])
 
     CodeGenerator generator;
 
-    argumentsCount < TWO ? ExitWithError("Source file was not specified.") : ZERO;
+    argumentsCount < THREE ? ExitWithError("Source/Dest file was not specified.") : ZERO;
 
     InitStream(&sourceStream, arguments[ONE], "rt");
     tokens = TokenizeStream(&sourceStream);
@@ -88,9 +88,9 @@ void main(unsigned short argumentsCount, char* arguments[])
 
     ast = Parse(&parser, tokens);
 
-    Semantics(ast);
+    Semantics(&ast);
 
-    FILE *p = fopen("out.s", "w");
+    FILE *p = fopen(arguments[TWO], "wt");
     InitCodeGenerator(&generator, EmitFunc, p);
     GenerateCode(&generator, ast);
     fclose(p);
@@ -99,6 +99,7 @@ void main(unsigned short argumentsCount, char* arguments[])
     printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
     printf("took %lu s\n", stop.tv_sec - start.tv_sec);
 
+    /*      TESTING      */
     system("gcc out.s -o out.o && ./out.o ; echo $?");
 
     FreeParser(&parser);

@@ -27,7 +27,7 @@ AbstractSyntaxTreeNode *_$3 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-MakeAbstractSyntaxTree(&_$_$); Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s); _$_$->info = _$1->info; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$5;  
+MakeAbstractSyntaxTree(&_$_$); Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s); _$_$->type = s->_type = _$0; _$_$->info = s; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$5; 
 return _$_$;
 }
 AbstractSyntaxTreeNode* Semantic_6(void *scopeStack, Stack *semanticStack)
@@ -65,6 +65,15 @@ AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s);
+return _$_$;
+}
+AbstractSyntaxTreeNode* Semantic_10(void *scopeStack, Stack *semanticStack)
+{
+// jump_statement
+AbstractSyntaxTreeNode *_$_$ = NULL;
+AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
+AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
+_$_$ = _$0; _$_$->GenerationFunction = GenerateReturn; 
 return _$_$;
 }
 AbstractSyntaxTreeNode* Semantic_11(void *scopeStack, Stack *semanticStack)
@@ -107,14 +116,13 @@ AbstractSyntaxTreeNode* Semantic_14(void *scopeStack, Stack *semanticStack)
 {
 // iteration_statement
 AbstractSyntaxTreeNode *_$_$ = NULL;
-AbstractSyntaxTreeNode *_$6 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$5 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$4 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$3 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateFor; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; 
+MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateFor; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$5; 
 return _$_$;
 }
 AbstractSyntaxTreeNode* Semantic_15(void *scopeStack, Stack *semanticStack)
@@ -265,13 +273,24 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 Symbol* symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; _$0->info = symbol; _$_$ = _$0; _$0->type = NULL; 
 return _$_$;
 }
+AbstractSyntaxTreeNode* Semantic_62(void *scopeStack, Stack *semanticStack)
+{
+// direct_declarator
+AbstractSyntaxTreeNode *_$_$ = NULL;
+AbstractSyntaxTreeNode *_$3 = PopStack(semanticStack);
+AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
+AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
+AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
+_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = atoi(((Symbol*)_$2->info)->name); type->type = ARRAY_TYPE; type->baseType = NULL; Type *t; for (t = _$0->type; t && t->baseType; t = t->baseType); !t ? _$0->type = type : (t->baseType = type); ((Symbol*)_$0->info)->_type = _$0->type; 
+return _$_$;
+}
 AbstractSyntaxTreeNode* Semantic_65(void *scopeStack, Stack *semanticStack)
 {
 // declarator
 AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-_$_$ = _$1; _$1->type = ((Symbol*)_$1->info)->_type = _$0; ((Type*)((Symbol*)_$1->info)->_type)->size = 8; ((Symbol*)_$1->info)->type = POINTER_TYPE;
+_$_$ = _$1; Type *arrayType = _$1->type; for (; arrayType && arrayType->baseType; arrayType = arrayType->baseType); if (arrayType) arrayType->baseType = _$0; _$1->type = ((Symbol*)_$1->info)->_type = (arrayType ? arrayType : _$0); 
 return _$_$;
 }
 AbstractSyntaxTreeNode* Semantic_66(void *scopeStack, Stack *semanticStack)
@@ -401,7 +420,7 @@ AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$0->info; _$_$->type = _$0->type;  _$0->GenerationFunction = GenerateDeclaration; _$_$->GenerationFunction = GenerateAssignment; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
+MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDeclaration; _$_$->info = _$0->info; _$_$->type = _$0->type;  _$0->GenerationFunction = GenerateDeclaration; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
 AbstractSyntaxTreeNode* Semantic_87(void *scopeStack, Stack *semanticStack)
@@ -438,10 +457,18 @@ AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? ((Symbol*)_$1->info)->_type = _$1->type = _$0 : (t->baseType = _$0); 
+_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_94(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_92(void *scopeStack, Stack *semanticStack)
+{
+// expression
+AbstractSyntaxTreeNode *_$_$ = NULL;
+AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
+MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateArithmeticExpression; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;
+return _$_$;
+}
+AbstractSyntaxTreeNode* Semantic_93(void *scopeStack, Stack *semanticStack)
 {
 // assignment_operator
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -449,7 +476,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$_$->GenerationFunction = GenerateAssignment;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_98(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_97(void *scopeStack, Stack *semanticStack)
 {
 // assignment_operator
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -457,7 +484,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$_$->GenerationFunction = GenerateAdditionAssignment;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_101(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_100(void *scopeStack, Stack *semanticStack)
 {
 // assignment_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -467,7 +494,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$1; _$_$->info = NULL; _$0->lvalue = TRUE; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_104(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_103(void *scopeStack, Stack *semanticStack)
 {
 // and_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -477,7 +504,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateAnd; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_106(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_105(void *scopeStack, Stack *semanticStack)
 {
 // equality_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -487,7 +514,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateEEQ; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$0->lvalue = FALSE; _$2->lvalue = FALSE; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_107(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_106(void *scopeStack, Stack *semanticStack)
 {
 // equality_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -497,7 +524,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateNEQ; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_109(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_108(void *scopeStack, Stack *semanticStack)
 {
 // relational_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -507,7 +534,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateGT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_110(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_109(void *scopeStack, Stack *semanticStack)
 {
 // relational_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -517,7 +544,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_111(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_110(void *scopeStack, Stack *semanticStack)
 {
 // relational_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -527,7 +554,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateGE; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_112(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_111(void *scopeStack, Stack *semanticStack)
 {
 // relational_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -537,7 +564,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLE; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_114(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_113(void *scopeStack, Stack *semanticStack)
 {
 // shift_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -547,7 +574,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLSHIFT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_115(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_114(void *scopeStack, Stack *semanticStack)
 {
 // shift_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -557,7 +584,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateRSHIFT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_117(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_116(void *scopeStack, Stack *semanticStack)
 {
 // additive_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -567,7 +594,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateAddition; _$_$->AnalysisFunction = AnalyzeAddition; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_118(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_117(void *scopeStack, Stack *semanticStack)
 {
 // additive_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -577,7 +604,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateSubtraction; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_120(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_119(void *scopeStack, Stack *semanticStack)
 {
 // multiplicative_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -587,7 +614,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateMult; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_121(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_120(void *scopeStack, Stack *semanticStack)
 {
 // multiplicative_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -597,7 +624,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDivision; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_122(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_121(void *scopeStack, Stack *semanticStack)
 {
 // multiplicative_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -607,7 +634,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateMod; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_125(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_124(void *scopeStack, Stack *semanticStack)
 {
 // unary_operator
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -615,7 +642,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$0->GenerationFunction = GenerateDereference; _$0->AnalysisFunction = AnalyzeDereference; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_127(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_126(void *scopeStack, Stack *semanticStack)
 {
 // unary_operator
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -623,7 +650,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$0->GenerationFunction = GenerateNeg;
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_128(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_127(void *scopeStack, Stack *semanticStack)
 {
 // unary_operator
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -631,7 +658,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$0->GenerationFunction = GenerateReference; _$0->AnalysisFunction = AnalyzeReference; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_129(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_128(void *scopeStack, Stack *semanticStack)
 {
 // unary_operator
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -639,7 +666,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$0->GenerationFunction = GenerateLogNot;
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_133(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_132(void *scopeStack, Stack *semanticStack)
 {
 // unary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -648,7 +675,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$); _$_$->lvalue = FALSE; _$1->lvalue = FALSE; _$_$->info = _$1->info; _$_$->type = _$1->type; _$_$->GenerationFunction = _$0->GenerationFunction; _$_$->AnalysisFunction = _$0->AnalysisFunction; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$1; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_134(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_133(void *scopeStack, Stack *semanticStack)
 {
 // argument_expression_list
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -656,7 +683,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 MakeAbstractSyntaxTree(&_$_$);  _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_135(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_134(void *scopeStack, Stack *semanticStack)
 {
 // argument_expression_list
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -666,7 +693,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_137(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_136(void *scopeStack, Stack *semanticStack)
 {
 // postfix_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -674,10 +701,10 @@ AbstractSyntaxTreeNode *_$3 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$0->info; _$_$->type = _$0->type; _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateIndexing; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; 
+ MakeAbstractSyntaxTree(&_$_$); _$2 = _$2->childrenManager->info; AbstractSyntaxTreeNode *addition; MakeAbstractSyntaxTree(&addition); *SetAbstractSyntaxTreeNodeChild(_$_$) = addition; _$_$->lvalue = FALSE; addition->lvalue = FALSE; _$_$->GenerationFunction = GenerateDereference; _$_$->AnalysisFunction = AnalyzeDereference; _$0->lvalue = _$2->lvalue = FALSE; addition->GenerationFunction = GenerateAddition; addition->AnalysisFunction = AnalyzeAddition; addition->info = NULL; *SetAbstractSyntaxTreeNodeChild(addition) = _$0; *SetAbstractSyntaxTreeNodeChild(addition) = _$2; 
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_138(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_137(void *scopeStack, Stack *semanticStack)
 {
 // postfix_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -687,7 +714,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$_$->GenerationFunction = GenerateCall;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_139(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_138(void *scopeStack, Stack *semanticStack)
 {
 // postfix_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -698,6 +725,16 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; _$0->GenerationFunction = GenerateCall; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  
 return _$_$;
 }
+AbstractSyntaxTreeNode* Semantic_139(void *scopeStack, Stack *semanticStack)
+{
+// postfix_expression
+AbstractSyntaxTreeNode *_$_$ = NULL;
+AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
+AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
+AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
+MakeAbstractSyntaxTree(&_$_$); *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = ((Field*)_$2->field)->type;
+return _$_$;
+}
 AbstractSyntaxTreeNode* Semantic_140(void *scopeStack, Stack *semanticStack)
 {
 // postfix_expression
@@ -705,10 +742,10 @@ AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
- MakeAbstractSyntaxTree(&_$_$); *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = ((Field*)_$2->field)->type;
+MakeAbstractSyntaxTree(&_$_$); AbstractSyntaxTreeNode *dref; MakeAbstractSyntaxTree(&dref); *SetAbstractSyntaxTreeNodeChild(_$_$) = dref; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; dref->lvalue = FALSE; _$2->lvalue = FALSE; dref->info = _$0->info; dref->type = _$0->type; dref->GenerationFunction = GenerateDereference; dref->AnalysisFunction = AnalyzeDereference; *SetAbstractSyntaxTreeNodeChild(dref) = _$0; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = ((Field*)_$2->field)->type;
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_142(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_141(void *scopeStack, Stack *semanticStack)
 {
 // postfix_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -717,15 +754,15 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$1; _$1->info = _$0->info; _$1->GenerationFunction = GenerateIncrement; *SetAbstractSyntaxTreeNodeChild(_$1) = _$0;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_144(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_143(void *scopeStack, Stack *semanticStack)
 {
 // primary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-_$_$ = _$0; _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); _$_$->type = ((Symbol*)_$_$->info)->_type; _$_$->lvalue = TRUE;  
+_$_$ = _$0; _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); printf("ID: %s -> %p - [%p]\n", id->lexeme, _$_$->info, ((Symbol*)_$_$->info)->_type); _$_$->type = ((Symbol*)_$_$->info)->_type; _$_$->lvalue = TRUE;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_145(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_144(void *scopeStack, Stack *semanticStack)
 {
 // primary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -733,7 +770,7 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->_type = malloc(sizeof(Type)); ((Type*)symbol->_type)->size = 8; ((Type*)symbol->_type)->type = INTEGER_TYPE; ((Type*)symbol->_type)->baseType = NULL;  symbol->name = ((Token*)_$0->info)->lexeme; symbol->type = INTEGER_TYPE; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateIntegerLiteral;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_146(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_145(void *scopeStack, Stack *semanticStack)
 {
 // primary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
@@ -741,29 +778,29 @@ AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
 _$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->_type = malloc(sizeof(Type)); ((Type*)symbol->_type)->size = 8; ((Type*)symbol->_type)->type = FLOAT_TYPE; ((Type*)symbol->_type)->baseType = NULL; symbol->name = ((Token*)_$0->info)->lexeme; symbol->type = FLOAT_TYPE; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateFloatLiteral;  
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_147(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_146(void *scopeStack, Stack *semanticStack)
 {
 // primary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; _$_$->type = symbol->_type = malloc(sizeof(Type)); ((Type*)symbol->_type)->size = 4; ((Type*)symbol->_type)->type = POINTER_TYPE; Type *type = malloc(sizeof(Type)); ((Type*)symbol->_type)->baseType = type; type->size = 4; type->type = CHAR_TYPE; type->baseType = NULL; symbol->type = POINTER_TYPE; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateStringLiteral;
+_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; Type *type = malloc(sizeof(Type)); type->type = POINTER_TYPE; type->size = 8; type->baseType = malloc(sizeof(Type)); type->baseType->type = CHAR_TYPE; type->baseType->size = 1; _$_$->type = symbol->_type = type; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateStringLiteral;
 return _$_$;
 }
-AbstractSyntaxTreeNode* Semantic_148(void *scopeStack, Stack *semanticStack)
+AbstractSyntaxTreeNode* Semantic_147(void *scopeStack, Stack *semanticStack)
 {
 // primary_expression
 AbstractSyntaxTreeNode *_$_$ = NULL;
 AbstractSyntaxTreeNode *_$2 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$1 = PopStack(semanticStack);
 AbstractSyntaxTreeNode *_$0 = PopStack(semanticStack);
-_$_$ = _$1;
+_$_$ = ((AbstractSyntaxTreeNode*)_$1)->childrenManager->info;
 return _$_$;
 }
 void AssignActions(Grammar *g)
 {
 unsigned short currentRule = ZERO;
 LinearLinkedListNode *nonTerminalsPtr, *rulesPtr;
-Rule *rules[149];
+Rule *rules[148];
 for (nonTerminalsPtr = g->nonTerminals; nonTerminalsPtr; nonTerminalsPtr = nonTerminalsPtr->nextNode)
 {
 for (rulesPtr = ((NonTerminal*)nonTerminalsPtr->info)->rules; rulesPtr; rulesPtr = rulesPtr->nextNode)
@@ -777,6 +814,7 @@ rules[4]->semanticAction = Semantic_7;
 rules[5]->semanticAction = Semantic_6;
 rules[6]->semanticAction = Semantic_5;
 rules[9]->semanticAction = Semantic_11;
+rules[10]->semanticAction = Semantic_10;
 rules[11]->semanticAction = Semantic_14;
 rules[12]->semanticAction = Semantic_13;
 rules[13]->semanticAction = Semantic_12;
@@ -794,6 +832,7 @@ rules[54]->semanticAction = Semantic_57;
 rules[55]->semanticAction = Semantic_56;
 rules[57]->semanticAction = Semantic_60;
 rules[58]->semanticAction = Semantic_59;
+rules[61]->semanticAction = Semantic_62;
 rules[62]->semanticAction = Semantic_61;
 rules[63]->semanticAction = Semantic_66;
 rules[64]->semanticAction = Semantic_65;
@@ -815,40 +854,42 @@ rules[84]->semanticAction = Semantic_87;
 rules[86]->semanticAction = Semantic_90;
 rules[87]->semanticAction = Semantic_89;
 rules[88]->semanticAction = Semantic_88;
-rules[93]->semanticAction = Semantic_98;
-rules[97]->semanticAction = Semantic_94;
-rules[98]->semanticAction = Semantic_101;
-rules[101]->semanticAction = Semantic_104;
-rules[103]->semanticAction = Semantic_107;
-rules[104]->semanticAction = Semantic_106;
-rules[106]->semanticAction = Semantic_112;
-rules[107]->semanticAction = Semantic_111;
-rules[108]->semanticAction = Semantic_110;
-rules[109]->semanticAction = Semantic_109;
-rules[111]->semanticAction = Semantic_115;
-rules[112]->semanticAction = Semantic_114;
-rules[114]->semanticAction = Semantic_118;
-rules[115]->semanticAction = Semantic_117;
-rules[117]->semanticAction = Semantic_122;
-rules[118]->semanticAction = Semantic_121;
-rules[119]->semanticAction = Semantic_120;
-rules[123]->semanticAction = Semantic_129;
-rules[124]->semanticAction = Semantic_128;
-rules[125]->semanticAction = Semantic_127;
-rules[127]->semanticAction = Semantic_125;
-rules[128]->semanticAction = Semantic_133;
-rules[132]->semanticAction = Semantic_135;
-rules[133]->semanticAction = Semantic_134;
-rules[135]->semanticAction = Semantic_142;
-rules[137]->semanticAction = Semantic_140;
-rules[138]->semanticAction = Semantic_139;
-rules[139]->semanticAction = Semantic_138;
-rules[140]->semanticAction = Semantic_137;
-rules[142]->semanticAction = Semantic_148;
-rules[143]->semanticAction = Semantic_147;
-rules[144]->semanticAction = Semantic_146;
-rules[145]->semanticAction = Semantic_145;
-rules[146]->semanticAction = Semantic_144;
-rules[147]->semanticAction = Semantic_2;
-rules[148]->semanticAction = Semantic_1;
+rules[90]->semanticAction = Semantic_92;
+rules[92]->semanticAction = Semantic_97;
+rules[96]->semanticAction = Semantic_93;
+rules[97]->semanticAction = Semantic_100;
+rules[100]->semanticAction = Semantic_103;
+rules[102]->semanticAction = Semantic_106;
+rules[103]->semanticAction = Semantic_105;
+rules[105]->semanticAction = Semantic_111;
+rules[106]->semanticAction = Semantic_110;
+rules[107]->semanticAction = Semantic_109;
+rules[108]->semanticAction = Semantic_108;
+rules[110]->semanticAction = Semantic_114;
+rules[111]->semanticAction = Semantic_113;
+rules[113]->semanticAction = Semantic_117;
+rules[114]->semanticAction = Semantic_116;
+rules[116]->semanticAction = Semantic_121;
+rules[117]->semanticAction = Semantic_120;
+rules[118]->semanticAction = Semantic_119;
+rules[122]->semanticAction = Semantic_128;
+rules[123]->semanticAction = Semantic_127;
+rules[124]->semanticAction = Semantic_126;
+rules[126]->semanticAction = Semantic_124;
+rules[127]->semanticAction = Semantic_132;
+rules[131]->semanticAction = Semantic_134;
+rules[132]->semanticAction = Semantic_133;
+rules[134]->semanticAction = Semantic_141;
+rules[135]->semanticAction = Semantic_140;
+rules[136]->semanticAction = Semantic_139;
+rules[137]->semanticAction = Semantic_138;
+rules[138]->semanticAction = Semantic_137;
+rules[139]->semanticAction = Semantic_136;
+rules[141]->semanticAction = Semantic_147;
+rules[142]->semanticAction = Semantic_146;
+rules[143]->semanticAction = Semantic_145;
+rules[144]->semanticAction = Semantic_144;
+rules[145]->semanticAction = Semantic_143;
+rules[146]->semanticAction = Semantic_2;
+rules[147]->semanticAction = Semantic_1;
 }

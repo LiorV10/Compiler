@@ -486,7 +486,7 @@ void padding ( char ch, int n )
 
 void Traverse(AbstractSyntaxTreeNode *root, int level)
 {
-    // return;
+    return;
 
     if (!root)
     {

@@ -44,22 +44,53 @@ void push(struct Node **lst, int info)
 {
     struct Node *new = malloc(12);
 
-    (*new).next = *lst;
-    (*new).info = info;
+    new->next = *lst;
+    new->info = info;
 
     *lst = new;
 }
 
 int pop(struct Node **lst)
 {
-    int value = (**lst).info;
+    int value = (*lst)->info;
 
     struct Node *temp = *lst;
 
-    *lst = (**lst).next;
+    *lst = temp->next;
     free(temp);
 
     return (value);
+}
+
+int is_empty(struct Node *lst)
+{
+    return (lst == 0);
+}
+
+void print_list_rec();
+
+void print_list_rec(struct Node *lst)
+{
+    if (!lst)
+    {
+        puts("||");
+        return;
+    }
+
+    printf("%d->", lst->info);
+    print_list_rec(lst->next);
+}
+
+void print_list_iter(struct Node *lst)
+{
+    struct Node *ptr;
+
+    for (ptr = lst; ptr; ptr = (*ptr).next)
+    {
+        printf("%d->", (*ptr).info);
+    }
+
+    puts("||");
 }
 
 int main()
@@ -94,7 +125,7 @@ int main()
     mosh2.dd = &___1;
 
     mosh.zz = &mosh.yy;
-    mosh.yy = mosh.yy + *&*&*&mosh.xx;
+    mosh.yy = mosh.yy + mosh.xx;
 
     printf("%d is moshe!\n", moshe2.x * moshe2.y);
     
@@ -133,26 +164,27 @@ int main()
     struct MOSHE *temp = &moshe2.mozs;
     struct MOSHE *ptemp = moshe2.pmozs;
 
-    x = ****&*&moshe2.mozs.dd;
+    x = ***&**&*&moshe2.mozs.dd;
     x = x + *(*ptemp).bb;
 
     struct MOSHE *tpm = malloc(80);
 
-    (*tpm).aa = x;
-    printf("AA:%d\n", (*tpm).aa);
-
+    tpm->aa = x;
+    printf("AA:%d\n", tpm->aa);
+    
     free(tpm);
 
-    if ((*temp).aa == x)
+    if (temp->aa == x)
     {
-        printf("%d = %d\n", (*temp).aa, x);
+        printf("%d = %d\n", temp->aa, x);
     }
     else
     {
-        printf("%d != %d\n", (*temp).aa, x);
+        printf("%d != %d\n", temp->aa, x);
     }
 
     struct Node *lst;
+    int empty;
 
     init(&lst);
 
@@ -160,12 +192,24 @@ int main()
     push(&lst, 7);
     push(&lst, 9);
 
-    x = pop(&lst);
-    printf("%d\n", x);
-    x = pop(&lst);
-    printf("%d\n", x);
-    x = (*lst).info;
-    printf("%d\n", x);
+    print_list_rec(lst);
+    print_list_iter(lst);
 
-    return (x);
+    struct Node *lists[3];
+    int off = 2;
+
+    for (lists[off] = lst; !is_empty(lists[off]); )
+    {
+        printf("%d->", pop(lists + off));
+    }
+    
+    puts("||");
+
+    int *arr = malloc(80);
+    int _arr[20];
+
+    arr[0] = 2 * x;
+    _arr[x] = 0;
+
+    return (arr[_arr[x]]);
 }

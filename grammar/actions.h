@@ -39,8 +39,8 @@ void GenerateIndexing(void *generator, AbstractSyntaxTreeNode *astRoot);
 void GenerateLogNot(void *generator, AbstractSyntaxTreeNode *astRoot);
 void GenerateStructAccess(void *generator, AbstractSyntaxTreeNode *astRoot);
 
-void AnalyzeAddition(AbstractSyntaxTreeNode *astNode);
-void AnalyzeStructAccess(AbstractSyntaxTreeNode *astNode);
+void AnalyzeAddition(AbstractSyntaxTreeNode **astNode);
+void AnalyzeStructAccess(AbstractSyntaxTreeNode **astNode);
 
 // void AnalyzeSubtraction(AbstractSyntaxTreeNode *astNode);
 // void AnalyzeIntegerLiteral(AbstractSyntaxTreeNode *astNode);
@@ -58,8 +58,8 @@ void AnalyzeStructAccess(AbstractSyntaxTreeNode *astNode);
 // void AnalyzeStatements(AbstractSyntaxTreeNode *astRoot);
 // void AnalyzeExpression(AbstractSyntaxTreeNode *astRoot);
 // void AnalyzeCall(AbstractSyntaxTreeNode *astRoot);
-void AnalyzeReference(AbstractSyntaxTreeNode *astRoot);
-void AnalyzeDereference(AbstractSyntaxTreeNode *astRoot);
+void AnalyzeReference(AbstractSyntaxTreeNode **astRoot);
+void AnalyzeDereference(AbstractSyntaxTreeNode **astRoot);
 // void AnalyzeLT(AbstractSyntaxTreeNode *astRoot);
 // void AnalyzeGT(AbstractSyntaxTreeNode *astRoot);
 // void AnalyzeGE(AbstractSyntaxTreeNode *astRoot);

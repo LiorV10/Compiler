@@ -13,6 +13,18 @@
         "commonmacros.h": "c",
         "stringsdictionary.h": "c",
         "symboltable.h": "c",
-        "stack.h": "c"
+        "stack.h": "c",
+        "circularlinearlinkedlist.h": "c",
+        "errorhandler.h": "c",
+        "stdarg.h": "c",
+        "dictionary.h": "c",
+        "parser.h": "c",
+        "linearlinkedlist.h": "c",
+        "queue.h": "c",
+        "pushdownmachine.h": "c",
+        "codegenerator.h": "c",
+        "lexer.h": "c",
+        "regex.h": "c",
+        "token.h": "c"
     }
 }

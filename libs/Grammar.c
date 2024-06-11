@@ -2,15 +2,10 @@
 
 #include "Grammar.h"
 
-#include "../source/Construction.c"
-
 void InitGrammar(Grammar *grammar)
 {
     InitLinearLinkedList(&grammar->nonTerminals);
     InitLinearLinkedList(&grammar->expressions);
-
-    *grammar = BUILD();
-    AssignActions(grammar);
 }
 
 //-----------------------------------------------------------------------------

@@ -1,38 +1,38 @@
 start:translation_unit
-translation_unit:external_declaration {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
-translation_unit:translation_unit external_declaration {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1; }
+translation_unit:external_declaration {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;  }
+translation_unit:translation_unit external_declaration {_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$1;   }
 external_declaration:function_definition
 external_declaration:declaration
-function_definition:declaration_specifiers direct_declarator LEFT_PAREN parameter_list RIGHT_PAREN compound_statement {MakeAbstractSyntaxTree(&$$); $$->info = $1->info; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; *SetAbstractSyntaxTreeNodeChild($$) = $3; *SetAbstractSyntaxTreeNodeChild($$) = $5;}
-function_definition:declaration_specifiers direct_declarator LEFT_PAREN RIGHT_PAREN compound_statement {MakeAbstractSyntaxTree(&$$); $$->info = $1->info; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; *SetAbstractSyntaxTreeNodeChild($$) = $4;}
-function_definition:direct_declarator declaration_list compound_statement
+function_definition:declaration_specifiers declarator LEFT_PAREN parameter_type_list RIGHT_PAREN compound_statement {MakeAbstractSyntaxTree(&_$_$); Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s); _$_$->type = s->_type = _$0; _$_$->info = s; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$5; }
+function_definition:declaration_specifiers declarator LEFT_PAREN RIGHT_PAREN compound_statement {MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$1->info; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; ((Symbol*)_$1->info)->_type = _$0; }
+function_definition:declaration_specifiers declarator LEFT_PAREN parameter_type_list RIGHT_PAREN SEMI_COLON {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s);}
+function_definition:declaration_specifiers declarator LEFT_PAREN RIGHT_PAREN SEMI_COLON {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s = malloc(sizeof(Symbol));  Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0);  _$_$->type = s->_type = _$1->type; s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s);}
 function_definition:direct_declarator compound_statement
-jump_statement:RETURN SEMI_COLON
-jump_statement:RETURN expression SEMI_COLON {MakeAbstractSyntaxTree(&$$); $$->GenerationFunction = GenerateReturn; $$->info = (void*)(1); *SetAbstractSyntaxTreeNodeChild($$) = $1;}
-iteration_statement:WHILE LEFT_PAREN expression RIGHT_PAREN statement {MakeAbstractSyntaxTree(&$$); $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $2; *SetAbstractSyntaxTreeNodeChild($$) = $4;}
-iteration_statement:FOR LEFT_PAREN declaration expression_statement expression RIGHT_PAREN statement
-iteration_statement:FOR LEFT_PAREN expression_statement expression_statement expression RIGHT_PAREN statement
-selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement {MakeAbstractSyntaxTree(&$$); $$->info = NULL; $$->GenerationFunction = GenerateIf; *SetAbstractSyntaxTreeNodeChild($$) = $2; *SetAbstractSyntaxTreeNodeChild($$) = $4;}
-selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement ELSE statement {MakeAbstractSyntaxTree(&$$); $$->info = NULL; $$->GenerationFunction = GenerateIf; *SetAbstractSyntaxTreeNodeChild($$) = $2; *SetAbstractSyntaxTreeNodeChild($$) = $4;}
+jump_statement:RETURN SEMI_COLON {_$_$ = _$0; _$_$->GenerationFunction = GenerateReturn; }
+jump_statement:RETURN expression SEMI_COLON {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateReturn; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$1;  }
+iteration_statement:WHILE LEFT_PAREN expression RIGHT_PAREN statement {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4;}
+iteration_statement:FOR LEFT_PAREN expression_statement expression_statement expression RIGHT_PAREN statement {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateFor; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; }
+iteration_statement:FOR LEFT_PAREN expression_statement expression_statement RIGHT_PAREN statement {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateFor; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$5; }
+selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement ELSE statement {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateIf; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; }
+selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateIf; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4;  }
 expression_statement:SEMI_COLON
-expression_statement:expression SEMI_COLON {$$ = $0;}
-statement_list:statement {MakeAbstractSyntaxTree(&$$); $$->GenerationFunction = GenerateStatements; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
-statement_list:statement_list statement {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1;}
-declaration_list:declaration {MakeAbstractSyntaxTree(&$$); $$->info = NULL; $$->GenerationFunction = GenerateStatements; *SetAbstractSyntaxTreeNodeChild($$) = $0;}
-declaration_list:declaration_list declaration {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $1;}
-compound_statement:LEFT_CURLY RIGHT_CURLY
-compound_statement:block_enter statement_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1; $$->GenerationFunction = GenerateStatements;}
-compound_statement:block_enter declaration_list RIGHT_CURLY {ExitScope(scopeStack); $$ = $1; $$->GenerationFunction = GenerateStatements;}
-compound_statement:block_enter declaration_list statement_list RIGHT_CURLY {ExitScope(scopeStack); MakeAbstractSyntaxTree(&$$); $$->GenerationFunction = GenerateStatements; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $1; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
-block_enter:LEFT_CURLY {EnterScope(scopeStack); $$ = $0;}
+expression_statement:expression SEMI_COLON {_$_$ = _$0; }
+statement_list:statement {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateStatements; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;  }
+statement_list:statement_list statement {_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$1;  }
+declaration_list:declaration {MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateStatements; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;  }
+declaration_list:declaration_list declaration {_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$1;  }
+compound_statement:LEFT_CURLY RIGHT_CURLY {MakeAbstractSyntaxTree(&_$_$);}
+compound_statement:block_enter statement_list RIGHT_CURLY {ExitScope(scopeStack); _$_$ = _$1; _$_$->GenerationFunction = GenerateStatements;  }
+block_enter:LEFT_CURLY {EnterScope(scopeStack); _$_$ = _$0;  }
 statement:compound_statement
 statement:expression_statement
 statement:selection_statement
 statement:iteration_statement
 statement:jump_statement
+statement:declaration
 initializer_list:initializer
 initializer_list:initializer_list COMMA initializer
-initializer:assignment_expression
+initializer:expression
 initializer:LEFT_CURLY initializer_list RIGHT_CURLY
 initializer:LEFT_CURLY initializer_list COMMA RIGHT_CURLY
 direct_abstract_declarator:LEFT_PAREN abstract_declarator RIGHT_PAREN
@@ -47,107 +47,103 @@ direct_abstract_declarator:direct_abstract_declarator LEFT_PAREN parameter_type_
 abstract_declarator:pointer
 abstract_declarator:direct_abstract_declarator
 abstract_declarator:pointer direct_abstract_declarator
-type_name:specifier_qualifier_list
-type_name:specifier_qualifier_list abstract_declarator
+type_name:type_specifier
+type_name:type_specifier abstract_declarator
 identifier_list:IDENTIFIER
 identifier_list:identifier_list COMMA IDENTIFIER
-parameter_declaration:declaration_specifiers declarator {MakeAbstractSyntaxTree(&$$); $$->info = $1->info; ((Symbol*)$1->info)->type = ((Token*)$0->info)->type; InsertSymbol(scopeStack, $1->info);}
+parameter_declaration:declaration_specifiers declarator {MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$1->info; InsertSymbol(scopeStack, _$1->info);  Type *t = _$1->type; for (; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); _$_$->type = ((Symbol*)_$1->info)->_type = _$1->type;  }
 parameter_declaration:declaration_specifiers abstract_declarator
 parameter_declaration:declaration_specifiers
-parameter_list:parameter_declaration
-parameter_list:parameter_list COMMA parameter_declaration
+parameter_list:parameter_declaration {MakeAbstractSyntaxTree(&_$_$);  _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; _$0->GenerationFunction = GenerateDeclaration; }
+parameter_list:parameter_list COMMA parameter_declaration {_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2; _$2->GenerationFunction = GenerateDeclaration; }
 parameter_type_list:parameter_list
-pointer:STAR
-pointer:STAR pointer
-direct_declarator:IDENTIFIER {Symbol* symbol; MakeSymbol(&symbol); symbol->name = ((Token*)$0->info)->lexeme; $0->info = symbol; $$ = $0; InsertSymbol(scopeStack, symbol);}
-direct_declarator:LEFT_BRACKET constant_expression RIGHT_BRACKET
-direct_declarator:LEFT_BRACKET RIGHT_BRACKET
-direct_declarator:LEFT_PAREN parameter_type_list RIGHT_PAREN
-direct_declarator:LEFT_PAREN identifier_list RIGHT_PAREN
-declarator:pointer direct_declarator
-declarator:direct_declarator
-enumerator:IDENTIFIER
-enumerator:IDENTIFIER EQ constant_expression
-enumerator_list:enumerator
-enumerator_list:enumerator_list COMMA enumerator
+pointer:STAR {_$_$ = malloc(sizeof(Type)); ((Type*)_$_$)->size = 8; ((Type*)_$_$)->type = POINTER_TYPE; ((Type*)_$_$)->baseType = NULL;}
+pointer:STAR pointer {_$_$ = malloc(sizeof(Type)); ((Type*)_$_$)->size = 8; ((Type*)_$_$)->type = POINTER_TYPE; ((Type*)_$_$)->baseType = _$1;}
+direct_declarator:IDENTIFIER {Symbol* symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; _$0->info = symbol; _$_$ = _$0; _$0->type = NULL; }
+direct_declarator:direct_declarator LEFT_BRACKET INTEGER_LITERAL RIGHT_BRACKET {_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = atoi(((Symbol*)_$2->info)->name); type->type = ARRAY_TYPE; type->baseType = NULL; Type *t; for (t = _$0->type; t && t->baseType; t = t->baseType); !t ? _$0->type = type : (t->baseType = type); ((Symbol*)_$0->info)->_type = _$0->type; }
+direct_declarator:direct_declarator LEFT_BRACKET RIGHT_BRACKET
+direct_declarator:direct_declarator LEFT_PAREN identifier_list RIGHT_PAREN
+declarator:pointer direct_declarator {_$_$ = _$1; Type *arrayType = _$1->type; for (; arrayType && arrayType->baseType; arrayType = arrayType->baseType); if (arrayType) arrayType->baseType = _$0; _$1->type = ((Symbol*)_$1->info)->_type = (arrayType ? arrayType : _$0); }
+declarator:direct_declarator {_$_$ = _$0; _$0->lvalue = TRUE;}
 struct_declarator:declarator
-struct_declarator_list:struct_declarator
-struct_declarator_list:struct_declarator_list COMMA struct_declarator
-specifier_qualifier_list:type_specifier specifier_qualifier_list
-specifier_qualifier_list:type_specifier
-struct_declaration:specifier_qualifier_list struct_declarator_list SEMI_COLON
-struct_declaration_list:struct_declaration
-struct_declaration_list:struct_declaration_list struct_declaration
-struct_or_union_specifier:STRUCT IDENTIFIER LEFT_CURLY struct_declaration_list RIGHT_CURLY
+struct_declaration:type_specifier struct_declarator SEMI_COLON {_$_$ = _$1; Type *t = _$1->type; for (; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; }
+struct_declaration_list:struct_declaration {LinearLinkedListNode **fields = malloc(sizeof(LinearLinkedListNode*)); InitLinearLinkedList(fields); PushLinearLinkedList(fields); (*fields)->info = _$0; _$_$ = fields; }
+struct_declaration_list:struct_declaration_list struct_declaration {_$_$ = _$0; PushLinearLinkedList(_$_$); (*((LinearLinkedListNode**)_$_$))->info = _$1;}
+struct_or_union_specifier:STRUCT IDENTIFIER LEFT_CURLY struct_declaration_list RIGHT_CURLY {_$_$ = _$1; Type *type = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name) ? LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name)->_type : malloc(sizeof(Type)); if (!LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name)) InsertSymbol(scopeStack, _$1->info); else _$1->info = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name); ((Symbol*)_$1->info)->_type = _$1->type = type; type->size = 0; type->type = STRUCT_TYPE; type->baseType = NULL; type->fields = malloc(sizeof(StringsDictionary)); InitStringsDictionary(type->fields); type->structDef = _$1->info; for (LinearLinkedListNode *p = *((LinearLinkedListNode**)_$3); p; p = p->nextNode) type->size += ((Type*)((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->_type)->size;  unsigned short offset = 0; for (LinearLinkedListNode *p = *((LinearLinkedListNode**)_$3); p; offset += ((Type*)((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->_type)->size, p = p->nextNode) AddField(type, ((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->name, offset, ((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->_type);}
 struct_or_union_specifier:STRUCT LEFT_CURLY struct_declaration_list RIGHT_CURLY
-struct_or_union_specifier:STRUCT IDENTIFIER
-type_specifier:VOID
-type_specifier:CHAR
-type_specifier:SHORT
-type_specifier:INT
-type_specifier:FLOAT
-type_specifier:LONG
-type_specifier:DOUBLE
+struct_or_union_specifier:STRUCT IDENTIFIER {_$_$ = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name)->_type; }
+type_specifier:VOID {_$_$ = (Type*)LookupSymbol(scopeStack, "void")->_type;}
+type_specifier:CHAR { _$_$ = (Type*)LookupSymbol(scopeStack, "char")->_type; }
+type_specifier:SHORT {_$_$ = (Type*)LookupSymbol(scopeStack, "short")->_type;}
+type_specifier:INT {_$_$ = (Type*)LookupSymbol(scopeStack, "int")->_type; }
+type_specifier:FLOAT {_$_$ = (Type*)LookupSymbol(scopeStack, "float")->_type;}
+type_specifier:LONG {_$_$ = (Type*)LookupSymbol(scopeStack, "long")->_type;}
+type_specifier:DOUBLE {_$_$ = (Type*)LookupSymbol(scopeStack, "double")->_type;}
 type_specifier:UNSIGNED
 type_specifier:struct_or_union_specifier
-init_declarator:declarator
-init_declarator:declarator EQ initializer {MakeAbstractSyntaxTree(&$$);  $0->GenerationFunction = GenerateDeclaration; $$->GenerationFunction = GenerateAssignment; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
-init_declarator_list:init_declarator {$$ = $0;}
-init_declarator_list:init_declarator_list COMMA init_declarator {$$ = $0; *SetAbstractSyntaxTreeNodeChild($0) = $2;}
+init_declarator:declarator {_$_$ = _$0; _$0->GenerationFunction = GenerateDeclaration;}
+init_declarator:declarator EQ initializer {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDeclaration; _$_$->info = _$0->info; _$_$->type = _$0->type;  _$0->GenerationFunction = GenerateDeclaration; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; } 
 declaration_specifiers:type_specifier
-declaration_specifiers:type_specifier declaration_specifiers
-declaration:declaration_specifiers SEMI_COLON {$$ = $0;}
-declaration:declaration_specifiers init_declarator_list SEMI_COLON {$$ = $1; $1->info = $0->info;}
+declaration_specifiers:IDENTIFIER {_$_$ = _$0; puts("typedef!");}
+declaration:STRUCT IDENTIFIER SEMI_COLON {_$_$ = _$1; _$_$->GenerationFunction = NULL; InsertSymbol(scopeStack, _$1->info); Type *type = malloc(sizeof(Type)); type->type = STRUCT_TYPE; _$1->type = ((Symbol*)_$1->info)->_type = type;}
+declaration:declaration_specifiers SEMI_COLON {_$_$ = _$0;}
+declaration:declaration_specifiers init_declarator SEMI_COLON {_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; }
 constant_expression:conditional_expression
-expression:assignment_expression
-expression:expression COMMA assignment_expression
-assignment_operator:EQ {$$ = $0; $$->GenerationFunction = GenerateAssignment;}
+expression:assignment_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateArithmeticExpression; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;}
+assignment_operator:EQ {_$_$ = _$0; _$_$->GenerationFunction = GenerateAssignment;  }
 assignment_operator:STAR_EQ
 assignment_operator:SLASH_EQ
 assignment_operator:MOD_EQ
-assignment_operator:PLUS_EQ {$$ = $0; $$->GenerationFunction = GenerateAdditionAssignment;}
+assignment_operator:PLUS_EQ {_$_$ = _$0; _$_$->GenerationFunction = GenerateAdditionAssignment;  }
 assignment_operator:MINUS_EQ
 assignment_expression:conditional_expression
-assignment_expression:unary_expression assignment_operator assignment_expression {$$ = $1; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
-conditional_expression:equality_expression
+assignment_expression:unary_expression assignment_operator assignment_expression {_$_$ = _$1; _$_$->info = NULL; _$0->lvalue = TRUE; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  }
+conditional_expression:exclusive_or_expression
+and_expression:equality_expression
+and_expression:and_expression AMPERSAND equality_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateAnd; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
+exclusive_or_expression:and_expression
+exclusive_or_expression:exclusive_or_expression XOR and_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateXor; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
 equality_expression:relational_expression
-equality_expression:equality_expression EEQ relational_expression
-equality_expression:equality_expression NEQ relational_expression
+equality_expression:equality_expression EEQ relational_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateEEQ; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$0->lvalue = FALSE; _$2->lvalue = FALSE; }
+equality_expression:equality_expression NEQ relational_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateNEQ; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
 relational_expression:shift_expression
-relational_expression:relational_expression GT shift_expression
-relational_expression:relational_expression LT shift_expression
-relational_expression:relational_expression GE shift_expression
-relational_expression:relational_expression LE shift_expression
+relational_expression:relational_expression GT shift_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateGT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
+relational_expression:relational_expression LT shift_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
+relational_expression:relational_expression GE shift_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateGE; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
+relational_expression:relational_expression LE shift_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLE; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
 shift_expression:additive_expression
+shift_expression:shift_expression LSHIFT additive_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLSHIFT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
+shift_expression:shift_expression RSHIFT additive_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateRSHIFT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
 additive_expression:multiplicative_expression
-additive_expression:additive_expression PLUS multiplicative_expression {MakeAbstractSyntaxTree(&$$); $$->GenerationFunction = GenerateAddition; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
-additive_expression:additive_expression MINUS multiplicative_expression
+additive_expression:additive_expression PLUS multiplicative_expression {MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateAddition; _$_$->AnalysisFunction = AnalyzeAddition; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
+additive_expression:additive_expression MINUS multiplicative_expression {MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateSubtraction; _$_$->AnalysisFunction = AnalyzeSubtraction; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; }
 multiplicative_expression:cast_expression
-multiplicative_expression:multiplicative_expression STAR cast_expression {MakeAbstractSyntaxTree(&$$); $$->GenerationFunction = GenerateMult; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
-multiplicative_expression:multiplicative_expression SLASH cast_expression {MakeAbstractSyntaxTree(&$$); $$->GenerationFunction = GenerateDivision; $$->info = NULL; *SetAbstractSyntaxTreeNodeChild($$) = $0; *SetAbstractSyntaxTreeNodeChild($$) = $2;}
-multiplicative_expression:multiplicative_expression MOD cast_expression
+multiplicative_expression:multiplicative_expression STAR cast_expression {MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateMult; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  }
+multiplicative_expression:multiplicative_expression SLASH cast_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDivision; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  }
+multiplicative_expression:multiplicative_expression MOD cast_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateMod; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  }
 cast_expression:unary_expression
 cast_expression:LEFT_PAREN type_name RIGHT_PAREN cast_expression
-unary_operator:STAR
+unary_operator:STAR {_$_$ = _$0; _$0->GenerationFunction = GenerateDereference; _$0->AnalysisFunction = AnalyzeDereference; }
 unary_operator:PLUS
-unary_operator:MINUS
-unary_operator:AMPERSAND
+unary_operator:MINUS {_$_$ = _$0; _$0->GenerationFunction = GenerateNeg;}
+unary_operator:AMPERSAND {_$_$ = _$0; _$0->GenerationFunction = GenerateReference; _$0->AnalysisFunction = AnalyzeReference; }
+unary_operator:LOG_NOT {_$_$ = _$0; _$0->GenerationFunction = GenerateLogNot;}
 unary_expression:postfix_expression
 unary_expression:PLUS_PLUS postfix_expression
 unary_expression:MINUS_MINUS postfix_expression
-unary_expression:unary_operator cast_expression {$$ = $1;}
-argument_expression_list:assignment_expression
-argument_expression_list:argument_expression_list COMMA assignment_expression
+unary_expression:unary_operator cast_expression {MakeAbstractSyntaxTree(&_$_$); _$_$->lvalue = FALSE; _$1->lvalue = FALSE; _$_$->info = _$1->info; _$_$->type = _$1->type; _$_$->GenerationFunction = _$0->GenerationFunction; _$_$->AnalysisFunction = _$0->AnalysisFunction; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$1; }
+argument_expression_list:assignment_expression {MakeAbstractSyntaxTree(&_$_$);  _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; }
+argument_expression_list:argument_expression_list COMMA assignment_expression {_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  }
 postfix_expression:primary_expression
-postfix_expression:postfix_expression LEFT_BRACKET expression RIGHT_BRACKET
-postfix_expression:postfix_expression LEFT_PAREN RIGHT_PAREN {$$ = $0; $$->GenerationFunction = GenerateCall;}
-postfix_expression:postfix_expression LEFT_PAREN argument_expression_list RIGHT_PAREN {$$ = $0; $0->GenerationFunction = GenerateCall; *SetAbstractSyntaxTreeNodeChild($0) = $2;}
-postfix_expression:postfix_expression DOT IDENTIFIER
-postfix_expression:postfix_expression ARROW IDENTIFIER
-postfix_expression:postfix_expression PLUS_PLUS {$$ = $1; $1->info = $0->info; $1->GenerationFunction = GenerateIncrement; *SetAbstractSyntaxTreeNodeChild($1) = $0;}
+postfix_expression:postfix_expression LEFT_BRACKET expression RIGHT_BRACKET { MakeAbstractSyntaxTree(&_$_$); _$2 = _$2->childrenManager->info; AbstractSyntaxTreeNode *addition; MakeAbstractSyntaxTree(&addition); *SetAbstractSyntaxTreeNodeChild(_$_$) = addition; _$_$->lvalue = FALSE; addition->lvalue = FALSE; _$_$->GenerationFunction = GenerateDereference; _$_$->AnalysisFunction = AnalyzeDereference; _$0->lvalue = _$2->lvalue = FALSE; addition->GenerationFunction = GenerateAddition; addition->AnalysisFunction = AnalyzeAddition; addition->info = NULL; *SetAbstractSyntaxTreeNodeChild(addition) = _$0; *SetAbstractSyntaxTreeNodeChild(addition) = _$2; }
+postfix_expression:postfix_expression LEFT_PAREN RIGHT_PAREN {_$_$ = _$0; _$_$->GenerationFunction = GenerateCall;  }
+postfix_expression:postfix_expression LEFT_PAREN argument_expression_list RIGHT_PAREN {_$_$ = _$0; _$0->GenerationFunction = GenerateCall; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  }
+postfix_expression:postfix_expression DOT IDENTIFIER {MakeAbstractSyntaxTree(&_$_$); *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = ((Field*)_$2->field)->type;}
+postfix_expression:postfix_expression ARROW IDENTIFIER {MakeAbstractSyntaxTree(&_$_$); AbstractSyntaxTreeNode *dref; MakeAbstractSyntaxTree(&dref); *SetAbstractSyntaxTreeNodeChild(_$_$) = dref; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; dref->lvalue = FALSE; _$2->lvalue = FALSE; dref->info = _$0->info; dref->type = _$0->type; dref->GenerationFunction = GenerateDereference; dref->AnalysisFunction = AnalyzeDereference; *SetAbstractSyntaxTreeNodeChild(dref) = _$0; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = ((Field*)_$2->field)->type;}
+postfix_expression:postfix_expression PLUS_PLUS {_$_$ = _$1; _$1->info = _$0->info; _$1->GenerationFunction = GenerateIncrement; *SetAbstractSyntaxTreeNodeChild(_$1) = _$0;  }
 postfix_expression:postfix_expression MINUS_MINUS
-primary_expression:IDENTIFIER {$$ = $0; $$->GenerationFunction = GenerateSymbol; Token *id = $$->info; $$->info = LookupSymbol(scopeStack, id->lexeme); }
-primary_expression:INTEGER_LITERAL {$$ = $0; Symbol *symbol; MakeSymbol(&symbol); symbol->name = ((Token*)$0->info)->lexeme; symbol->type = INT; $$->info = symbol; $$->GenerationFunction = GenerateIntegerLiteral;}
-primary_expression:FLOAT_LITERAL
-primary_expression:STRING_LITERAL
-primary_expression:LEFT_PAREN expression RIGHT_PAREN {$$ = $1;}
+primary_expression:IDENTIFIER {_$_$ = _$0; _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); _$_$->type = ((Symbol*)_$_$->info)->_type; _$_$->lvalue = TRUE; }
+primary_expression:INTEGER_LITERAL {_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->_type = LookupSymbol(scopeStack, "long")->_type; symbol->name = ((Token*)_$0->info)->lexeme; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateIntegerLiteral; }
+primary_expression:FLOAT_LITERAL {_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->_type = LookupSymbol(scopeStack, "double")->_type; symbol->name = ((Token*)_$0->info)->lexeme;_$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateFloatLiteral;  }
+primary_expression:STRING_LITERAL {_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; Type *type; MakeType(&type, FALSE); type->type = POINTER_TYPE; type->size = 8; type->baseType = LookupSymbol(scopeStack, "char")->_type; _$_$->type = symbol->_type = type; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateStringLiteral;}
+primary_expression:LEFT_PAREN expression RIGHT_PAREN {_$_$ = ((AbstractSyntaxTreeNode*)_$1)->childrenManager->info;}

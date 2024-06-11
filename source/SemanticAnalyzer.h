@@ -8,4 +8,12 @@
     #include "../libs/AbstractSyntaxTree.h"
 #endif
 
+#ifndef _GRAMMAR_H
+    #include "../libs/Grammar.h"
+#endif
+
+#ifndef _ACTIONS
+    #include "../grammar/actions.h"
+#endif
+
 void Semantics();

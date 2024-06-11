@@ -11,21 +11,21 @@
 
 #ifdef DDEBUG
     #define GRAMMAR_DEFINITIONS "grammar/grammar_definitions"
-    #define GRAMMAR_RULES "grammar/grammar_rules_copy"
+    #define GRAMMAR_RULES "grammar/grammar_rules"
     #define SEMANTICS_FILE "grammar/semantics.c"
     #define SEMANTICS_H_FILE "grammar/semantics.h"
 #else
     #define GRAMMAR_DEFINITIONS "../grammar/grammar_definitions"
-    #define GRAMMAR_RULES "../grammar/grammar_rules_copy"
+    #define GRAMMAR_RULES "../grammar/grammar_rules"
     #define SEMANTICS_FILE "../grammar/semantics.c"
     #define SEMANTICS_H_FILE "../grammar/semantics.h"
 #endif
 
-#define UPDATE_HEADER FALSE
+#define UPDATE_HEADER TRUE
 
 #if !UPDATE_HEADER
     #undef SEMANTICS_H_FILE
     #define SEMANTICS_H_FILE ""
 #endif
 
-Grammar BUILD();
+void BuildGrammarFromFile(Grammar *grammar);

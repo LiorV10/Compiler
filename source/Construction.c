@@ -1,3 +1,4 @@
+// Construction.c 
 
 #include "Construction.h"
 
@@ -24,7 +25,6 @@ Expression *MakeExpression(Grammar *g, char *line)
     {
         NonTerminal *nt = malloc(sizeof(NonTerminal));
 
-        nt->name = strdup(line);
         nt->rules = NULL;
 
         e->isTerminal = FALSE;
@@ -64,7 +64,7 @@ int strct(char *s, char c)
     return count;
 }
 
-Grammar BUILD()
+void BuildGrammarFromFile(Grammar *grammar)
 {
     FILE *grammar_defs = fopen(GRAMMAR_DEFINITIONS, "rt");
     FILE *grammar_rules = fopen(GRAMMAR_RULES, "rt");
@@ -72,34 +72,6 @@ Grammar BUILD()
     FILE *semantics_h = fopen(SEMANTICS_H_FILE, "wt");
 
     fprintf(semantics, "#include \"semantics.h\"\n");
-
-    if (UPDATE_HEADER)
-    {
-            fprintf(semantics_h, "#define _SEMANTICS\n");
-            fprintf(semantics_h, "#ifndef _COMMON_MACROS_H\n\
-            #include \"../libs/CommonMacros.h\"\n\
-            #endif\n\
-    \n\
-            #ifndef _ABSTRACT_SYNTAX_TREE_H\n\
-                #include \"../libs/AbstractSyntaxTree.h\"\n\
-            #endif\n\
-    \n\
-            #ifndef _STACK_H\n\
-                #include \"../libs/Stack.h\"\n\
-            #endif\n\
-    \n\
-            #ifndef _GRAMMAR_H\n\
-                #include \"../libs/Grammar.h\"\n\
-            #endif\n\
-    \n\
-            #ifndef _TYPE_SYSTEM_H\n\
-                #include \"../libs/TypeSystem.h\"\n\
-            #endif\n\
-    \n\
-            #ifndef _ACTIONS\n\
-                #include \"actions.h\"\n\
-            #endif\n");
-    }
 
     // fprintf(semantics, "#define _SEMANTICS\ntypedef enum {");
 
@@ -114,7 +86,7 @@ Grammar BUILD()
     char *expressions;
     char *semantic;
 
-    Grammar g = {.expressions = NULL, .nonTerminals = NULL};
+    // Grammar g = {.expressions = NULL, .nonTerminals = NULL};
 
     fgets(line, 256, grammar_defs);
 
@@ -141,7 +113,7 @@ Grammar BUILD()
         }
 
         sscanf(line, "%s", line_);
-        InsertStringsDictionary(tbl, line_, MakeExpression(&g, line_));        
+        InsertStringsDictionary(tbl, line_, MakeExpression(grammar, line_));        
     
         // puts(line_);
 
@@ -180,8 +152,35 @@ Grammar BUILD()
         fprintf(semantics_h, "\"\"}\n");
     }
 
-    fgets(line, 2048, grammar_rules);
+    if (UPDATE_HEADER)
+    {
+            fprintf(semantics_h, "#define _SEMANTICS\n");
+            fprintf(semantics_h, "#ifndef _COMMON_MACROS_H\n\
+            #include \"../libs/CommonMacros.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _ABSTRACT_SYNTAX_TREE_H\n\
+                #include \"../libs/AbstractSyntaxTree.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _STACK_H\n\
+                #include \"../libs/Stack.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _GRAMMAR_H\n\
+                #include \"../libs/Grammar.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _TYPE_SYSTEM_H\n\
+                #include \"../libs/TypeSystem.h\"\n\
+            #endif\n\
+    \n\
+            #ifndef _ACTIONS\n\
+                #include \"actions.h\"\n\
+            #endif\n");
+    }
 
+    fgets(line, 2048, grammar_rules);
     fputs("AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack)"
           "{ return PopStack(semanticStack); }\n", semantics);
 
@@ -273,8 +272,7 @@ Grammar BUILD()
     int rules[rule];
     rule = ZERO;
 
-
-    for (nonTerminalsPtr = g.nonTerminals; nonTerminalsPtr; nonTerminalsPtr = nonTerminalsPtr->nextNode)
+    for (nonTerminalsPtr = grammar->nonTerminals; nonTerminalsPtr; nonTerminalsPtr = nonTerminalsPtr->nextNode)
     {
         for (rulesPtr = ((NonTerminal*)nonTerminalsPtr->info)->rules; rulesPtr; rulesPtr = rulesPtr->nextNode)
         {
@@ -300,5 +298,5 @@ Grammar BUILD()
     if (UPDATE_HEADER)
         fclose(semantics_h);
 
-    return g;
+    return grammar;
 }

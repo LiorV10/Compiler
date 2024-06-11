@@ -18,7 +18,7 @@ typedef struct AbstractSyntaxTreeNode AbstractSyntaxTreeNode;
 
 struct AbstractSyntaxTreeNode
 {
-    void *reg;
+    unsigned short reg;
     void *info;
     BOOL lvalue;
     unsigned char label;

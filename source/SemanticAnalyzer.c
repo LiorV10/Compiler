@@ -25,19 +25,20 @@ TypeKind typesMatrix[TYPES_COUNT][TYPES_COUNT][OPERATORS_COUNT] =
 
     [INTEGER_TYPE] = 
     {
-        [INTEGER_TYPE] = {INTEGER_TYPE},
-        [LONG_TYPE] = {LONG_TYPE}
+        [INTEGER_TYPE] = {INTEGER_TYPE, INTEGER_TYPE},
+        [LONG_TYPE] = {LONG_TYPE, LONG_TYPE}
     },
 
     [LONG_TYPE] = 
     {
-        [INTEGER_TYPE] = {LONG_TYPE}  
+        [INTEGER_TYPE] = {LONG_TYPE, LONG_TYPE}  
     },
 
     [POINTER_TYPE] = 
     {
-        [INTEGER_TYPE] = {POINTER_TYPE},
-        [LONG_TYPE] = {POINTER_TYPE}
+        [INTEGER_TYPE] = {POINTER_TYPE, POINTER_TYPE},
+        [LONG_TYPE] = {POINTER_TYPE, POINTER_TYPE},
+        [CHAR_TYPE] = {POINTER_TYPE, POINTER_TYPE}
     },
 };
 
@@ -63,7 +64,7 @@ void AnalyzeReference(AbstractSyntaxTreeNode **astRoot)
 
     Type *type = malloc(sizeof(Type));
     type->type = POINTER_TYPE;
-    type->size = 8;
+    type->size = ((unsigned short[])TYPE_SIZES)[POINTER_TYPE];
 
     if (operand->type)
         type->baseType = operand->type;
@@ -104,15 +105,32 @@ void AnalyzeAddition(AbstractSyntaxTreeNode **astRoot)
     if (leftType && rightType)
     {
         t = typesMatrix[leftType->type][rightType->type][PLUS_OP];
+    }
+
+    (*astRoot)->type = leftType;
+
+    if (rightType && rightType->type == t) (*astRoot)->type = rightType;
+}
+
+void AnalyzeSubtraction(AbstractSyntaxTreeNode **astRoot)
+{
+    AbstractSyntaxTreeNode *left = (*astRoot)->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = (*astRoot)->childrenManager->info;
+
+    Type *leftType = left->type;
+    Type *rightType = right->type;
+
+    TypeKind t;
+
+    if (leftType && rightType)
+    {
+        t = typesMatrix[leftType->type][rightType->type][MINUS_OP];
         int a = 0;
     }
 
     (*astRoot)->type = leftType;
 
-    if (leftType && leftType->type == t) (*astRoot)->type = leftType;
     if (rightType && rightType->type == t) (*astRoot)->type = rightType;
-
-    printf("%p --- %p\n", leftType, rightType);
 }
 
 void Semantics(AbstractSyntaxTreeNode **astRoot)

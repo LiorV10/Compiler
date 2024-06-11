@@ -4,6 +4,9 @@
 
 typedef unsigned short TokenType;
 
+typedef struct Rule Rule;
+typedef struct Grammar Grammar;
+
 #ifndef _LINEAR_LINKED_LIST_H
     #include "LinearLinkedList.h"
 #endif
@@ -12,9 +15,20 @@ typedef unsigned short TokenType;
     #include "AbstractSyntaxTree.h"
 #endif
 
+#ifndef _SEMANTICS
+  #include "../grammar/semantics.h"
+#endif
+
+#ifndef _STACK_H
+    #include "Stack.h"
+#endif
+
+#ifndef _DICTIONARY_H
+    #include "Dictionary.h"
+#endif
+
 typedef struct
 {
-    char *name;
     LinearLinkedListNode *rules;
 } NonTerminal;
 
@@ -33,15 +47,15 @@ typedef struct
     unsigned long firstSet;
 } Expression;
 
-typedef struct
+struct Rule
 {
     int id;
     unsigned long visited_;
-    BIT_VEC(visited, 51);
+    BIT_VEC(visited, TOKENS_NUM);
     NonTerminal *nonTerminal;
     LinearLinkedListNode *expressions;
-    void*(*semanticAction)();
-} Rule;
+    AbstractSyntaxTreeNode*(*semanticAction)(void *, Stack *);
+};
 
 typedef struct
 {
@@ -50,23 +64,11 @@ typedef struct
     TokenType lookahead;
 } Item;
 
-typedef struct
+struct Grammar
 {
     LinearLinkedListNode *nonTerminals;
     LinearLinkedListNode *expressions;
-} Grammar;
-
-#ifndef _STACK_H
-    #include "Stack.h"
-#endif
-
-#ifndef _SEMANTICS
-  #include "../grammar/semantics.h"
-#endif
-
-#ifndef _DICTIONARY_H
-    #include "Dictionary.h"
-#endif
+};
 
 AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
 void AssignActions(Grammar *g);

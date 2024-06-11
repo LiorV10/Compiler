@@ -24,6 +24,10 @@
     #include "../libs/AbstractSyntaxTree.h"
 #endif
 
+#ifndef _ERROR_HANDLER_H
+    #include "ErrorHandler.h"
+#endif
+
 #define GENERATE_LALR TRUE
 
 typedef struct
@@ -32,5 +36,5 @@ typedef struct
     PushdownMachine *pushdownMachine;
 } Parser;
 
-void InitParser(Parser *parser, const char **);
-AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens);
+void InitParser(Parser *parser, Grammar *grammar);
+AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens, Stack *errors);

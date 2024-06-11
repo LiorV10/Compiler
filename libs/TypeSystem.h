@@ -6,9 +6,12 @@
 
 typedef enum {
                 CHAR_TYPE, SHORT_TYPE, INTEGER_TYPE, LONG_TYPE, FLOAT_TYPE, 
-                DOUBLE_TYPE, VOID_TYPE, POINTER_TYPE, ARRAY_TYPE, STRUCT_TYPE, 
-                TYPES_COUNT
+                DOUBLE_TYPE, VOID_TYPE, BASE_TYPES_COUNT, POINTER_TYPE, ARRAY_TYPE,
+                STRUCT_TYPE, TYPES_COUNT
             } TypeKind;
+
+#define TYPE_NAMES {"char", "short", "int", "long", "float", "double", "void"}
+#define TYPE_SIZES {1,      2,       4,     8,      4,        8,        0    , 0, 8}
 
 typedef struct Type Type;
 
@@ -18,7 +21,7 @@ struct Type
     unsigned short size;
     Type *baseType;
     Symbol *structDef;
-    void *fields;
+    StringsDictionary *fields;
 };
 
 typedef struct 
@@ -28,5 +31,7 @@ typedef struct
     Type *type;
 } Field;
 
+void InitTypeSystem(StringsDictionary *symbolTable);
+void MakeType(Type **type, BOOL isStruct);
 Field *FindField(Type *source, char *name);
 void AddField(Type *source, char *name, unsigned short offset, Type *type);

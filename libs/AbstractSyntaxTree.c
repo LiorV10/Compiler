@@ -21,7 +21,7 @@ void MakeAbstractSyntaxTree(AbstractSyntaxTreeNode **root)
     InitCircularLinearLinkedList(&(*root)->childrenManager);
 
     (*root)->info = NULL;
-    (*root)->reg = -ONE;
+    (*root)->reg = ZERO;
     (*root)->GenerationFunction = NULL;
     (*root)->AnalysisFunction = NULL;
     (*root)->label = ZERO;

@@ -50,11 +50,12 @@ LEFT_PAREN "("
 RIGHT_PAREN ")"
 AMPERSAND "&"
 OR "|"
+XOR "^"
 LOG_AND "&&\002"
 LOG_OR "||\002"
 FLOAT_LITERAL "\004\006.\002\004\006\002"
 INTEGER_LITERAL "\004\006"
-WHITESPACE " \n\r\t\010\010\010\006"
+WHITESPACE " \n\r\t\010\010\010\006//\002\001\005\002\n\002\010/*\002\001\005\002*/\002\002\010"
 EOD
 
 translation_unit
@@ -89,7 +90,6 @@ struct_or_union_specifier
 struct_or_union
 struct_declaration_list
 struct_declaration
-specifier_qualifier_list
 struct_declarator_list
 struct_declarator
 enum_specifier

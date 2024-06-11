@@ -3,7 +3,7 @@
 #define _REGEX_H
 
 #ifndef _STATE_MACHINE_H
-    #include "StateMachine.c"
+    #include "StateMachine.h"
 #endif
 
 #ifndef _STACK_H

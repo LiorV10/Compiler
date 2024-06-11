@@ -4,38 +4,35 @@
 
 #include <stdarg.h>
 
-#define EAX 0
-#define EBX 1
-#define ECX 2
-#define R10D 3
-#define R11D 4
-#define R12D 5
-#define R13D 6
-#define R14D 7
-#define R15D 8
-#define REGISTER_NAMES {"eax", "ebx", "ecx", "r10d", "r11d", "r12d", "r13d", "r14d", "r15d", \
-                        "rax", "rbx", "rcx", "r10", "r11", "r12", "r13", "r14", "r15", \
-                        "al", "bl", "cl", "r10b", "r11b", "r12b", "r13b", "r14b", "r15b"}
-#define REGISTERS_NUM 9
+#define NONE 0
+#define EAX 1
+#define EBX 2
+#define ECX 3
+#define R10D 4
+#define R11D 5
+#define R12D 6
+#define R13D 7
+#define R14D 8
+#define R15D 9
 
-#define FULL_REGISTER(reg) ((((Register)(reg)) % REGISTERS_NUM) + REGISTERS_NUM)
-#define MIN_REGISTER(reg) (FULL_REGISTER(reg) + REGISTERS_NUM)
+#define BYTE_SIZE 1
+#define WORD_SIZE 2
+#define DWORD_SIZE 4
+#define QWORD_SIZE 8
+
+#define BASE_REGISTER(reg) (((Register)reg) % REGISTERS_NUM)
+#define REGSITER_BY_SIZE(reg, size) (BASE_REGISTER(reg) + REGISTERS_NUM * __builtin_ctzl(size))
+
+#define FULL_REGISTER(reg) (REGSITER_BY_SIZE(reg, QWORD_SIZE))
+
+#define ALIGN(n, base) ((base) * ((n) / (base) + !!((n) % ((base)))))
+#define STACK_ALIGNMENT 16
 
 typedef unsigned short Register;
 
-typedef struct
-{
-    Stack *availableRegisters;
-    LinearLinkedListNode *usedRegisters;
-    char *registers[sizeof((char*[])REGISTER_NAMES) / sizeof(char*)];
-    short currentMemoryOffset;
-    void (*Emit)(void *stream, char *buffer, va_list args);
-    void *stream;
-} CodeGenerator;
-
 
 int LabelAst(AbstractSyntaxTreeNode *astRoot, BOOL left);
-void GenerateAst_2(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, BOOL left);
+void SethiUllman(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, BOOL left);
 
 void Emit(CodeGenerator *generator, char *buffer, ...)
 {
@@ -56,6 +53,7 @@ void InitCodeGenerator(CodeGenerator *generator, void (*Emit)(char *buffer, void
 
     generator->Emit = Emit;
     generator->stream = stream;
+    generator->currentMemoryOffset = ZERO;
 
     generator->availableRegisters = malloc(sizeof(Stack));
     InitStack(generator->availableRegisters);
@@ -66,8 +64,18 @@ void InitCodeGenerator(CodeGenerator *generator, void (*Emit)(char *buffer, void
     {
         PushStack(generator->availableRegisters, (void *)currentRegister);
     }
+}
 
-    generator->currentMemoryOffset = ZERO;
+void FreeCodeGenerator(CodeGenerator *generator)
+{
+    while (!IsEmptyStack(generator->availableRegisters))
+    {
+        PopStack(generator->availableRegisters);
+    }
+
+    EmptyLinearLinkedList(&generator->usedRegisters, NULL);
+
+    free(generator->availableRegisters);
 }
 
 Register GetRegister(CodeGenerator *generator)
@@ -79,9 +87,9 @@ Register GetRegister(CodeGenerator *generator)
 
 void FreeRegister(CodeGenerator *generator, Register reg)
 {
-    reg %= REGISTERS_NUM;
+    reg = BASE_REGISTER(reg);
 
-    PushStack(generator->availableRegisters, (void *)reg);
+    PushStack(generator->availableRegisters, reg);
     PopLinearLinkedList(&generator->usedRegisters);
 }
 
@@ -97,7 +105,7 @@ void EmitRegister(CodeGenerator *generator, Register reg)
 
 BOOL EmitRegisterOrAddress(CodeGenerator *generator, AbstractSyntaxTreeNode *node)
 {
-    if (node->reg != -ONE)
+    if (node->reg)
     {
         EmitRegister(generator, node->reg);
         return (node->reg >= REGISTERS_NUM);
@@ -213,34 +221,33 @@ void GenerateIf(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     #include "../libs/TypeSystem.h"
 #endif
 
-char* F(Type *tt)
+void CastBySize(CodeGenerator *generator, Register *reg, unsigned char size)
 {
-    TypeKind t = tt->type;
-    
-    if (t == INTEGER_TYPE) return "Integer";
-    if (t == FLOAT_TYPE) return "Float";
-    if (t == POINTER_TYPE) return "Pointer";
-    if (t == VOID_TYPE) return "Void";
+    Register new = REGSITER_BY_SIZE(*reg, size);
 
-    return "Error";
-}
+    if (new > *reg)
+    {
+        Emit(generator, "movsx ");
+        EmitRegister(generator, *reg);
+        Emit(generator, ", ");
+        EmitRegister(generator, new);
+        Emit(generator, "\n");
+    }
 
-Register CastBySize(Register reg, unsigned char size)
-{
-    unsigned char offsets[8] = {18, 0, 0, 0, 0, 0, 0, 9};
-
-    return (((reg % 9) + offsets[size - 1]));
+    *reg = new;
 }
 
 void GenerateStringLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
     int label = GetLabel(codeGenerator);
 
+    astNode->reg = astNode->reg ? FULL_REGISTER(astNode->reg) : FULL_REGISTER(GetRegister(codeGenerator));
+
     Emit(codeGenerator, ".section .rodata\n");
-    EmitLabel(codeGenerator, label);//EmitLabel(codeGenerator, currentBranchNum, "");
+    EmitLabel(codeGenerator, label);
     Emit(codeGenerator, ".string %s\n.text\n", ((Symbol*)astNode->info)->name);
     Emit(codeGenerator, "leaq .AG%d(%%rip), ", label);
-    EmitRegister(codeGenerator, astNode->reg = FULL_REGISTER(astNode->reg != -ONE ? astNode->reg : GetRegister(codeGenerator)));
+    EmitRegister(codeGenerator, astNode->reg);
     Emit(codeGenerator, "\n");
 }
 
@@ -256,24 +263,30 @@ void GenerateFloatLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 
     Emit(codeGenerator, "mov $0x%08x, ", *((unsigned int*)&val));
     // Emit(codeGenerator, "movq %%rax, %%xmm0\ncvttss2si %%xmm0, ");
-    EmitRegister(codeGenerator, astNode->reg = astNode->reg != -ONE ? astNode->reg : GetRegister(codeGenerator));
+    EmitRegister(codeGenerator, astNode->reg = astNode->reg ? astNode->reg : GetRegister(codeGenerator));
     Emit(codeGenerator, "\n");
 
 }
 
 void GenerateIntegerLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
-    astNode->reg = astNode->reg != -ONE ? astNode->reg : GetRegister(codeGenerator);
+    astNode->reg = astNode->reg ? astNode->reg : GetRegister(codeGenerator);
 
-    astNode->reg = CastBySize(astNode->reg, ((Type*)((Symbol*)astNode->info)->_type)->size);
+    // astNode->reg = CastBySize(astNode->reg, ((Type*)((Symbol*)astNode->info)->_type)->size);
 
     Emit(codeGenerator, "mov $%s, ", ((Symbol*)astNode->info)->name);
-    EmitRegister(codeGenerator, astNode->reg);
+    EmitRegister(codeGenerator, (astNode->reg = REGSITER_BY_SIZE(astNode->reg, ((Type*)astNode->type)->size)));
     Emit(codeGenerator, "\n");
 }
 
 void GenerateSymbol(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
+    if (((Type*)astNode->type)->type == STRUCT_TYPE)
+    {
+        astNode->reg = GetRegister(codeGenerator);
+        return;
+    }
+
     if (((Type*)((Symbol*)astNode->info)->_type)->type == ARRAY_TYPE)
     {
         Emit(codeGenerator, "leaq %d(%%rbp), ", ((Symbol*)astNode->info)->memoryAddress);
@@ -285,17 +298,16 @@ void GenerateSymbol(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         Emit(codeGenerator, ", ");
     }
 
-    astNode->reg = astNode->reg != -ONE ? astNode->reg : GetRegister(codeGenerator);
+    astNode->reg = astNode->reg ? astNode->reg : GetRegister(codeGenerator);
 
-    if (astNode->type && (((Type*)astNode->type)->size == 8 || ((Type*)astNode->type)->type == ARRAY_TYPE))
-    {
+    if (((Type*)astNode->type)->type != ARRAY_TYPE)
+        astNode->reg = REGSITER_BY_SIZE(astNode->reg, ((Type*)astNode->type)->size);
+    else
         astNode->reg = FULL_REGISTER(astNode->reg);
-    }
 
     EmitRegister(codeGenerator, astNode->reg);
     Emit(codeGenerator, "\n");
 }
-
 
 void GenerateParameter(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
@@ -309,9 +321,7 @@ void GenerateParameter(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 
 void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
-    AbstractSyntaxTreeNode *init = NULL;
-    if (astNode->childrenManager)
-        init = astNode->childrenManager->info;
+    AbstractSyntaxTreeNode *init = astNode->childrenManager ? astNode->childrenManager->info : NULL;
 
     Symbol *decl = astNode->info;
     Type *type = astNode->type;
@@ -325,12 +335,12 @@ void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 
     if (init)
     {
-        init->reg = CastBySize(init->reg, type->size);
-
         if (init->lvalue)
         {
             Load(codeGenerator, init);
         }
+
+        CastBySize(codeGenerator, &init->reg, type->size);
 
         Emit(codeGenerator, "mov ");
         EmitRegister(codeGenerator, init->reg);
@@ -344,16 +354,6 @@ void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     // {
     //     ((CodeGenerator *)codeGenerator)->currentMemoryOffset += 4;
     // }
-}
-
-#define IS_FULL_REGISTER(reg) (!((((Register)reg) % REGISTERS_NUM) == (reg)))
-
-void Cast(Register *first, Register *second)
-{
-    Register temp = *second;
-
-    if (IS_FULL_REGISTER(*first)) *second = FULL_REGISTER(*second);
-    if (IS_FULL_REGISTER(temp)) *first = FULL_REGISTER(*first);
 }
 
 void GenerateAddition(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
@@ -373,20 +373,20 @@ void GenerateAddition(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 
     if (((Type*)left->type)->baseType)
     {
+        CastBySize(codeGenerator, &right->reg, QWORD_SIZE);
+
         Emit(codeGenerator, "leaq (");
         EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
         Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, FULL_REGISTER(right->reg));
-        ((Type*)left->type)->baseType->size == 5 ? Emit(codeGenerator, ", %d), ", 8) :
+        EmitRegister(codeGenerator, right->reg);
         Emit(codeGenerator, ", %d), ", ((Type*)left->type)->baseType->size);
         EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
         Emit(codeGenerator, "\n");
     }
     else
     {
-        if (right->reg != -ONE)
-            Cast(&right->reg, &left->reg);
-
+        if (right->reg)
+            CastBySize(codeGenerator, &right->reg, ((Type*)left->type)->size);
 
         Emit(codeGenerator, "add ");
         EmitRegisterOrAddress(codeGenerator, right);
@@ -404,9 +404,6 @@ void GenerateSubtraction(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Register temp = left->reg;
-    Register temp2 = right->reg;
-
     if (left->lvalue)
     {
         Load(codeGenerator, left);
@@ -417,26 +414,32 @@ void GenerateSubtraction(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         Load(codeGenerator, right);
     }
 
-    if (right->reg != -ONE)
-        Cast(&right->reg, &left->reg);
-
-    if (right->reg != temp2)
+    if (((Type*)left->type)->baseType)
     {
-        Emit(codeGenerator, "movsx ");
-        EmitRegister(codeGenerator, temp2);
+        Emit(codeGenerator, "neg ");
+        EmitRegister(codeGenerator, FULL_REGISTER(right->reg));
+        Emit(codeGenerator, "\nleaq (");
+        EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
         Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, right->reg);
+        EmitRegister(codeGenerator, FULL_REGISTER(right->reg));
+        Emit(codeGenerator, ", %d), ", ((Type*)left->type)->baseType->size);
+        EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
+        Emit(codeGenerator, "\n");
+    }
+    else
+    {
+        if (right->reg)
+            CastBySize(codeGenerator, &right->reg, ((Type*)left->type)->size);
+
+        Emit(codeGenerator, "sub ");
+        EmitRegisterOrAddress(codeGenerator, right);
+        Emit(codeGenerator, ", ");
+        EmitRegister(codeGenerator, left->reg);
         Emit(codeGenerator, "\n");
     }
 
-    Emit(codeGenerator, "sub ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, "\n");
-
     FreeRegister(codeGenerator, right->reg);
-    astNode->reg = temp;
+    astNode->reg = left->reg;
 }
 
 void GenerateMult(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
@@ -454,10 +457,13 @@ void GenerateMult(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         Load(codeGenerator, right);
     }
 
+    if (right->reg)
+        CastBySize(codeGenerator, &right->reg, QWORD_SIZE);
+
     Emit(codeGenerator, "imul ");
-    EmitRegister(codeGenerator, FULL_REGISTER(right->reg));
+    EmitRegister(codeGenerator, right->reg);
     Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
+    EmitRegister(codeGenerator, REGSITER_BY_SIZE(left->reg, QWORD_SIZE));
     Emit(codeGenerator, "\n");
 
 
@@ -475,220 +481,48 @@ void GenerateMult(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     astNode->reg = left->reg;
 }
 
-void GenerateIndexing(void *generator, AbstractSyntaxTreeNode *astRoot)
-{
-    return;
-    AbstractSyntaxTreeNode *ptr = astRoot->childrenManager->nextNode->info;
-    AbstractSyntaxTreeNode *offset = astRoot->childrenManager->info;
-    
-    // if (ptr->reg == -ONE)
-    //     ptr->GenerationFunction(generator, ptr);
-    
-    // if (offset->reg == -ONE)
-    //     ptr->GenerationFunction(generator, offset);
-
-    Emit(generator, "leaq (");
-    EmitRegister(generator, FULL_REGISTER(ptr->reg));
-    Emit(generator, ", ");
-    EmitRegister(generator, FULL_REGISTER(offset->reg));
-    Emit(generator, ", %d), ", ((Type*)ptr->type)->baseType->size);
-    EmitRegister(generator, FULL_REGISTER(ptr->reg));
-    Emit(generator, "\n");
-
-    // GenerateAddition(generator, astRoot);
-
-    astRoot->type = ((Type*)ptr->type)->baseType;
-    astRoot->reg = ptr->reg;
-
-    if (!astRoot->lvalue)
-    {
-        if (astRoot->type && ((Type*)astRoot->type)->size == 8)
-            astRoot->reg = FULL_REGISTER(astRoot->reg);
-
-        Emit(generator, "mov (");
-        EmitRegister(generator, astRoot->reg);
-
-        if (astRoot->type && ((Type*)astRoot->type)->size == 1)
-            astRoot->reg = MIN_REGISTER(astRoot->reg);
-
-        Emit(generator, "), ");
-        EmitRegister(generator, astRoot->reg);
-        Emit(generator, "\n");
-
-        if (astRoot->reg >= 18)
-        {
-            Emit(generator, "movsbl ");
-            EmitRegister(generator, astRoot->reg);
-            Emit(generator, ", ");
-            EmitRegister(generator, (Register)astRoot->reg - 18);
-            Emit(generator, "\n");
-            Emit(generator, "movsx ");
-            EmitRegister(generator, (Register)astRoot->reg - 18);
-            Emit(generator, ", ");
-            EmitRegister(generator, ((astRoot->reg = FULL_REGISTER(astRoot->reg))));
-            Emit(generator, "\n");
-        }
-        
-        if (((Type*)astRoot->type)->type == INTEGER_TYPE)
-        {
-            Emit(generator, "movsx ");
-            EmitRegister(generator, (Register)astRoot->reg % REGISTERS_NUM);
-            Emit(generator, ", ");
-            EmitRegister(generator, ((astRoot->reg = FULL_REGISTER(astRoot->reg))));
-            Emit(generator, "\n");         
-        }
-    }
-    else
-    {
-        if (((Type*)astRoot->type)->size == 8)
-            astRoot->reg = FULL_REGISTER(astRoot->reg);
-
-        if (ptr->lvalue)
-        if (ptr->GenerationFunction == GenerateIndexing)
-        {
-            Emit(generator, "mov (");
-            EmitRegister(generator, astRoot->reg);
-            Emit(generator, "), ");
-            EmitRegister(generator, astRoot->reg);
-            Emit(generator, "\n");
-        }
-    }
-
-    FreeRegister(generator, offset->reg);
-}
-
 void GenerateDereference(void *generator, AbstractSyntaxTreeNode *astRoot)
 {
     AbstractSyntaxTreeNode *operand = astRoot->childrenManager->info;
 
-    // operand->GenerationFunction(generator, operand);
-
-    //if (!operand->type) operand->type = ((AbstractSyntaxTreeNode*)operand->childrenManager->info)->type;
-    
-    // astRoot->type = ((Type*)operand->type)->baseType;
-
     if (((Type*)operand->type)->baseType->type == ARRAY_TYPE) astRoot->lvalue = TRUE;
 
-    if (!astRoot->lvalue && ((Type*)operand->type)->baseType->size < 10)
+    astRoot->reg = REGSITER_BY_SIZE(operand->reg, QWORD_SIZE);
+
+    if (operand->GenerationFunction == GenerateDereference)
     {
-        astRoot->reg = operand->reg;//GetRegister(generator);
-
         Emit(generator, "mov (");
-        EmitRegister(generator, FULL_REGISTER(operand->reg));
-
-        astRoot->reg = CastBySize(astRoot->reg, ((Type*)operand->type)->size);
-
-        if (operand->type && ((Type*)operand->type)->size == 1)
-            astRoot->reg = MIN_REGISTER(astRoot->reg);
-
+        EmitRegister(generator, astRoot->reg);
         Emit(generator, "), ");
         EmitRegister(generator, astRoot->reg);
         Emit(generator, "\n");
-
-        if (astRoot->reg >= 18)
-        {
-            Emit(generator, "movsbl ");
-            EmitRegister(generator, astRoot->reg);
-            Emit(generator, ", ");
-            EmitRegister(generator, (Register)astRoot->reg - 18);
-            Emit(generator, "\n");
-            Emit(generator, "movsx ");
-            EmitRegister(generator, (Register)astRoot->reg - 18);
-            Emit(generator, ", ");
-            EmitRegister(generator, ((astRoot->reg = FULL_REGISTER(astRoot->reg))));
-            Emit(generator, "\n");
-        }
     }
-    else
-    {
-        astRoot->reg = operand->reg;//GetRegister(generator);
-
-        if (operand->info)
-            if (((Type*)((Symbol*)operand->info)->_type)->size == 8 || ((Type*)((Symbol*)operand->info)->_type)->baseType->size == 8)
-                astRoot->reg = FULL_REGISTER(astRoot->reg);
-        else
-            if (((Type*)operand->type)->size == 8)
-                astRoot->reg = FULL_REGISTER(astRoot->reg);
-
-        if (operand->lvalue
-          && (operand->GenerationFunction == GenerateDereference || 
-            (operand->GenerationFunction == GenerateStructAccess && 
-        ((AbstractSyntaxTreeNode*)operand->childrenManager->nextNode->info)->GenerationFunction == GenerateDereference)))
-        {
-            Emit(generator, "mov (");
-            EmitRegister(generator, astRoot->reg);
-            Emit(generator, "), ");
-            EmitRegister(generator, astRoot->reg);
-            Emit(generator, "\n");
-        }
-    }
-
-    // astRoot->reg = operand->reg;
+    
 }
 
 void GenerateArithmeticExpression(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *expression = astNode->childrenManager->info;
 
-    if (expression->GenerationFunction == GenerateAssignment)
-    {
-        // ((AbstractSyntaxTreeNode*)expression->childrenManager->info)->lvalue = FALSE;
-        // ((AbstractSyntaxTreeNode*)expression->childrenManager->nextNode->info)->lvalue = TRUE;
-        //    MakeLvalue(expression->childrenManager->info, FALSE);
-        //    MakeLvalue(expression->childrenManager->nextNode->info, TRUE);
-    }
-
     GenerateExpression(codeGenerator, expression);
     astNode->reg = expression->reg;
     astNode->lvalue = expression->lvalue;
+    astNode->type = expression->type;
 }
 
 void GenerateExpression(void *generator, AbstractSyntaxTreeNode *astRoot)
 {
     LabelAst(astRoot, FALSE);
-    GenerateAst_2(generator, astRoot, FALSE);
-
-    if (astRoot->reg != -ONE && (Register)astRoot->reg % REGISTERS_NUM != EAX)
-        FreeRegister(generator, (Register)astRoot->reg % REGISTERS_NUM);
-
-    // while (!IsEmptyStack(((CodeGenerator*)generator)->availableRegisters))
-    // {
-    //     PopStack(((CodeGenerator*)generator)->availableRegisters);
-    // }
-
-    // for (Register currentRegister = REGISTERS_NUM; currentRegister != EAX; currentRegister--)
-    // {
-    //     PushStack(((CodeGenerator*)generator)->availableRegisters, (void *)currentRegister);
-    // }
-}
-
-void MakeLvalue(AbstractSyntaxTreeNode *root, BOOL lvalue)
-{
-    if (!root->childrenManager)
-    {
-        root->lvalue = lvalue;
-        return;
-    }
-
-    root->lvalue = lvalue;
-    CircularLinearLinkedListNode *child = root->childrenManager;
-
-    do
-    {
-        MakeLvalue(child->info, lvalue);
-        child = child->nextNode;
-    } 
-    while (child != root->childrenManager);
+    SethiUllman(generator, astRoot, FALSE);
+    FreeRegister(generator, astRoot->reg);
 }
 
 void Load(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
-    if (astNode->GenerationFunction == GenerateArithmeticExpression)
-        astNode = astNode->childrenManager->info;
+    astNode = astNode->GenerationFunction == GenerateArithmeticExpression ?
+        astNode->childrenManager->info : astNode;
     
-    if (astNode->GenerationFunction != GenerateDereference &&
-        !(astNode->GenerationFunction == GenerateStructAccess && 
-        ((AbstractSyntaxTreeNode*)astNode->childrenManager->nextNode->info)->GenerationFunction == GenerateDereference))
+    if (astNode->GenerationFunction != GenerateDereference)
     {
         return;
     }
@@ -699,27 +533,45 @@ void Load(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         return;
     }
 
-    astNode->reg = CastBySize(astNode->reg, ((Type*)astNode->type)->size);
-
     Emit(codeGenerator, "mov (");
-    EmitRegister(codeGenerator, FULL_REGISTER(astNode->reg));
-    Emit(codeGenerator, "), ");
-    EmitRegister(codeGenerator, (astNode->reg));
-    Emit(codeGenerator, "\n");
+    EmitRegister(codeGenerator, astNode->reg);
 
-    if (astNode->reg >= 18)
+    CastBySize(codeGenerator, &astNode->reg, ((Type*)astNode->type)->size);
+
+    Emit(codeGenerator, "), ");
+    EmitRegister(codeGenerator, astNode->reg);
+    Emit(codeGenerator, "\n");
+}
+
+void Store(void *codeGenerator, AbstractSyntaxTreeNode *source, AbstractSyntaxTreeNode *dest)
+{
+    if (source->reg)
+        CastBySize(codeGenerator, &source->reg, ((Type*)dest->type)->size);
+
+    Emit(codeGenerator, "mov ");
+    EmitRegisterOrAddress(codeGenerator, source);
+    Emit(codeGenerator, ", ");
+
+    if (dest->GenerationFunction == GenerateDereference)
     {
-        Emit(codeGenerator, "movsbl ");
-        EmitRegister(codeGenerator, astNode->reg);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, (Register)astNode->reg - 18);
-        Emit(codeGenerator, "\n");
-        Emit(codeGenerator, "movsx ");
-        EmitRegister(codeGenerator, (Register)astNode->reg - 18);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, ((astNode->reg = FULL_REGISTER(astNode->reg))));
-        Emit(codeGenerator, "\n");
+        Emit(codeGenerator, "("); 
+        EmitRegister(codeGenerator, FULL_REGISTER(dest->reg)); 
+        Emit(codeGenerator, ")");
     }
+    else if (((Type*)dest->type)->type == STRUCT_TYPE)
+    {
+        EmitRegisterOrAddress(codeGenerator, dest);
+        Emit(codeGenerator, "\npush %%rcx\nmov $%d, %%rcx\ncld\n", ((Type*)source->type)->size);
+        Emit(codeGenerator, "lea %d(%%rbp), %%rsi\n", ((Symbol*)source->info)->memoryAddress);
+        Emit(codeGenerator, "lea %d(%%rbp), %%rdi\n", ((Symbol*)dest->info)->memoryAddress);
+        Emit(codeGenerator, "rep movsb\npop %%rcx");
+    }
+    else
+    {
+        EmitMemoryAddress(codeGenerator, ((Symbol*)dest->info)->memoryAddress);
+    }
+
+    Emit(codeGenerator, "\n");
 }
 
 void GenerateAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
@@ -727,54 +579,17 @@ void GenerateAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    if (((Type*)left->type)->type == STRUCT_TYPE &&
-        ((Type*)right->type)->type == STRUCT_TYPE)
-    {
-        Emit(codeGenerator, "push %%rcx\nmov $%d, %%rcx\ncld\n", ((Type*)right->type)->size);
-        Emit(codeGenerator, "lea %d(%%rbp), %%rsi\n", ((Symbol*)right->info)->memoryAddress);
-        Emit(codeGenerator, "lea %d(%%rbp), %%rdi\n", ((Symbol*)left->info)->memoryAddress);
-        Emit(codeGenerator, "rep movsb\npop %%rcx\n");
-
-        FreeRegister(codeGenerator, right->reg);
-        astNode->reg = left->reg;
-
-        return;
-    }
-
     Type *temp = left->type;
 
-    if (left->info && temp->size == 4 && right->reg != -ONE)
-    {
-        right->reg = (Register)right->reg % REGISTERS_NUM;
-    }
+    Load(codeGenerator, right);
+    Store(codeGenerator, right, left);
 
-    if (left->info && temp->size == 8)
+    if (left->reg)
     {
-        right->reg = FULL_REGISTER(right->reg);
-    }
+        if (right->reg)
+            CastBySize(codeGenerator, &right->reg, temp->size);
 
-    if (right->lvalue)
-    {
-       Load(codeGenerator, right);
-    }
-
-    Emit(codeGenerator, "mov ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, ", ");
-    
-    if (left->GenerationFunction == GenerateDereference || 
-        (left->GenerationFunction == GenerateStructAccess && 
-            ((AbstractSyntaxTreeNode*)left->childrenManager->nextNode->info)->GenerationFunction == GenerateDereference))
-        {Emit(codeGenerator, "("); EmitRegister(codeGenerator, FULL_REGISTER(left->reg)); Emit(codeGenerator, ")");}
-    else
-        EmitMemoryAddress(codeGenerator, ((Symbol*)left->info)->memoryAddress);
-    
-    Emit(codeGenerator, "\n");
-
-    if (left->reg != -ONE)
-    {
-        if (right->reg != -ONE)
-            Cast(&left->reg, &right->reg);
+        left->reg = REGSITER_BY_SIZE(left->reg, temp->size);
 
         Emit(codeGenerator, "mov ");
         EmitRegisterOrAddress(codeGenerator, right);
@@ -791,23 +606,11 @@ void GenerateReference(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *operand = astNode->childrenManager->info;
 
-    // operand->GenerationFunction(generator, operand);
     astNode->reg = FULL_REGISTER(operand->reg);
     
-    if (operand->GenerationFunction == GenerateIndexing)
-        return;
-
     Emit(generator, "leaq %d(%%rbp), ", ((Symbol*)operand->info)->memoryAddress);
     EmitRegister(generator, astNode->reg);
     Emit(generator, "\n");
-
-    // Emit(generator, "mov $%d, ", ((Symbol*)operand->info)->memoryAddress);
-    // EmitRegister(generator, astNode->reg);
-    // Emit(generator, "\nadd %%rbp, ");
-    // EmitRegister(generator, astNode->reg);
-    // Emit(generator, "\n");
-
-    // FreeRegister(generator, operand->reg);
 }
 
 void GenerateNeg(void *generator, AbstractSyntaxTreeNode *astNode)
@@ -863,31 +666,16 @@ void GenerateDivision(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         Load(codeGenerator, right);
     }
 
-    Emit(codeGenerator, "movsx ");
-    EmitRegister(codeGenerator, (Register)left->reg % REGISTERS_NUM);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-    Emit(codeGenerator, "\n");
-
-    if (right->reg != -ONE) 
-    {
-        right->reg = FULL_REGISTER(right->reg);
-
-        Emit(codeGenerator, "movsx ");
-        EmitRegister(codeGenerator, (Register)right->reg % REGISTERS_NUM);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, right->reg);
-        Emit(codeGenerator, "\n");
-    }
+    CastBySize(codeGenerator, &left->reg, QWORD_SIZE);
 
     Emit(codeGenerator, "mov ");
-    EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
+    EmitRegister(codeGenerator, left->reg);
     Emit(codeGenerator, ", %%rax\ncqo\nidiv ");
 
     EmitRegisterOrAddress(codeGenerator, right);
 
     Emit(codeGenerator, "\nmov %%rax, ");
-    EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
+    EmitRegister(codeGenerator, left->reg);
     Emit(codeGenerator, "\n");
 
     FreeRegister(codeGenerator, right->reg);
@@ -902,63 +690,32 @@ void GenerateStructAccess(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     Field *field = fieldNode->field;
     ((Symbol*)astNode->info)->memoryAddress = ((Symbol*)structNode->info)->memoryAddress + field->offset;
 
-    // Emit(codeGenerator, "mov %d(%%rbp), ", ((Symbol*)astNode->info)->memoryAddress);
-    // EmitRegister(codeGenerator, structNode->reg);
-    // Emit(codeGenerator, "\n");
-
-    // AbstractSyntaxTreeNode *structNode = astNode->childrenManager->info;
-    // Type *type = structNode->type;
-
-    // Field *field = astNode->field;// FindField(type, ((Symbol*)astNode->info)->name);MM)
-    // ((Symbol*)astNode->info)->memoryAddress = ((Symbol*)structNode->info)->memoryAddress + field->offset;
     astNode->type = field->type;
 
     if (structNode->GenerationFunction == GenerateDereference)
     {
-        if (((AbstractSyntaxTreeNode*)structNode->childrenManager->info)->GenerationFunction == GenerateStructAccess)
-        {   
-            Load(codeGenerator, structNode);
-        }
-
-        if (1)
-        //if (structNode->lvalue)
-        {
-            Emit(codeGenerator, "lea %d(", field->offset);
-            EmitRegister(codeGenerator, (structNode->reg));
-            Emit(codeGenerator, ")");
-        }
-        else
-        {
-            Emit(codeGenerator, "mov %d(", field->offset);
-            EmitRegister(codeGenerator, (structNode->reg));
-            Emit(codeGenerator, ")");
-        }
+        astNode->reg = structNode->reg;
+        astNode->GenerationFunction = GenerateDereference;
+        Emit(codeGenerator, "lea %d(", field->offset);
+        EmitRegister(codeGenerator, structNode->reg);
+        Emit(codeGenerator, ")");
     }
     else
     {
+        astNode->reg = REGSITER_BY_SIZE(structNode->reg, field->type->size);
         Emit(codeGenerator, "mov ");
         EmitMemoryAddress(codeGenerator, ((Symbol*)astNode->info)->memoryAddress);
-            astNode->lvalue = FALSE;
-
+        astNode->lvalue = FALSE;
     }
 
     Emit(codeGenerator, ", ");
-
-    astNode->reg = structNode->reg; //astNode->reg != -ONE ? astNode->reg : GetRegister(codeGenerator);
-
-    if (field->type->size == 8)
-    {
-        astNode->reg = FULL_REGISTER(astNode->reg);   
-    }
-
     EmitRegister(codeGenerator, astNode->reg);
     Emit(codeGenerator, "\n");
-
 }
 
 void GenerateReturn(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
-    Register result = EAX;
+    Register result = REGSITER_BY_SIZE(EAX, QWORD_SIZE);
     AbstractSyntaxTreeNode *value;
     
     if (astNode->childrenManager)
@@ -966,11 +723,11 @@ void GenerateReturn(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         value = astNode->childrenManager->info;
         value->GenerationFunction(codeGenerator, value);
 
-        if (value->reg != -ONE)
-            Cast(&value->reg, &result);
-
         if (value->lvalue)
             Load(codeGenerator, value);
+
+        if (value->reg)
+            CastBySize(codeGenerator, &value->reg, QWORD_SIZE);
 
         Emit(codeGenerator, "mov ");
         EmitRegisterOrAddress(codeGenerator, value);
@@ -1006,7 +763,103 @@ int LabelAst(AbstractSyntaxTreeNode *astRoot, BOOL left)
     return astRoot->label;
 }
 
-void GenerateAst_2(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, BOOL left)
+void GenerateCall(void *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    Symbol *function = astRoot->info;
+
+    char *paramsRegisters[] = {"rdi", "rsi", "xmm15", "xmm14", "r8", "r9"};
+    char *floatRegisters[] = {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"};
+    char **currentRegister = paramsRegisters;
+    char **currentFloatRegister = floatRegisters;
+    char *reg;
+    unsigned int stackSize = ZERO;
+
+    CodeGenerator *gen = generator;
+
+    Stack temp; InitStack(&temp);
+    Stack params; InitStack(&params);
+
+    for (LinearLinkedListNode *ptr = gen->usedRegisters; ptr; ptr = ptr->nextNode)
+    {
+        Emit(generator, "pushq ");
+        EmitRegister(generator, FULL_REGISTER(ptr->info));
+        Emit(generator, "\n");
+
+        PushStack(&temp, ptr->info);
+        stackSize += 8;
+    }
+
+    stackSize %= STACK_ALIGNMENT;
+
+    if (stackSize)
+        Emit(generator, "subq $%d, %%rsp\n", stackSize);
+    
+    if (astRoot->childrenManager)
+    {
+        CircularLinearLinkedListNode *parameters = ((AbstractSyntaxTreeNode*)astRoot->childrenManager->info)->childrenManager->nextNode;
+        AbstractSyntaxTreeNode *currentParameter;
+
+        do
+        {
+            currentParameter = parameters->info;
+            PushStack(&params, currentParameter);
+            parameters = parameters->nextNode;
+            currentRegister++;
+        }
+        while (parameters != ((AbstractSyntaxTreeNode*)astRoot->childrenManager->info)->childrenManager->nextNode);
+
+        while (!IsEmptyStack(&params))
+        {
+            currentParameter = PopStack(&params);
+            GenerateExpression(generator, currentParameter);
+
+            if (currentParameter->lvalue)
+                Load(generator, currentParameter);
+
+            if (currentParameter->type && ((Type*)currentParameter->type)->type == FLOAT_TYPE)
+            {
+                reg = *(currentFloatRegister++);
+            }
+            else
+            {
+                reg = *(--currentRegister);
+            }
+
+            CastBySize(generator, &currentParameter->reg, QWORD_SIZE);
+            Emit(generator, "movq ");
+            EmitRegister(generator, currentParameter->reg);
+            Emit(generator, ", %%%s\n", reg);
+
+            if (currentParameter->type && ((Type*)currentParameter->type)->type == FLOAT_TYPE)
+            {
+                Emit(generator, "cvtss2sd %%%s, %%%s\n", reg, reg);
+            }
+        }
+        
+    }
+
+    Emit(generator, "movq %%xmm14, %%rcx\nmovq %%xmm15, %%rdx\ncall %s\n", function->name);
+    
+    if (stackSize)
+        Emit(generator, "add $%d, %%rsp\n", stackSize);
+
+    while (!IsEmptyStack(&temp))
+    //for (LinearLinkedListNode *ptr = gen->usedRegisters; ptr; ptr = ptr->nextNode)
+    {
+        Emit(generator, "popq ");
+        EmitRegister(generator, FULL_REGISTER(PopStack(&temp)));
+        Emit(generator, "\n");
+    }
+
+    astRoot->reg = GetRegister(generator);
+    astRoot->reg = REGSITER_BY_SIZE(astRoot->reg, ((Type*)astRoot->type)->size);
+
+    Emit(generator, "mov %%rax, ");
+    EmitRegister(generator, FULL_REGISTER(astRoot->reg));
+    Emit(generator, "\n");
+}
+
+void SethiUllman(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, BOOL left)
 {
     if (!astRoot->childrenManager)
     {
@@ -1026,7 +879,7 @@ void GenerateAst_2(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, BO
 
     if (astRoot->childrenManager && !((AbstractSyntaxTreeNode *)astRoot->childrenManager->info)->childrenManager)
     {
-        GenerateAst_2(generator, astRoot->childrenManager->nextNode->info, TRUE);
+        SethiUllman(generator, astRoot->childrenManager->nextNode->info, TRUE);
 
         if (astRoot->childrenManager != astRoot->childrenManager->nextNode && 
             ((AbstractSyntaxTreeNode *)astRoot->childrenManager->info)->GenerationFunction)
@@ -1039,10 +892,10 @@ void GenerateAst_2(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, BO
 
     AbstractSyntaxTreeNode *maxT = leftT->label > rightT->label ? leftT : rightT;
     
-    GenerateAst_2(generator, maxT, (maxT == leftT));
+    SethiUllman(generator, maxT, (maxT == leftT));
 
     if (leftT != rightT)
-        GenerateAst_2(generator, (maxT == leftT ? rightT : leftT), (maxT != leftT));
+        SethiUllman(generator, (maxT == leftT ? rightT : leftT), (maxT != leftT));
 
     if (astRoot->GenerationFunction)
         astRoot->GenerationFunction(generator, astRoot);
@@ -1104,100 +957,6 @@ void EmitFunctionEnd(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot, 
     Emit(generator, "RET_%d:\naddq $%d, %%rsp\npopq %%rbp\nret\n", currentFunction, size);
 }
 
-void GenerateCall(void *generator, AbstractSyntaxTreeNode *astRoot)
-{
-    Symbol *function = astRoot->info;
-
-    char *paramsRegisters[] = {"rdi", "rsi", "xmm15", "xmm14", "r8", "r9"};
-    char *floatRegisters[] = {"xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7"};
-    char **currentRegister = paramsRegisters;
-    char **currentFloatRegister = floatRegisters;
-    char *reg;
-    unsigned int stackSize = ZERO;
-
-    CodeGenerator *gen = generator;
-
-    Stack temp; InitStack(&temp);
-    Stack params; InitStack(&params);
-
-    for (LinearLinkedListNode *ptr = gen->usedRegisters; ptr; ptr = ptr->nextNode)
-    {
-        Emit(generator, "pushq ");
-        EmitRegister(generator, FULL_REGISTER(ptr->info));
-        Emit(generator, "\n");
-
-        PushStack(&temp, ptr->info);
-        stackSize += 8;
-    }
-
-    stackSize %= 16;
-
-    if (stackSize)
-        Emit(generator, "subq $%d, %%rsp\n", stackSize);
-    
-    if (astRoot->childrenManager)
-    {
-        CircularLinearLinkedListNode *parameters = ((AbstractSyntaxTreeNode*)astRoot->childrenManager->info)->childrenManager->nextNode;
-        AbstractSyntaxTreeNode *currentParameter;
-
-        do
-        {
-            currentParameter = parameters->info;
-            PushStack(&params, currentParameter);
-            parameters = parameters->nextNode;
-            currentRegister++;
-        }
-        while (parameters != ((AbstractSyntaxTreeNode*)astRoot->childrenManager->info)->childrenManager->nextNode);
-
-        while (!IsEmptyStack(&params))
-        {
-            currentParameter = PopStack(&params);
-            GenerateExpression(generator, currentParameter);
-
-            if (currentParameter->lvalue)
-                Load(generator, currentParameter);
-
-            if (currentParameter->type && ((Type*)currentParameter->type)->type == FLOAT_TYPE)
-            {
-                reg = *(currentFloatRegister++);
-            }
-            else
-            {
-                reg = *(--currentRegister);
-            }
-
-            Emit(generator, "movq ");
-            EmitRegister(generator, FULL_REGISTER(currentParameter->reg));
-            Emit(generator, ", %%%s\n", reg);
-
-            if (currentParameter->type && ((Type*)currentParameter->type)->type == FLOAT_TYPE)
-            {
-                Emit(generator, "cvtss2sd %%%s, %%%s\n", reg, reg);
-            }
-        }
-        
-    }
-
-    Emit(generator, "movq %%xmm14, %%rcx\nmovq %%xmm15, %%rdx\ncall %s\n", function->name);
-    
-    if (stackSize)
-        Emit(generator, "add $%d, %%rsp\n", stackSize);
-
-    while (!IsEmptyStack(&temp))
-    //for (LinearLinkedListNode *ptr = gen->usedRegisters; ptr; ptr = ptr->nextNode)
-    {
-        Emit(generator, "popq ");
-        EmitRegister(generator, FULL_REGISTER(PopStack(&temp)));
-        Emit(generator, "\n");
-    }
-
-    astRoot->reg = GetRegister(generator);
-
-    Emit(generator, "mov %%rax, ");
-    EmitRegister(generator, FULL_REGISTER(astRoot->reg));
-    Emit(generator, "\n");
-}
-
 void GenerateMod(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
@@ -1224,8 +983,8 @@ void GenerateLogNot(void *generator, AbstractSyntaxTreeNode *astNode)
     EmitRegister(generator, operand->reg);
     Emit(generator, ", ");
     EmitRegister(generator, operand->reg);
-    Emit(generator, "\nsetz %%al\nmovzbl %%al, ");
-    EmitRegister(generator, (Register)operand->reg % REGISTERS_NUM);
+    Emit(generator, "\nsete %%al\nmovsx %%al, ");
+    EmitRegister(generator, operand->reg);
     Emit(generator, "\n");
 
     astNode->reg = operand->reg;
@@ -1236,12 +995,25 @@ void GenerateLT(void *generator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
+    if (left->lvalue)
+    {
+        Load(generator, left);
+    }
+
+    if (right->lvalue)
+    {
+        Load(generator, right);
+    }
+
+    if (right->type)
+        CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
     Emit(generator, "cmp ");
-    EmitRegister(generator, FULL_REGISTER(right->reg));
+    EmitRegister(generator, right->reg);
     Emit(generator, ", ");
-    EmitRegister(generator, FULL_REGISTER(left->reg));
-    Emit(generator, "\nsetl %%al\nmovzbl %%al, ");
-    EmitRegister(generator, (Register)left->reg % REGISTERS_NUM);
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\nsetl %%al\nmovsx %%al, ");
+    EmitRegister(generator, left->reg);
     Emit(generator, "\n");
 
     FreeRegister(generator, right->reg);
@@ -1253,12 +1025,25 @@ void GenerateGT(void *generator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
+    if (left->lvalue)
+    {
+        Load(generator, left);
+    }
+
+    if (right->lvalue)
+    {
+        Load(generator, right);
+    }
+
+    if (right->type)
+        CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
     Emit(generator, "cmp ");
-    EmitRegisterOrAddress(generator, right);
+    EmitRegister(generator, right->reg);
     Emit(generator, ", ");
     EmitRegister(generator, left->reg);
-    Emit(generator, "\nsetg %%al\nmovzbl %%al, ");
-    EmitRegister(generator, (Register)left->reg % REGISTERS_NUM);
+    Emit(generator, "\nsetg %%al\nmovsx %%al, ");
+    EmitRegister(generator, left->reg);
     Emit(generator, "\n");
 
     FreeRegister(generator, right->reg);
@@ -1349,14 +1134,14 @@ void GenerateEEQ(void *generator, AbstractSyntaxTreeNode *astNode)
     }
 
     if (right->type)
-        left->reg = CastBySize(left->reg, ((Type*)right->type)->size);
+        CastBySize(generator, &left->reg, ((Type*)right->type)->size);
 
     Emit(generator, "cmp ");
     EmitRegisterOrAddress(generator, right);
     Emit(generator, ", ");
-    EmitRegister(generator, (Register)left->reg);
-    Emit(generator, "\nsete %%al\nmovzbl %%al, ");
-    EmitRegister(generator, (Register)left->reg % REGISTERS_NUM);
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\nsete %%al\nmovsx %%al, ");
+    EmitRegister(generator, left->reg);
     Emit(generator, "\n");
 
     FreeRegister(generator, right->reg);
@@ -1386,6 +1171,21 @@ void GenerateAnd(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
     Emit(codeGenerator, "and ");
+    EmitRegisterOrAddress(codeGenerator, right);
+    Emit(codeGenerator, ", ");
+    EmitRegister(codeGenerator, left->reg);
+    Emit(codeGenerator, "\n");
+
+    FreeRegister(codeGenerator, right->reg);
+    astNode->reg = left->reg;
+}
+
+void GenerateXor(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
+
+    Emit(codeGenerator, "xor ");
     EmitRegisterOrAddress(codeGenerator, right);
     Emit(codeGenerator, ", ");
     EmitRegister(codeGenerator, left->reg);
@@ -1426,25 +1226,20 @@ unsigned int AnalyzeFunctionSize(AbstractSyntaxTreeNode *astRoot, unsigned char 
     return size;
 }
 
-unsigned int Align(unsigned int size)
-{
-    return ((size / 16 + !!(size % 16)) * 16);
-}
-
 void GenerateFunctions(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
 {
-    // generate function for each child
-
     CircularLinearLinkedListNode *p = astRoot->childrenManager->nextNode;
     short memoryOffset = generator->currentMemoryOffset;
-    unsigned int currentFunctionSize = 0;
+    unsigned int currentFunctionSize = ZERO;
     unsigned char currentFunction = ZERO;
 
     do
     {
         if (((AbstractSyntaxTreeNode*)p->info)->childrenManager)
         {
-            currentFunctionSize = Align(AnalyzeFunctionSize(p->info, currentFunction));
+            currentFunctionSize = AnalyzeFunctionSize(p->info, currentFunction);
+            currentFunctionSize = ALIGN(currentFunctionSize, STACK_ALIGNMENT);
+
             ((AbstractSyntaxTreeNode*)p->info)->label = currentFunctionSize;
             generator->currentMemoryOffset = -currentFunctionSize;
 
@@ -1461,48 +1256,7 @@ void GenerateFunctions(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot
     while (p != astRoot->childrenManager->nextNode);
 }
 
-void GenerateAst(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
-{
-    GenerateFunctions(generator, astRoot);
-    // if (!astRoot)
-    // {
-    //     return;
-    // }
-
-    // if (astRoot->GenerationFunction)
-    // {
-    //  //   printf("\n%d\n", LabelAst(astRoot, FALSE));
-    //     //LabelAst(astRoot, FALSE);
-    //     astRoot->GenerationFunction(generator, astRoot);
-    //     //GenerateAst_2(generator, astRoot, FALSE);
-
-    //     // while (!IsEmptyStack(generator->availableRegisters))
-    //     // {
-    //     //     PopStack(generator->availableRegisters);
-    //     // }
-
-    //     return;
-    // }
-
-    // if (astRoot->childrenManager)
-    // {
-    //     CircularLinearLinkedListNode *p = astRoot->childrenManager->nextNode;
-
-    //     do
-    //     {
-    //         GenerateAst(generator, p->info);
-    //         p = p->nextNode;
-    //     }
-    //     while (p != astRoot->childrenManager->nextNode);
-    // }
-
-    // for (LinearLinkedListNode *p = astRoot->childrenManager->nextNode; p; p = p->nextNode)
-    // {
-    //     GenerateAst(p->info, EmitFunc, stream);
-    // }
-}
-
 void GenerateCode(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
 {
-    GenerateAst(generator, astRoot);
+    GenerateFunctions(generator, astRoot);
 }

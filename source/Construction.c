@@ -42,7 +42,7 @@ Expression *MakeExpression(Grammar *g, char *line)
 
 void WriteSemantic(char *a, FILE *f, int n, char *s, int m)
 {
-    fprintf(f, "AbstractSyntaxTreeNode* Semantic_%d(void *scopeStack, Stack *semanticStack)\n{\n", n);
+    fprintf(f, "AbstractSyntaxTreeNode* Semantic_%d(void *scopeStack, Stack *semanticStack, ErrorHandler *errors)\n{\n", n);
     fprintf(f, "// %s\n", a);
     fprintf(f, "AbstractSyntaxTreeNode *_$_$ = NULL;\n");
 
@@ -175,13 +175,17 @@ void BuildGrammarFromFile(Grammar *grammar)
                 #include \"../libs/TypeSystem.h\"\n\
             #endif\n\
     \n\
+            #ifndef _ERROR_HANDLER_H\n\
+                #include \"../source/ErrorHandler.h\"\n\
+            #endif\n\
+    \n\
             #ifndef _ACTIONS\n\
                 #include \"actions.h\"\n\
             #endif\n");
     }
 
     fgets(line, 2048, grammar_rules);
-    fputs("AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack)"
+    fputs("AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack, ErrorHandler *errors)"
           "{ return PopStack(semanticStack); }\n", semantics);
 
     // return;
@@ -191,8 +195,8 @@ void BuildGrammarFromFile(Grammar *grammar)
     while (!feof(grammar_rules))
     {
         nonTerminal = strtok(line, ":");
-        expressions = strtok(NULL, "{");
-        semantic = strtok(NULL, "}");
+        expressions = strtok(NULL, "@");
+        semantic = strtok(NULL, "@");
 
         // puts(nonTerminal);
         // puts(expressions);
@@ -232,8 +236,8 @@ void BuildGrammarFromFile(Grammar *grammar)
     while (!feof(grammar_rules))
     {
         nonTerminal = strtok(line, ":");
-        expressions = strtok(NULL, "{");        
-        semantic = strtok(NULL, "}");
+        expressions = strtok(NULL, "@");        
+        semantic = strtok(NULL, "@");
 
         NonTerminal *current = ((Expression*)LookupStringsDictionary(tbl, nonTerminal))->value.nonTerminal;
         Rule *r = malloc(sizeof(Rule));

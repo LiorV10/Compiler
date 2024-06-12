@@ -348,7 +348,7 @@ void Shift(Stack *states, PushdownState *state, CircularLinearLinkedListNode **t
     //*tokenPtr = (*tokenPtr)->nextNode;
 }
 
-PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *semanticStack)
+PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *semanticStack, ErrorHandler *errors)
 {
     LinearLinkedListNode *ptr;
     PushdownState *nextState;
@@ -357,7 +357,7 @@ PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *
     // PrintRule(rule);
 
     rule->semanticAction = rule->semanticAction ? rule->semanticAction : DefaultSemanticAction;
-    PushStack(semanticStack, rule->semanticAction(scopeStack, semanticStack));
+    PushStack(semanticStack, rule->semanticAction(scopeStack, semanticStack, errors));
 
     for (ptr = rule->expressions; ptr; ptr = ptr->nextNode)
     {
@@ -394,7 +394,7 @@ PushdownState* sync(Stack *stack, CircularLinearLinkedListNode **tokens, void *a
     }
 }
 
-AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens, Stack *errors)
+AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens, ErrorHandler *errors)
 {
     PushdownState *currentState = InitialPushdownState(parser->pushdownMachine);
     CircularLinearLinkedListNode *tokensPtr = tokens->nextNode;
@@ -402,7 +402,7 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
     Stack unusedStack;
     ScopeStack scopeStack;
     Token *previousToken;
-    unsigned int currentLine = ONE;
+    Token *prepreviousToken;
 
     BIT_VEC(syncingTokens, TOKENS_NUM);
     BIT_VEC_ZERO(syncingTokens, TOKENS_NUM);
@@ -412,6 +412,8 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
     BIT_SET(syncingTokens, LEFT_CURLY);
     BIT_SET(syncingTokens, LEFT_BRACKET);
     BIT_SET(syncingTokens, COMMA);
+
+    errors->currentLine = ONE;
 
     InitScopeStack(&scopeStack);
     InitStack(&semanticStack);
@@ -424,22 +426,33 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
 
     while (currentState && ~currentState->isAccepting & ACCEPTING_STATE_MASK)
     {
+        if (prepreviousToken != tokensPtr->info)
+            prepreviousToken = previousToken;
+
         previousToken = tokensPtr->info;
 
         currentState->isAccepting & REDUCING_STATE_MASK ? 
-            currentState = Reduce(parser->pushdownMachine->stack, ((Item*)currentState->lrItems->info)->rule, &scopeStack, &semanticStack) : 
-            Shift(parser->pushdownMachine->stack, currentState, &tokensPtr, &currentLine, &semanticStack, &unusedStack);
+            currentState = Reduce(parser->pushdownMachine->stack, 
+                                  ((Item*)currentState->lrItems->info)->rule, &scopeStack, &semanticStack , errors) : 
+            Shift(parser->pushdownMachine->stack, currentState, &tokensPtr, &errors->currentLine, &semanticStack, &unusedStack);
 
         NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
 
         if (!currentState && ((Token*)tokensPtr->info)->type != EOD)
         {
-            PushStack(errors, MakeError("Unexcpected token: %s`%s`%s", currentLine, 
-                previousToken->lexeme, ((Token*)tokensPtr->info)->lexeme, ((Token*)tokensPtr->nextNode->info)->lexeme));
-
-            while (!BIT_TEST(syncingTokens, ((Token*)tokensPtr->info)->type)) _NextToken(&tokensPtr, &currentLine);
+            while (tokens->nextNode->nextNode->nextNode->nextNode != tokensPtr)
+            {
+                tokens = tokens->nextNode;
+            }
             
-            _NextToken(&tokensPtr, &currentLine);
+            printf("Une token: %s\n", ((Token*)tokensPtr->info)->lexeme);
+
+            MakeError(errors, "Unexcpected token: %s`%s`%s", 
+                previousToken->lexeme, ((Token*)tokensPtr->info)->lexeme, ((Token*)tokensPtr->nextNode->info)->lexeme);
+
+            while (!BIT_TEST(syncingTokens, ((Token*)tokensPtr->info)->type)) _NextToken(&tokensPtr, &errors->currentLine);
+            
+            _NextToken(&tokensPtr, &errors->currentLine);
 
             while (!IsEmptyStack(parser->pushdownMachine->stack))
             {

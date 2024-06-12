@@ -54,7 +54,7 @@ struct Rule
     BIT_VEC(visited, TOKENS_NUM);
     NonTerminal *nonTerminal;
     LinearLinkedListNode *expressions;
-    AbstractSyntaxTreeNode*(*semanticAction)(void *, Stack *);
+    AbstractSyntaxTreeNode*(*semanticAction)(void *, Stack *, void *);
 };
 
 typedef struct
@@ -69,9 +69,6 @@ struct Grammar
     LinearLinkedListNode *nonTerminals;
     LinearLinkedListNode *expressions;
 };
-
-AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
-void AssignActions(Grammar *g);
 
 void InitGrammar(Grammar *grammar);
 NonTerminal* InitialNonTerminal(Grammar *grammar);

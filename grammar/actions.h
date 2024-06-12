@@ -1,6 +1,6 @@
 #define _ACTIONS
 
-AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack);
+AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack, ErrorHandler *errors);
 void AssignActions(Grammar *g);
 
 void GenerateArithmeticExpression(void *codeGenerator, AbstractSyntaxTreeNode *astNode);

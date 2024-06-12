@@ -11,7 +11,7 @@ Token* CreateToken(struct Match *info, TokenType type)
     return (token);
 }
 
-Token* NextToken(char **source, Stack *errors, unsigned int currentLine, StateMachine *nfa)
+Token* NextToken(char **source, ErrorHandler *erros, StateMachine *nfa)
 {
     struct Match *currentMatch;
     TokenType type;
@@ -33,7 +33,7 @@ Token* NextToken(char **source, Stack *errors, unsigned int currentLine, StateMa
     }
     else
     {
-        PushStack(errors, MakeError("Unknown token `%c`", currentLine, **source));
+        MakeError(erros, "Unknown token `%c`", **source);
         (*source)++;
     }
 
@@ -61,7 +61,7 @@ void FreeLexer(Lexer *lexer)
     EmptyStateMachine(lexer->nfa);
 }
 
-CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source, Stack *errors, unsigned int currentLine)
+CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source, ErrorHandler *errors)
 {
     CircularLinearLinkedListNode *tokens;
     
@@ -73,7 +73,7 @@ CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source, Stack *errors
             InsertEndCircularLinearLinkedList(&tokens) : 
             InsertLastCircularLinearLinkedList(&tokens);
 
-        while(*source && !(tokens->info = NextToken(&source, errors, currentLine, lexer->nfa)));
+        while(*source && !(tokens->info = NextToken(&source, errors, lexer->nfa)));
     }
 
     if (!tokens->info)

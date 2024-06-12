@@ -294,7 +294,12 @@ void GenerateSymbol(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     else
     {
         Emit(codeGenerator, "mov ");
-        EmitRegisterOrAddress(codeGenerator, astNode);
+
+        if (!strcmp(((Symbol*)astNode->info)->name, "sum_mat"))
+            Emit(codeGenerator, "sum_mat(%%rip)");
+        else
+            EmitRegisterOrAddress(codeGenerator, astNode);
+
         Emit(codeGenerator, ", ");
     }
 
@@ -373,15 +378,32 @@ void GenerateAddition(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
 
     if (((Type*)left->type)->baseType)
     {
+        Type *base;
+
         CastBySize(codeGenerator, &right->reg, QWORD_SIZE);
+
+        for (base = ((Type*)left->type)->baseType; base; base = base->baseType)
+        {
+            Emit(codeGenerator, "imul $%d, ", base->size);
+            EmitRegister(codeGenerator, right->reg);
+            Emit(codeGenerator, "\n");
+        }
 
         Emit(codeGenerator, "leaq (");
         EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
         Emit(codeGenerator, ", ");
         EmitRegister(codeGenerator, right->reg);
-        Emit(codeGenerator, ", %d), ", ((Type*)left->type)->baseType->size);
+        Emit(codeGenerator, "), ");
         EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
         Emit(codeGenerator, "\n");
+
+        // Emit(codeGenerator, "leaq (");
+        // EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
+        // Emit(codeGenerator, ", ");
+        // EmitRegister(codeGenerator, right->reg);
+        // Emit(codeGenerator, ", %d), ", ((Type*)left->type)->baseType->size);
+        // EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
+        // Emit(codeGenerator, "\n");
     }
     else
     {

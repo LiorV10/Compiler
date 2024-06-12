@@ -55,10 +55,11 @@ LOG_AND "&&\002"
 LOG_OR "||\002"
 FLOAT_LITERAL "\004\006.\002\004\006\002"
 INTEGER_LITERAL "\004\006"
-WHITESPACE " \n\r\t\010\010\010\006//\002\001\005\002\n\002\010/*\002\001\005\002*/\002\002\010"
+WHITESPACE " \n\r\t\010\010\010\006//\002\001\005\002\n\002\010"
 EOD
 
 translation_unit
+existing_identifier
 primary_expression
 postfix_expression
 argument_expression_list
@@ -121,4 +122,5 @@ jump_statement
 external_declaration
 function_definition
 block_enter
+block_enter_paren
 start

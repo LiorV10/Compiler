@@ -37,4 +37,4 @@ typedef struct
 } Parser;
 
 void InitParser(Parser *parser, Grammar *grammar);
-AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens, Stack *errors);
+AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens, ErrorHandler *errors);

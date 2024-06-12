@@ -10,10 +10,23 @@
     #include <stdarg.h>
 #endif
 
+#ifndef _STACK_H
+    #include "../libs/Stack.h"
+#endif
+
 typedef struct
 {
     char *error;
     unsigned int line;
 } Error;
 
-Error* MakeError(char *message, unsigned int line, ...);
+typedef struct
+{
+    Stack errors;
+    unsigned int currentLine;
+} ErrorHandler;
+
+void InitErrorHandler(ErrorHandler *errorHandler);
+BOOL ErrorsFound(ErrorHandler *errorHandler);
+Error* NextError(ErrorHandler *errorHandler);
+void MakeError(ErrorHandler *errorHandler, char *message, ...);

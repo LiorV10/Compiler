@@ -3,32 +3,34 @@
 #include "Viewer.h"
 #include "Construction.h"
 #include "Lexer.h"
-#include "Parser.h"
+#include "Parser.c"
 #include "SemanticAnalyzer.h"
-#include "CodeGenerator.h"
+#include "CodeGenerator.c"
 
 #include <sys/time.h>
 struct timeval stop, start;
 
-CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream, Stack *errors)
+CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream, ErrorHandler *errors)
 {
     Lexer lexer;
     CircularLinearLinkedListNode *tokens;
     CircularLinearLinkedListNode *current;
-    unsigned int currentLine = ONE;
+    errors->currentLine = ONE;
 
     InitLexer(&lexer);
 
-    tokens = Tokenize(&lexer, NextLine(sourceStream), errors, currentLine++);
+    tokens = Tokenize(&lexer, NextLine(sourceStream), errors);
     
     while (!EndOfStream(sourceStream))
     {
+        errors->currentLine++;
+
         InsertEndCircularLinearLinkedList(&tokens);
         tokens->info = malloc(sizeof(Token));
         ((Token*)tokens->info)->type = WHITESPACE;
         ((Token*)tokens->info)->lexeme = NULL;
 
-        current = Tokenize(&lexer, NextLine(sourceStream), errors, currentLine++);
+        current = Tokenize(&lexer, NextLine(sourceStream), errors);
         current ? ConcatCircularLinearLinkedLists(&tokens, current) : ZERO;
     }
 
@@ -68,6 +70,8 @@ void FreeNode(AbstractSyntaxTreeNode *astRoot)
 
 void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot)
 {
+    if (!astRoot) return;
+
     if (!astRoot->childrenManager)
     {
         FreeNode(astRoot);
@@ -88,42 +92,44 @@ void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot)
 
 void main(unsigned short argumentsCount, char* arguments[])
 {
-    Stack errors;
+    ErrorHandler errorHandler;
     Grammar grammar;
 
     Stream sourceStream;
     CircularLinearLinkedListNode *tokens;
 
     Parser parser;
-    AbstractSyntaxTreeNode *ast;
+    AbstractSyntaxTreeNode *ast = NULL;
 
     CodeGenerator generator;
 
     argumentsCount < THREE ? ExitWithError("Source/Dest file was not specified.") : ZERO;
 
-    InitStack(&errors);
+    InitErrorHandler(&errorHandler);
     InitGrammar(&grammar);
     BuildGrammarFromFile(&grammar);
     AssignActions(&grammar);
 
     InitStream(&sourceStream, arguments[ONE], "rt");
-    tokens = TokenizeStream(&sourceStream, &errors);
-    CloseStream(&sourceStream);
+    tokens = TokenizeStream(&sourceStream, &errorHandler);
+    CloseStream(&sourceStream);    
 
     gettimeofday(&start, NULL);
 
     InitParser(&parser, &grammar);
 
-    ast = Parse(&parser, tokens, &errors);
+    if (!ErrorsFound(&errorHandler))
+        ast = Parse(&parser, tokens, &errorHandler);
 
-    if (IsEmptyStack(&errors))
+    if (!ErrorsFound(&errorHandler))
         Semantics(&ast);
 
-    if (IsEmptyStack(&errors)) {
-    FILE *p = fopen(arguments[TWO], "wt");
-    InitCodeGenerator(&generator, EmitFunc, p);
-    GenerateCode(&generator, ast);
-    fclose(p);
+    if (!ErrorsFound(&errorHandler)) 
+    {
+        FILE *p = fopen(arguments[TWO], "wt");
+        InitCodeGenerator(&generator, EmitFunc, p);
+        GenerateCode(&generator, ast);
+        fclose(p);
     }
 
     gettimeofday(&stop, NULL);
@@ -131,12 +137,12 @@ void main(unsigned short argumentsCount, char* arguments[])
     printf("took %lu s\n", stop.tv_sec - start.tv_sec);
 
     /*      TESTING      */
-    if (IsEmptyStack(&errors))
+    if (!ErrorsFound(&errorHandler))
     system("gcc out.s -o out.o && ./out.o ; echo $?");
 
-    while (!IsEmptyStack(&errors))
+    while (ErrorsFound(&errorHandler))
     {
-        Error *error = PopStack(&errors);
+        Error *error = NextError(&errorHandler);
 
         printf("Error in line %d: ", error->line);
         printf(error->error);

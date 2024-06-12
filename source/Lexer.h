@@ -31,4 +31,4 @@ typedef struct
 
 void InitLexer(Lexer *lexer);
 void FreeLexer(Lexer *lexer);
-CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source, Stack *errors, unsigned int currentLine);
+CircularLinearLinkedListNode* Tokenize(Lexer *lexer, char *source, ErrorHandler *errors);

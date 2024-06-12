@@ -43,15 +43,10 @@ int sum_mat(int (*mat)[3], int n, int m)
     return sum;
 }
 
-int dummy()
-{
-    puts("hello, world!");
-}
-
 int main()
 {
     int mat[4][3];
-    
+
     mat[0][0] = 1;
     mat[0][1] = 2;
     mat[0][2] = 3;
@@ -91,5 +86,5 @@ int main()
 
     print_vec(vec, 5);
 
-    return 1;
+    return 0;
 }

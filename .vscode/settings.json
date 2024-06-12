@@ -25,6 +25,7 @@
         "codegenerator.h": "c",
         "lexer.h": "c",
         "regex.h": "c",
-        "token.h": "c"
+        "token.h": "c",
+        "time.h": "c"
     }
 }

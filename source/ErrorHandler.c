@@ -2,17 +2,32 @@
 
 #include "ErrorHandler.h"
 
-Error* MakeError(char *message, unsigned int line, ...)
+void InitErrorHandler(ErrorHandler *errorHandler)
+{
+    InitStack(&errorHandler->errors);
+    errorHandler->currentLine = ZERO;
+}
+
+BOOL ErrorsFound(ErrorHandler *errorHandler)
+{
+    return (!IsEmptyStack(&errorHandler->errors));
+}
+
+Error* NextError(ErrorHandler *errorHandler)
+{
+    return (PopStack(&errorHandler->errors));
+}
+
+void MakeError(ErrorHandler *errorHandler, char *message, ...)
 {
     Error *error = malloc(sizeof(Error));
     va_list args;
 
-    va_start(args, line);
+    error->line = errorHandler->currentLine;
 
-    error->line = line;
+    va_start(args, message);
     vasprintf(&error->error, message, args);
-
     va_end(args);
 
-    return (error);
+    PushStack(&errorHandler->errors, error);
 }

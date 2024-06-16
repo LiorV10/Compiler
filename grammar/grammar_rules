@@ -3,15 +3,15 @@ translation_unit:external_declaration @MakeAbstractSyntaxTree(&_$_$); _$_$->info
 translation_unit:translation_unit external_declaration @_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$1;   @
 external_declaration:function_definition
 external_declaration:declaration
-function_definition:declaration_specifiers declarator block_enter_paren parameter_type_list RIGHT_PAREN LEFT_CURLY statement_list RIGHT_CURLY @ ExitScope(scopeStack); MakeAbstractSyntaxTree(&_$_$); Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s); _$_$->type = s->_type = _$0; _$_$->info = s; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; @
-function_definition:declaration_specifiers declarator LEFT_PAREN RIGHT_PAREN compound_statement @ puts(((Symbol*)_$1->info)->name); MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$1->info; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; ((Symbol*)_$1->info)->_type = _$0; @
-function_definition:declaration_specifiers declarator block_enter_paren parameter_type_list RIGHT_PAREN SEMI_COLON @ ExitScope(scopeStack); MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s = malloc(sizeof(Symbol)); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s);@
-function_definition:declaration_specifiers declarator LEFT_PAREN RIGHT_PAREN SEMI_COLON @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s = malloc(sizeof(Symbol));  Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0);  _$_$->type = s->_type = _$1->type; s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s);@
+function_definition:declaration_specifiers declarator block_enter_paren parameter_type_list RIGHT_PAREN LEFT_CURLY statement_list RIGHT_CURLY @ ExitScope(scopeStack); MakeAbstractSyntaxTree(&_$_$); Symbol* s; MakeSymbol(&s); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s); BIT_SET(s->kind, FUNCTION_KIND_MASK); _$_$->type = s->type = _$0->type; _$_$->info = s; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; @
+function_definition:declaration_specifiers declarator LEFT_PAREN RIGHT_PAREN compound_statement @ MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$1->info; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; ((Symbol*)_$1->info)->type = _$0->type; @
+function_definition:declaration_specifiers declarator block_enter_paren parameter_type_list RIGHT_PAREN SEMI_COLON @ ExitScope(scopeStack); MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s; MakeSymbol(&s); s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s); BIT_SET(s->kind, FUNCTION_KIND_MASK); @
+function_definition:declaration_specifiers declarator LEFT_PAREN RIGHT_PAREN SEMI_COLON @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = NULL; Symbol* s; MakeSymbol(&s); BIT_SET(s->kind, FUNCTION_KIND_MASK); SetBaseType(&_$1->type, _$0->type); _$_$->type = s->type = _$1->type; s->name = ((Token*)_$1->info)->lexeme; InsertSymbol(scopeStack, s);@
 function_definition:direct_declarator compound_statement
-block_enter_paren:LEFT_PAREN @ puts("moshe"); EnterScope(scopeStack); _$_$ = _$0; @
+block_enter_paren:LEFT_PAREN @ EnterScope(scopeStack); _$_$ = _$0; @
 jump_statement:RETURN SEMI_COLON @_$_$ = _$0; _$_$->GenerationFunction = GenerateReturn; @
 jump_statement:RETURN expression SEMI_COLON @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateReturn; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$1;  @
-iteration_statement:WHILE LEFT_PAREN expression RIGHT_PAREN statement @MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4;@
+iteration_statement:WHILE LEFT_PAREN expression RIGHT_PAREN statement @MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; _$_$->GenerationFunction = GenerateWhile; @
 iteration_statement:FOR LEFT_PAREN expression_statement expression_statement expression RIGHT_PAREN statement @MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateFor; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; @
 iteration_statement:FOR LEFT_PAREN expression_statement expression_statement RIGHT_PAREN statement @MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateFor; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$3; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$5; @
 selection_statement:IF LEFT_PAREN expression RIGHT_PAREN statement ELSE statement @MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateIf; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$4; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$6; @
@@ -23,7 +23,7 @@ statement_list:statement_list statement @_$_$ = _$0; *SetAbstractSyntaxTreeNodeC
 declaration_list:declaration @MakeAbstractSyntaxTree(&_$_$); _$_$->info = NULL; _$_$->GenerationFunction = GenerateStatements; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;  @
 declaration_list:declaration_list declaration @_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$1;  @
 compound_statement:LEFT_CURLY RIGHT_CURLY @MakeAbstractSyntaxTree(&_$_$);@
-compound_statement:block_enter statement_list RIGHT_CURLY @ExitScope(scopeStack); _$_$ = _$1; _$_$->GenerationFunction = GenerateStatements; @
+compound_statement:block_enter statement_list RIGHT_CURLY @ExitScope(scopeStack); _$_$ = _$1; _$_$->GenerationFunction = GenerateBlock; @
 block_enter:LEFT_CURLY @EnterScope(scopeStack); _$_$ = _$0;  @
 statement:compound_statement
 statement:expression_statement
@@ -31,76 +31,69 @@ statement:selection_statement
 statement:iteration_statement
 statement:jump_statement
 statement:declaration
-initializer_list:initializer
-initializer_list:initializer_list COMMA initializer
 initializer:expression
-initializer:LEFT_CURLY initializer_list RIGHT_CURLY
-initializer:LEFT_CURLY initializer_list COMMA RIGHT_CURLY
 direct_abstract_declarator:LEFT_PAREN abstract_declarator RIGHT_PAREN
 direct_abstract_declarator:LEFT_BRACKET RIGHT_BRACKET
 direct_abstract_declarator:LEFT_BRACKET INTEGER_LITERAL RIGHT_BRACKET
-direct_abstract_declarator:direct_abstract_declarator LEFT_BRACKET INTEGER_LITERAL RIGHT_BRACKET @_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = atoi(((Symbol*)_$2->info)->name); type->type = ARRAY_TYPE; type->baseType = NULL; Type *t; for (t = _$0->type; t && t->baseType; t = t->baseType); !t ? _$0->type = type : (t->baseType = type); ((Symbol*)_$0->info)->_type = _$0->type; @
-direct_abstract_declarator:direct_abstract_declarator LEFT_BRACKET RIGHT_BRACKET @_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = 8; type->type = POINTER_TYPE; type->baseType = NULL; Type *t; for (t = _$0->type; t && t->baseType; t = t->baseType); !t ? _$0->type = type : (t->baseType = type); ((Symbol*)_$0->info)->_type = _$0->type; @
+direct_abstract_declarator:direct_abstract_declarator LEFT_BRACKET INTEGER_LITERAL RIGHT_BRACKET @_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = atoi(((Symbol*)_$2->info)->name); type->type = ARRAY_TYPE; type->baseType = NULL; SetBaseType(&_$0->type, type); ((Symbol*)_$0->info)->type = _$0->type; @
+direct_abstract_declarator:direct_abstract_declarator LEFT_BRACKET RIGHT_BRACKET @ _$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = POINTER_SIZE; type->type = POINTER_TYPE; type->baseType = NULL; SetBaseType(&_$0->type, type); ((Symbol*)_$0->info)->type = _$0->type; @
 direct_abstract_declarator:LEFT_PAREN RIGHT_PAREN
 direct_abstract_declarator:LEFT_PAREN parameter_type_list RIGHT_PAREN
 direct_abstract_declarator:direct_abstract_declarator LEFT_PAREN RIGHT_PAREN
 direct_abstract_declarator:direct_abstract_declarator LEFT_PAREN parameter_type_list RIGHT_PAREN
 abstract_declarator:pointer
 abstract_declarator:direct_abstract_declarator @_$_$ = _$0; _$0->lvalue = TRUE;@
-abstract_declarator:pointer direct_abstract_declarator @_$_$ = _$1; Type *arrayType = _$1->type; for (; arrayType && arrayType->baseType; arrayType = arrayType->baseType); if (arrayType) arrayType->baseType = _$0; _$1->type = ((Symbol*)_$1->info)->_type = (arrayType ? arrayType : _$0); @
+abstract_declarator:pointer direct_abstract_declarator @_$_$ = _$1; Type *arrayType = _$1->type; for (; arrayType && arrayType->baseType; arrayType = arrayType->baseType); if (arrayType) arrayType->baseType = _$0; _$1->type = ((Symbol*)_$1->info)->type = (arrayType ? arrayType : _$0); @
 type_name:type_specifier
 type_name:type_specifier abstract_declarator
 identifier_list:IDENTIFIER
 identifier_list:identifier_list COMMA IDENTIFIER
-parameter_declaration:declaration_specifiers declarator @_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; @
-parameter_declaration:declaration_specifiers abstract_declarator @_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; @
+parameter_declaration:declaration_specifiers declarator @_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); BIT_SET(((Symbol*)_$1->info)->kind, VARIABLE_KIND_MASK); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0->type : (t->baseType = _$0->type); ((Symbol*)_$1->info)->type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; @
+parameter_declaration:declaration_specifiers abstract_declarator @_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); BIT_SET(((Symbol*)_$1->info)->kind, VARIABLE_KIND_MASK); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0->type : (t->baseType = _$0->type); ((Symbol*)_$1->info)->type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; @
 parameter_declaration:declaration_specifiers
 parameter_list:parameter_declaration @MakeAbstractSyntaxTree(&_$_$);  _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; _$0->GenerationFunction = GenerateDeclaration; @
 parameter_list:parameter_list COMMA parameter_declaration @_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2; _$2->GenerationFunction = GenerateDeclaration; @
 parameter_type_list:parameter_list
-pointer:STAR @_$_$ = malloc(sizeof(Type)); ((Type*)_$_$)->size = 8; ((Type*)_$_$)->type = POINTER_TYPE; ((Type*)_$_$)->baseType = NULL;@
-pointer:STAR pointer @_$_$ = malloc(sizeof(Type)); ((Type*)_$_$)->size = 8; ((Type*)_$_$)->type = POINTER_TYPE; ((Type*)_$_$)->baseType = _$1;@
-direct_declarator:IDENTIFIER @Symbol* symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; _$0->info = symbol; _$_$ = _$0; _$0->type = NULL; @
-direct_declarator:direct_declarator LEFT_BRACKET INTEGER_LITERAL RIGHT_BRACKET @_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = atoi(((Symbol*)_$2->info)->name); type->type = ARRAY_TYPE; type->baseType = NULL; Type *t; for (t = _$0->type; t && t->baseType; t = t->baseType); !t ? _$0->type = type : (t->baseType = type); ((Symbol*)_$0->info)->_type = _$0->type; @
+pointer:STAR @ MakeType(&_$_$, FALSE); ((Type*)_$_$)->type = POINTER_TYPE; ((Type*)_$_$)->size = POINTER_SIZE; @
+pointer:STAR pointer @ MakeType(&_$_$, FALSE); ((Type*)_$_$)->type = POINTER_TYPE; ((Type*)_$_$)->size = POINTER_SIZE; ((Type*)_$_$)->baseType = _$1;@
+direct_declarator:IDENTIFIER @ Symbol* symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; _$0->info = symbol; _$_$ = _$0; _$0->type = NULL; @
+direct_declarator:direct_declarator LEFT_BRACKET INTEGER_LITERAL RIGHT_BRACKET @_$_$ = _$0; Type *type = malloc(sizeof(Type)); type->size = atoi(((Symbol*)_$2->info)->name); type->type = ARRAY_TYPE; type->baseType = NULL; SetBaseType(&_$0->type, type); ((Symbol*)_$0->info)->type = _$0->type; @
 direct_declarator:direct_declarator LEFT_BRACKET RIGHT_BRACKET @ _$_$ = _$0; Type *ptr = malloc(sizeof(Type)); ptr->type = POINTER_TYPE; ptr->size = 8; ptr->baseType = _$0->type; _$0->type = ptr; @
 direct_declarator:LEFT_PAREN declarator RIGHT_PAREN @ _$_$ = _$1; @
 direct_declarator:direct_declarator LEFT_PAREN identifier_list RIGHT_PAREN
 direct_declarator:direct_declarator LEFT_PAREN RIGHT_PAREN @ _$_$ = _$0; @
-declarator:pointer direct_declarator @_$_$ = _$1; Type *arrayType = _$1->type; for (; arrayType && arrayType->baseType; arrayType = arrayType->baseType); if (arrayType) arrayType->baseType = _$0; _$1->type = ((Symbol*)_$1->info)->_type = (arrayType ? arrayType : _$0); @
+declarator:pointer direct_declarator @_$_$ = _$1; Type *arrayType = _$1->type; for (; arrayType && arrayType->baseType; arrayType = arrayType->baseType); if (arrayType) arrayType->baseType = _$0; _$1->type = ((Symbol*)_$1->info)->type = (arrayType ? arrayType : _$0); @
 declarator:direct_declarator @_$_$ = _$0; _$0->lvalue = TRUE;@
 struct_declarator:declarator
-struct_declaration:type_specifier struct_declarator SEMI_COLON @_$_$ = _$1; Type *t = _$1->type; for (; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; @
+struct_declaration:type_specifier struct_declarator SEMI_COLON @_$_$ = _$1; Type *t = _$1->type; for (; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0->type : (t->baseType = _$0->type); ((Symbol*)_$1->info)->type = _$1->type; if (!((Type*)_$1->type)->size) { MakeError(errors, "Incomplete type `%s` is not allowed", ((Symbol*)_$0->info)->name); } @
+struct_declaration:existing_identifier struct_declarator SEMI_COLON @_$_$ = _$1; Type *t = _$1->type; for (; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0->type : (t->baseType = _$0->type); ((Symbol*)_$1->info)->type = _$1->type; @
 struct_declaration_list:struct_declaration @LinearLinkedListNode **fields = malloc(sizeof(LinearLinkedListNode*)); InitLinearLinkedList(fields); PushLinearLinkedList(fields); (*fields)->info = _$0; _$_$ = fields; @
 struct_declaration_list:struct_declaration_list struct_declaration @_$_$ = _$0; PushLinearLinkedList(_$_$); (*((LinearLinkedListNode**)_$_$))->info = _$1;@
-struct_or_union_specifier:STRUCT IDENTIFIER LEFT_CURLY struct_declaration_list RIGHT_CURLY @_$_$ = _$1; Type *type = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name) ? LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name)->_type : malloc(sizeof(Type)); if (!LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name)) InsertSymbol(scopeStack, _$1->info); else _$1->info = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name); ((Symbol*)_$1->info)->_type = _$1->type = type; type->size = 0; type->type = STRUCT_TYPE; type->baseType = NULL; type->fields = malloc(sizeof(StringsDictionary)); InitStringsDictionary(type->fields); type->structDef = _$1->info; for (LinearLinkedListNode *p = *((LinearLinkedListNode**)_$3); p; p = p->nextNode) type->size += ((Type*)((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->_type)->size;  unsigned short offset = 0; for (LinearLinkedListNode *p = *((LinearLinkedListNode**)_$3); p; offset += ((Type*)((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->_type)->size, p = p->nextNode) AddField(type, ((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->name, offset, ((Symbol*)((AbstractSyntaxTreeNode*)p->info)->info)->_type);@
-struct_or_union_specifier:STRUCT LEFT_CURLY struct_declaration_list RIGHT_CURLY
-struct_or_union_specifier:STRUCT existing_identifier @_$_$ = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name)->_type; @
-type_specifier:VOID @_$_$ = (Type*)LookupSymbol(scopeStack, "void")->_type;@
-type_specifier:CHAR @ _$_$ = (Type*)LookupSymbol(scopeStack, "char")->_type; @
-type_specifier:SHORT @_$_$ = (Type*)LookupSymbol(scopeStack, "short")->_type;@
-type_specifier:INT @_$_$ = (Type*)LookupSymbol(scopeStack, "int")->_type; @
-type_specifier:FLOAT @_$_$ = (Type*)LookupSymbol(scopeStack, "float")->_type;@
-type_specifier:LONG @_$_$ = (Type*)LookupSymbol(scopeStack, "long")->_type;@
-type_specifier:DOUBLE @_$_$ = (Type*)LookupSymbol(scopeStack, "double")->_type;@
+struct_or_union_specifier:STRUCT IDENTIFIER LEFT_CURLY struct_declaration_list RIGHT_CURLY @ LinearLinkedListNode *ptr; unsigned short offset = ZERO; Symbol *symbol = LookupSymbol(scopeStack, ((Symbol*)_$1->info)->name); symbol = symbol && !((Type*)symbol->type)->size ? symbol : NULL; Type *type; _$_$ = _$1; if (symbol) { type = symbol->type; _$1->info = symbol; } else { MakeType(&type, TRUE); InsertSymbol(scopeStack, (symbol = _$1->info)); } symbol->type = _$1->type = type; type->size = ZERO; type->type = STRUCT_TYPE; type->structDef = symbol; BIT_SET(type->structDef->kind, STRUCT_KIND_MASK); for (ptr = *((LinearLinkedListNode**)_$3); ptr; ptr = ptr->nextNode) { AddField(type, ((Symbol*)((AbstractSyntaxTreeNode*)ptr->info)->info)->name, type->size, ((AbstractSyntaxTreeNode*)ptr->info)->type); type->size += ((Type*)((AbstractSyntaxTreeNode*)ptr->info)->type)->size; } @
+struct_or_union_specifier:STRUCT LEFT_CURLY struct_declaration_list RIGHT_CURLY @ MakeAbstractSyntaxTree(&_$_$); LinearLinkedListNode *ptr; unsigned short offset = ZERO; Symbol *symbol; MakeSymbol(&symbol); Type *type; _$_$->info = symbol; MakeType(&type, TRUE); symbol->type = _$_$->type = type; type->size = ZERO; type->type = STRUCT_TYPE; type->structDef = symbol; BIT_SET(type->structDef->kind, STRUCT_KIND_MASK); for (ptr = *((LinearLinkedListNode**)_$2); ptr; ptr = ptr->nextNode) { AddField(type, ((Symbol*)((AbstractSyntaxTreeNode*)ptr->info)->info)->name, type->size, ((AbstractSyntaxTreeNode*)ptr->info)->type); type->size += ((Type*)((AbstractSyntaxTreeNode*)ptr->info)->type)->size; } @
+struct_or_union_specifier:STRUCT existing_identifier @ _$_$ = _$1; if (!_$1->info || !BIT_TEST(((Symbol*)_$1->info)->kind, STRUCT_KIND_MASK)) MakeError(errors, "`%s` is not a struct", ((Symbol*)_$1->info)->name); @
+type_specifier:VOID @_$_$ = _$0; _$0->type = (Type*)LookupSymbol(scopeStack, "void")->type; @
+type_specifier:CHAR @ _$_$  = _$0; _$0->type = (Type*)LookupSymbol(scopeStack, "char")->type; @
+type_specifier:SHORT @_$_$  = _$0; _$0->type = (Type*)LookupSymbol(scopeStack, "short")->type;@
+type_specifier:INT @_$_$  = _$0; _$0->type = (Type*)LookupSymbol(scopeStack, "int")->type; @
+type_specifier:FLOAT @_$_$ = _$0; _$0->type  = (Type*)LookupSymbol(scopeStack, "float")->type;@
+type_specifier:LONG @_$_$  = _$0; _$0->type = (Type*)LookupSymbol(scopeStack, "long")->type;@
+type_specifier:DOUBLE @_$_$ = _$0; _$0->type  = (Type*)LookupSymbol(scopeStack, "double")->type;@
 type_specifier:UNSIGNED
 type_specifier:struct_or_union_specifier
 init_declarator:declarator @_$_$ = _$0; _$0->GenerationFunction = GenerateDeclaration;@
-init_declarator:declarator EQ initializer @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDeclaration; _$_$->info = _$0->info; _$_$->type = _$0->type;  _$0->GenerationFunction = GenerateDeclaration; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @ 
+init_declarator:declarator EQ initializer @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDeclaration; _$_$->AnalysisFunction = AnalyzeDeclaration; _$0->lvalue = TRUE; _$_$->info = _$0->info; _$_$->type = _$0->type; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @ 
 declaration_specifiers:type_specifier
-declaration_specifiers:existing_identifier @_$_$ = _$0; puts("typedef!");@
-declaration:STRUCT IDENTIFIER SEMI_COLON @_$_$ = _$1; _$_$->GenerationFunction = NULL; InsertSymbol(scopeStack, _$1->info); Type *type = malloc(sizeof(Type)); type->type = STRUCT_TYPE; _$1->type = ((Symbol*)_$1->info)->_type = type;@
+declaration_specifiers:existing_identifier @ _$_$ = _$0; if (!_$0->info || !BIT_TEST(((Symbol*)_$0->info)->kind, TYPE_KIND_MASK)) { MakeError(errors, "`%s` is not a type", ((Symbol*)_$0->info)->name); } @
+declaration:STRUCT IDENTIFIER SEMI_COLON @_$_$ = _$1; _$_$->GenerationFunction = NULL; InsertSymbol(scopeStack, _$1->info); BIT_SET(((Symbol*)_$1->info)->kind, STRUCT_KIND_MASK); Type *type; MakeType(&type, TRUE); _$1->type = ((Symbol*)_$1->info)->type = type;@
 declaration:declaration_specifiers SEMI_COLON @_$_$ = _$0;@
-declaration:declaration_specifiers init_declarator SEMI_COLON @_$_$ = _$1; InsertSymbol(scopeStack, _$1->info); Type *t; for (t = _$1->type; t && t->baseType; t = t->baseType); !t ? _$1->type = _$0 : (t->baseType = _$0); ((Symbol*)_$1->info)->_type = _$1->type; if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) for(Type *base = ((Type*)_$1->type)->baseType; base && base->type != POINTER_TYPE; base = base->baseType) ((Type*)_$1->type)->size *= base->size; @
+declaration:TYPEDEF declaration_specifiers declarator SEMI_COLON @ _$_$ = _$2; if (LookupSymbol(scopeStack, ((Symbol*)_$2->info)->name)) BIT_UNION(((Symbol*)_$2->info)->kind, ((Symbol*)_$1->info)->kind, KINDS_COUNT); InsertSymbol(scopeStack, _$2->info); BIT_SET(((Symbol*)_$2->info)->kind, TYPE_KIND_MASK); SetBaseType(&_$2->type, _$1->type); ((Symbol*)_$2->info)->type = _$2->type; @
+declaration:declaration_specifiers init_declarator SEMI_COLON @_$_$ = _$1; if (LookupSymbolInCurrentScope(scopeStack, ((Symbol*)_$1->info)->name)) { MakeError(errors, "`%s` already exists", ((Symbol*)_$1->info)->name); return _$_$;} InsertSymbol(scopeStack, _$1->info); BIT_SET(((Symbol*)_$1->info)->kind, VARIABLE_KIND_MASK); SetBaseType(&_$1->type, _$0->type); ((Symbol*)_$1->info)->type = _$1->type; if (!((Type*)_$1->type)->size) { MakeError(errors, "Incomplete type `%s` is not allowed", ((Symbol*)_$0->info)->name); } if(_$1->type && ((Type*)_$1->type)->type == ARRAY_TYPE) CalculateArraySize(_$1->type); @
 constant_expression:conditional_expression
 expression:assignment_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateArithmeticExpression; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0;@
 assignment_operator:EQ @_$_$ = _$0; _$_$->GenerationFunction = GenerateAssignment;  @
-assignment_operator:STAR_EQ
-assignment_operator:SLASH_EQ
-assignment_operator:MOD_EQ
-assignment_operator:PLUS_EQ @_$_$ = _$0; _$_$->GenerationFunction = GenerateAdditionAssignment;  @
-assignment_operator:MINUS_EQ
 assignment_expression:conditional_expression
-assignment_expression:unary_expression assignment_operator assignment_expression @_$_$ = _$1; _$_$->info = NULL; _$0->lvalue = TRUE; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
+assignment_expression:unary_expression assignment_operator assignment_expression @_$_$ = _$1; _$_$->info = NULL; _$_$->AnalysisFunction = AnalyzeAssignment; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
 conditional_expression:exclusive_or_expression
 and_expression:equality_expression
 and_expression:and_expression AMPERSAND equality_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateAnd; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @
@@ -118,36 +111,36 @@ shift_expression:additive_expression
 shift_expression:shift_expression LSHIFT additive_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateLSHIFT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @
 shift_expression:shift_expression RSHIFT additive_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateRSHIFT; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @
 additive_expression:multiplicative_expression
-additive_expression:additive_expression PLUS multiplicative_expression @MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateAddition; _$_$->AnalysisFunction = AnalyzeAddition; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @
+additive_expression:additive_expression PLUS multiplicative_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->label = _$1->label; _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateAddition; _$_$->AnalysisFunction = AnalyzeAddition; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @
 additive_expression:additive_expression MINUS multiplicative_expression @MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateSubtraction; _$_$->AnalysisFunction = AnalyzeSubtraction; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; @
 multiplicative_expression:cast_expression
-multiplicative_expression:multiplicative_expression STAR cast_expression @MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateMult; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
-multiplicative_expression:multiplicative_expression SLASH cast_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDivision; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
-multiplicative_expression:multiplicative_expression MOD cast_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateMod; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
+multiplicative_expression:multiplicative_expression STAR cast_expression @MakeAbstractSyntaxTree(&_$_$); _$0->lvalue = _$2->lvalue = FALSE; _$_$->GenerationFunction = GenerateMult; _$_$->AnalysisFunction = AnalyzeMultDiv; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
+multiplicative_expression:multiplicative_expression SLASH cast_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateDivision; _$_$->AnalysisFunction = AnalyzeMultDiv; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
+multiplicative_expression:multiplicative_expression MOD cast_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->GenerationFunction = GenerateMod; _$_$->AnalysisFunction = AnalyzeMod; _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2;  @
 cast_expression:unary_expression
 cast_expression:LEFT_PAREN type_name RIGHT_PAREN cast_expression
 unary_operator:STAR @_$_$ = _$0; _$0->GenerationFunction = GenerateDereference; _$0->AnalysisFunction = AnalyzeDereference; @
-unary_operator:PLUS
-unary_operator:MINUS @_$_$ = _$0; _$0->GenerationFunction = GenerateNeg;@
+unary_operator:MINUS @_$_$ = _$0; _$0->GenerationFunction = GenerateNeg; _$0->AnalysisFunction = AnalyzeNeg; @
 unary_operator:AMPERSAND @_$_$ = _$0; _$0->GenerationFunction = GenerateReference; _$0->AnalysisFunction = AnalyzeReference; @
 unary_operator:LOG_NOT @_$_$ = _$0; _$0->GenerationFunction = GenerateLogNot;@
 unary_expression:postfix_expression
 unary_expression:PLUS_PLUS postfix_expression
 unary_expression:MINUS_MINUS postfix_expression
-unary_expression:unary_operator cast_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->lvalue = FALSE; _$1->lvalue = FALSE; _$_$->info = _$1->info; _$_$->type = _$1->type; _$_$->GenerationFunction = _$0->GenerationFunction; _$_$->AnalysisFunction = _$0->AnalysisFunction; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$1; @
+unary_expression:unary_operator cast_expression @MakeAbstractSyntaxTree(&_$_$); _$_$->info = _$1->info; _$_$->type = _$1->type; _$_$->GenerationFunction = _$0->GenerationFunction; _$_$->AnalysisFunction = _$0->AnalysisFunction; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$1; @
 argument_expression_list:assignment_expression @MakeAbstractSyntaxTree(&_$_$);  _$_$->info = NULL; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; @
 argument_expression_list:argument_expression_list COMMA assignment_expression @_$_$ = _$0; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  @
 postfix_expression:primary_expression
 postfix_expression:postfix_expression LEFT_BRACKET expression RIGHT_BRACKET @ MakeAbstractSyntaxTree(&_$_$); _$2 = _$2->childrenManager->info; AbstractSyntaxTreeNode *addition; MakeAbstractSyntaxTree(&addition); *SetAbstractSyntaxTreeNodeChild(_$_$) = addition; _$_$->lvalue = FALSE; addition->lvalue = FALSE; _$_$->GenerationFunction = GenerateDereference; _$_$->AnalysisFunction = AnalyzeDereference; _$0->lvalue = _$2->lvalue = FALSE; addition->GenerationFunction = GenerateAddition; addition->AnalysisFunction = AnalyzeAddition; addition->info = NULL; *SetAbstractSyntaxTreeNodeChild(addition) = _$0; *SetAbstractSyntaxTreeNodeChild(addition) = _$2; @
-postfix_expression:postfix_expression LEFT_PAREN RIGHT_PAREN @_$_$ = _$0; _$_$->GenerationFunction = GenerateCall;  @
-postfix_expression:postfix_expression LEFT_PAREN argument_expression_list RIGHT_PAREN @_$_$ = _$0; _$0->GenerationFunction = GenerateCall; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  @
-postfix_expression:postfix_expression DOT IDENTIFIER @MakeAbstractSyntaxTree(&_$_$); *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = _$2->field ? ((Field*)_$2->field)->type : _$0->type;@
-postfix_expression:postfix_expression ARROW IDENTIFIER @MakeAbstractSyntaxTree(&_$_$); AbstractSyntaxTreeNode *dref; MakeAbstractSyntaxTree(&dref); *SetAbstractSyntaxTreeNodeChild(_$_$) = dref; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; _$0->type = ((Symbol*)_$0->info)->_type; _$0->lvalue = FALSE; dref->lvalue = FALSE; _$2->lvalue = FALSE; dref->info = _$0->info; dref->type = _$0->type; dref->GenerationFunction = GenerateDereference; dref->AnalysisFunction = AnalyzeDereference; *SetAbstractSyntaxTreeNodeChild(dref) = _$0; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->_type = _$_$->type = ((Field*)_$2->field)->type;@
+postfix_expression:function_name LEFT_PAREN RIGHT_PAREN @ _$_$ = _$0; _$_$->GenerationFunction = GenerateCall;  @
+postfix_expression:function_name LEFT_PAREN argument_expression_list RIGHT_PAREN @_$_$ = _$0; _$0->GenerationFunction = GenerateCall; *SetAbstractSyntaxTreeNodeChild(_$0) = _$2;  @
+postfix_expression:postfix_expression DOT IDENTIFIER @MakeAbstractSyntaxTree(&_$_$); *SetAbstractSyntaxTreeNodeChild(_$_$) = _$0; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; Type *structType = ((Symbol*)_$0->info)->type; for (; structType->type != STRUCT_TYPE; structType = structType->baseType); _$0->type = structType; _$0->lvalue = FALSE; _$_$->info = _$2->info; _$2->field = FindField(_$0->type, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->type = _$_$->type = _$2->field ? ((Field*)_$2->field)->type : _$0->type; if (!_$2->field) MakeError(errors, "Type `%s` has no field named `%s`", ((Type*)_$0->type)->structDef->name, ((Symbol*)_$2->info)->name); @
+postfix_expression:postfix_expression ARROW IDENTIFIER @MakeAbstractSyntaxTree(&_$_$); AbstractSyntaxTreeNode *dref; MakeAbstractSyntaxTree(&dref); *SetAbstractSyntaxTreeNodeChild(_$_$) = dref; *SetAbstractSyntaxTreeNodeChild(_$_$) = _$2; _$_$->GenerationFunction = GenerateStructAccess; _$_$->AnalysisFunction = AnalyzeStructAccess; Type *structType = ((Symbol*)_$0->info)->type; for (; structType->type != STRUCT_TYPE; structType = structType->baseType); dref->info = _$0->info; dref->type = _$0->type; dref->GenerationFunction = GenerateDereference; dref->AnalysisFunction = AnalyzeDereference; *SetAbstractSyntaxTreeNodeChild(dref) = _$0; _$_$->info = _$2->info; _$2->field = FindField(structType, ((Symbol*)_$2->info)->name); ((Symbol*)_$_$->info)->type = _$_$->type = _$2->field ? ((Field*)_$2->field)->type : _$0->type;@
 postfix_expression:postfix_expression PLUS_PLUS @_$_$ = _$1; _$1->info = _$0->info; _$1->GenerationFunction = GenerateIncrement; *SetAbstractSyntaxTreeNodeChild(_$1) = _$0;  @
 postfix_expression:postfix_expression MINUS_MINUS
-primary_expression:existing_identifier @_$_$ = _$0; _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); if (!_$_$->info) return _$_$; _$_$->type = ((Symbol*)_$_$->info)->_type; _$_$->lvalue = TRUE; @
-primary_expression:INTEGER_LITERAL @_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->_type = LookupSymbol(scopeStack, "long")->_type; symbol->name = ((Token*)_$0->info)->lexeme; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateIntegerLiteral; @
-primary_expression:FLOAT_LITERAL @_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->_type = LookupSymbol(scopeStack, "double")->_type; symbol->name = ((Token*)_$0->info)->lexeme;_$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateFloatLiteral;  @
-primary_expression:STRING_LITERAL @_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; Type *type; MakeType(&type, FALSE); type->type = POINTER_TYPE; type->size = 8; type->baseType = LookupSymbol(scopeStack, "char")->_type; _$_$->type = symbol->_type = type; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateStringLiteral;@
+function_name:existing_identifier @ _$_$ = _$0; if (!BIT_TEST(((Symbol*)_$0->info)->kind, FUNCTION_KIND_MASK)) MakeError(errors, "`%s` is not a function", ((Symbol*)_$0->info)->name); @
+primary_expression:existing_identifier @_$_$ = _$0; if (!BIT_TEST(((Symbol*)_$0->info)->kind, VARIABLE_KIND_MASK)) MakeError(errors, "`%s` is not a valid identifier here", ((Symbol*)_$0->info)->name); _$_$->GenerationFunction = GenerateSymbol; Token *id = _$_$->info; _$_$->info = LookupSymbol(scopeStack, id->lexeme); if (!_$_$->info) return _$_$; _$_$->type = ((Symbol*)_$_$->info)->type; @
+primary_expression:INTEGER_LITERAL @_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->type = LookupSymbol(scopeStack, "long")->type; symbol->name = ((Token*)_$0->info)->lexeme; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateIntegerLiteral; @
+primary_expression:FLOAT_LITERAL @_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); _$_$->type = symbol->type = LookupSymbol(scopeStack, "double")->type; symbol->name = ((Token*)_$0->info)->lexeme;_$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateFloatLiteral;  @
+primary_expression:STRING_LITERAL @_$_$ = _$0; Symbol *symbol; MakeSymbol(&symbol); symbol->name = ((Token*)_$0->info)->lexeme; Type *type; MakeType(&type, FALSE); type->type = POINTER_TYPE; type->size = 8; type->baseType = LookupSymbol(scopeStack, "char")->type; _$_$->type = symbol->type = type; _$_$->info = symbol; _$_$->lvalue = FALSE; _$_$->GenerationFunction = GenerateStringLiteral;@
 primary_expression:LEFT_PAREN expression RIGHT_PAREN @_$_$ = ((AbstractSyntaxTreeNode*)_$1)->childrenManager->info;@
-existing_identifier:IDENTIFIER @_$_$ = _$0; Symbol *symbol = LookupSymbol(scopeStack, ((Token*)_$0->info)->lexeme); if (symbol) {_$0->info = symbol; _$0->type = symbol->_type; } else {MakeError(errors, "Unknown symbol: %s", ((Token*)_$0->info)->lexeme); symbol = malloc(sizeof(Symbol)); symbol->name = "dummy"; _$0->info = symbol; } @
+existing_identifier:IDENTIFIER @_$_$ = _$0; Symbol *symbol = LookupSymbol(scopeStack, ((Token*)_$0->info)->lexeme); if (symbol) {_$0->info = symbol; _$0->type = symbol->type; _$0->lvalue = !BIT_TEST(symbol->kind, FUNCTION_KIND_MASK); } else { MakeError(errors, "Unknown symbol: %s", ((Token*)_$0->info)->lexeme); } @

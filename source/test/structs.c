@@ -24,36 +24,34 @@ struct MOSHE2
 {
     int k;
     int yy;
-    struct MOSHE mozs;
     struct MOSHE *pmozs;
 };
 
 struct Node;
 
-struct Node
+typedef struct Node
 {
     int info;
     struct Node *next;
-};
+} Node;
 
-void init(struct Node **lst)
+void init(Node **lst)
 {
     *lst = 0;
 }
 
-void push(struct Node **lst, int info)
+void push(Node **lst, int info)
 {
-    struct Node *new = malloc(12);
-
+    Node *new = malloc(12);
     new->next = *lst;
     new->info = info;
 
     *lst = new;
 }
 
-int pop(struct Node **lst)
+int pop(Node **lst)
 {
-    struct Node *temp = *lst;
+    Node *temp = *lst;
     int value = temp->info;
 
     *lst = (*lst)->next;
@@ -62,21 +60,21 @@ int pop(struct Node **lst)
     return (value);
 }
 
-int is_empty(struct Node *lst)
+int is_empty(Node *lst)
 {
     return (!lst);
 }
 
-void print_list_iter(struct Node *lst, int *length)
+void print_list_iter(Node *lst, int *length)
 {
-    struct Node *ptr;
+    Node *ptr;
 
     *length = 0;
 
     for (ptr = lst; ptr; ptr = ptr->next)
     {
         printf("[%d]->", ptr->info);
-        (*length) = *length + 1;
+        *length = *length + 1;
     }
 
     puts("||");
@@ -84,7 +82,7 @@ void print_list_iter(struct Node *lst, int *length)
 
 void print_list_rec();
 
-void print_list_rec(struct Node *lst)
+void print_list_rec(Node *lst)
 {
     if (is_empty(lst))
     {
@@ -94,11 +92,15 @@ void print_list_rec(struct Node *lst)
 
     printf("[%d]->", lst->info);
     print_list_rec(lst->next);
+
+    return;
 }
+
+typedef char boolean;
 
 int main()
 {
-    int x = 3;
+    int aa = 3;
     struct MOSHE mosh;
     struct MOSHE mosh2;
 
@@ -122,7 +124,6 @@ int main()
     
     struct MOSHE2 moshe2;
 
-
     int lll = 6;
     printf("lll: %d\n", lll);
     // hello, world!
@@ -137,9 +138,9 @@ int main()
 
     printf("%d is moshe!\n", moshe2.k * moshe2.yy);
     
-    x = **&mosh.bb;
+    aa = **&mosh.bb;
 
-    printf("malloc'd value: %d\n", x);
+    printf("malloc'd value: %d\n", aa);
 
     char *ptr = "Result:\t%d\t%d\t%d\t%d\t%d\n";
 
@@ -157,34 +158,20 @@ int main()
     printf(ptr, -(-***mosh.dd / -**mosh.mm), -*mosh.bb, *mosh.bb, *&mosh.aa****mosh.dd**mosh.bb, ***mosh.dd);
     printf("\n");
 
-    moshe2.mozs = mosh;
-    moshe2.pmozs = &mosh;
-
-    struct MOSHE *temp = &moshe2.mozs;
-    struct MOSHE *ptemp = moshe2.pmozs;
-
-    x = ***&**&*&moshe2.mozs.dd;
-    x = x + *(*ptemp).bb;
-
-    struct MOSHE *tpm = malloc(80);
-
-    (*tpm).aa = x;
-    printf("AA:%d\n", (*tpm).aa);
-    
-    free(tpm);
-
-    if (*temp->bb == x)
+    if ((&mosh2)->bb == mosh2.bb)
     {
-        printf("%d = %d\n", temp->aa, x);
+        puts("ok!");
+        aa = 18;
     }
     else
     {
-        printf("%d != %d\n", temp->aa, x);
+        puts("not ok!");
+        aa = 0;
     }
 
-    struct Node *lst;
+    Node *lst;
     int length;
-
+    
     init(&lst);
 
     push(&lst, 3);
@@ -200,26 +187,39 @@ int main()
     print_list_iter(lst, &length);
     print_list_rec(lst);
 
-    for (; !is_empty(lst); )
-        printf("[%d]->", pop(&lst));
+    // for (; !is_empty(lst); )
+    //    printf("[%d]->", pop(&lst));
+
+    Node *lstPtr;
+    int i = 0;
+
+    puts("\n");
+
+    for (lstPtr = lst; lstPtr; lstPtr = lstPtr->next)
+    {
+        printf("[%d]:: ", i = i + 1);
+        print_list_iter(lstPtr, &length);
+    }
     
     puts("||");
     printf("length: %d\n", length);
 
     int arr[20];
     int mat[10][5];
-    int y = x / 6;
-    int return_value = x + y;
+    int y = aa / 6;
+    int return_value = aa + y;
 
-    mat[x/3][x/9] = return_value;
+    mat[aa/3][aa/9] = return_value;
 
-    arr[x ^ x] = x;
-    arr[x] = arr[!x] - x;
-    y = (x = arr[arr[x]] / 9);
-    x = 3 * y;
+    arr[aa ^ aa] = aa;
+    arr[aa] = arr[!aa] - aa;
+    y = (aa = arr[arr[aa]] / 9);
+    aa = 3 * y;
 
-    printf("%d\n", mat[x][y] == *(*(mat + x) + y));
-    printf("Val:%d\n", mat[x][y]);
+    printf("%d\n", mat[aa][y] == *(*(mat + aa) + y));
+    printf("Val:%d\n", mat[aa][y]);
 
-    return (mat[x][y]);
+    printf("res::::%d\n", (aa * y / y + aa + 4) - y + aa / y);
+
+    return (mat[aa][y]);
 }

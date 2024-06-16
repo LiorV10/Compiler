@@ -113,6 +113,21 @@ BOOL IsLeafTernaryTree(TernaryTreeNode *node)
     return (!node->leftSubTree && !node->rightSubTree && !node->middleSubTree);
 }
 
+//-----------------------------------------------------------------------------
+//                          Insert To Ternary Search Tree                                     
+//                          -----------------------------                                  
+//                                                                             
+// General      : The function inserts a new word to the tst.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       root - The root of the tst (In)						                                        
+//       word - The word to insert (In)						                                        
+//       wordData - The info attached to the word (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n, m) = c1 * logn + c2 * m + d -> O(logn + m)
+//-----------------------------------------------------------------------------
 void InsertToTernarySearchTree(TernaryTreeNode **root, char *word, void *wordData)
 {
     if (!*word)
@@ -135,6 +150,20 @@ void InsertToTernarySearchTree(TernaryTreeNode **root, char *word, void *wordDat
 	}
 }
 
+//-----------------------------------------------------------------------------
+//                          Search In Ternary Search Tree                                     
+//                          -----------------------------                                  
+//                                                                             
+// General      : The function searches a word in a tst.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       root - The root of the tst (In)						                                        
+//       word - The word to search for (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n, m) = c1 * logn + c2 * m + d -> O(logn + m)
+//-----------------------------------------------------------------------------
 void *SerchInTernarySearchTree(TernaryTreeNode *root, char *word)
 {
     if (!root)

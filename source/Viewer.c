@@ -13,6 +13,11 @@ char* NextLine(Stream *stream)
     return (fgets(stream->buffer, MAX_LINE_LENGTH, stream->fp));
 }
 
+void WriteStream(Stream *stream, char *buffer, va_list args)
+{
+    vfprintf(stream->fp, buffer, args);
+}
+
 void ResetStream(Stream *stream)
 {
     fseek(stream->fp, ZERO, SEEK_SET);

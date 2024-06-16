@@ -52,9 +52,28 @@ AbstractSyntaxTreeNode** SetAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *
     return (&node->childrenManager->info);
 }
 
-AbstractSyntaxTreeNode** SetFirstAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node)
+void FreeNode(AbstractSyntaxTreeNode *astRoot)
 {
-    InsertAfterCircularLinearLinkedList(node->childrenManager);
+    EmptyCircularLinearLinkedList(&astRoot->childrenManager, NULL);
+    free(astRoot);
+}
 
-    return (&node->childrenManager->nextNode->info);
+void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot)
+{
+    if (!astRoot->childrenManager)
+    {
+        FreeNode(astRoot);
+        return;
+    }
+
+    CircularLinearLinkedListNode *child = astRoot->childrenManager->nextNode;
+
+    do
+    {
+        FreeAbstractSyntaxTree(child->info);
+        child = child->nextNode;
+    } 
+    while (child != astRoot->childrenManager->nextNode);
+    
+    FreeNode(astRoot);
 }

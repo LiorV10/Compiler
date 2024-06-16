@@ -9,7 +9,6 @@ Expression *MakeExpression(Grammar *g, char *line)
 {
     Expression *e = malloc(sizeof(Expression));
 
-    e->firstSet = ZERO;
     e->node = NULL;
     e->nodeKey = ZERO;
 

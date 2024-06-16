@@ -30,6 +30,9 @@
 
 #define GENERATE_LALR TRUE
 
+#define SYNCING_TOKENS {SEMI_COLON, LEFT_PAREN, LEFT_CURLY, LEFT_BRACKET, COMMA}
+#define SYNCING_TOKENS_NUM 5
+
 typedef struct
 {
     Grammar *grammar;

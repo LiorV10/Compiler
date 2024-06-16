@@ -21,14 +21,15 @@ struct AbstractSyntaxTreeNode
     unsigned short reg;
     void *info;
     BOOL lvalue;
-    unsigned char label;
+    unsigned short label;
     void *type;
     void *field;
     void (*GenerationFunction)(void *codeGenerator, AbstractSyntaxTreeNode *astRoot);
-    void (*AnalysisFunction)(AbstractSyntaxTreeNode *astRoot);
+    void (*AnalysisFunction)(AbstractSyntaxTreeNode *astRoot, void *errors);
     CircularLinearLinkedListNode *childrenManager;
 };
 
 void MakeAbstractSyntaxTree(AbstractSyntaxTreeNode **root);
 AbstractSyntaxTreeNode** SetAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node);
 AbstractSyntaxTreeNode** SetFirstAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node);
+void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot);

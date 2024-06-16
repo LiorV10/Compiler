@@ -16,4 +16,4 @@
     #include "../grammar/actions.h"
 #endif
 
-void Semantics();
+void AnalyzeSemantics(AbstractSyntaxTreeNode **astRoot, ErrorHandler *erros);

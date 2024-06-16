@@ -14,12 +14,18 @@
     #include "Token.h"
 #endif
 
+#define VARIABLE_KIND_MASK 0
+#define FUNCTION_KIND_MASK 1
+#define STRUCT_KIND_MASK 2
+#define TYPE_KIND_MASK 3
+#define KINDS_COUNT 4
+
 typedef struct
 {
     char *name;
-    unsigned short type;
     short memoryAddress;
-    void *_type;
+    BIT_VEC(kind, KINDS_COUNT);
+    void *type;
 } Symbol;
 
 typedef struct
@@ -33,3 +39,4 @@ void EnterScope(ScopeStack *scopeStack);
 void ExitScope(ScopeStack *scopeStack);
 void InsertSymbol(ScopeStack *scopeStack, Symbol *symbol);
 Symbol* LookupSymbol(ScopeStack *scopeStack, char *name);
+Symbol* LookupSymbolInCurrentScope(ScopeStack *scopeStack, char *name);

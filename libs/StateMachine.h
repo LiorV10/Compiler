@@ -41,7 +41,7 @@ State *InitialState(StateMachine *stateMachine);
 void SetAllVisited(StateMachine *stateMachine, BOOL visited);
 void ConcatStateMachines(StateMachine *first, StateMachine *second);
 StateMachine *FromSymbol(char symbol);
-StateMachine *Concat(StateMachine *first, StateMachine *second, BOOL applyTransition);
+StateMachine* ConcatWithTransition(StateMachine *first, StateMachine *second);
 StateMachine *Union(StateMachine *first, StateMachine *second);
 StateMachine *OneOrMore(StateMachine *previous);
 StateMachine *Star(StateMachine *previous);

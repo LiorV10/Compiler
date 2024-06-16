@@ -106,10 +106,10 @@ parameter_list
 parameter_declaration
 identifier_list
 type_name
+function_name
 abstract_declarator
 direct_abstract_declarator
 initializer
-initializer_list
 statement
 labeled_statement
 compound_statement

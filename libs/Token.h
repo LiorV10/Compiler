@@ -9,3 +9,5 @@ typedef struct
     char *lexeme;
     TokenType type;
 } Token;
+
+void FreeToken(Token *token);

@@ -57,21 +57,16 @@ BOOL CompareItemsLists(CircularLinearLinkedListNode *firstStart, CircularLinearL
 
 BOOL CompareKernels(CircularLinearLinkedListNode *first, CircularLinearLinkedListNode *second)
 {
-    //return CompareItemKernels(first->nextNode->info, second->nextNode->info);
-    // return CompareItemsLists(first->nextNode, second->nextNode, first->nextNode, second->nextNode);
     return CompareItemsLists(first->nextNode, second->nextNode, KernelEnd(first), KernelEnd(second));
 }
 
 BOOL StatesComparator(PushdownState* first, Expression *second)
 {
-    // return first->key == second->nodeKey;
     return first->key == second->nodeKey && CompareKernels(first->lrItems, second->node);
 }
 
 unsigned long PointerKey(void *ptr)
 {
-    // return (unsigned long)ptr;
-
     return (unsigned long)ptr & sizeof(void*);
 }
 
@@ -80,12 +75,99 @@ unsigned long ItemKey(Item *item)
     return (PointerKey(item->rule) + PointerKey(item->dotPosition) + item->lookahead);
 }
 
-CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items)
+unsigned long KeyState(PushdownState *state)
+{
+    return state->key;
+}
+
+//-----------------------------------------------------------------------------
+//                                      Add Closure Item                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function adds the initial item from a given
+//                rule and lookahead, into the closure items list.                                                          
+//                                                                             
+// Parameters   :                                                              
+//      closureStack - The closure stack (In)						                                        
+//      items - The closure items list (In)						                                        
+//      rule - The rule to add (In)						                                        
+//      terminal - The lookahead to attach to the item (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//----------------------------------------------------------------------------- 
+void AddClosureItem(Stack *closureStack, CircularLinearLinkedListNode **items, Rule *rule, TokenType terminal)
+{
+    Item *newItem;
+
+    newItem = InitialItem(rule, terminal);
+    BIT_SET(newItem->rule->visited, terminal);
+
+    InsertEndCircularLinearLinkedList(items);
+    (*items)->info = newItem;
+
+
+    !((Expression*)newItem->dotPosition->info)->isTerminal ?
+        PushStack(closureStack, (*items)->info) : ZERO;
+
+}
+
+//-----------------------------------------------------------------------------
+//                                      Current Rule Closure                                     
+//                                      --------------------                                  
+//                                                                             
+// General      : The function adds the closure items from a given rule.                                                          
+//                                                                             
+// Parameters   :                                                              
+//      closureStack - The closure stack (In)						                                        
+//      items - The closure items list (In)						                                        
+//      rule - The rule to add (In)							                                        
+//      item - The item which points to the rule (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = |Σ| + d -> O(1)
+//-----------------------------------------------------------------------------
+void CurrentRuleClosure(Stack *closureStack, CircularLinearLinkedListNode **items, Rule *rule, Item *item)
+{
+    TokenType terminal = ZERO;
+
+    unsigned long firstset = item->dotPosition->nextNode ? 
+        ((Expression*)item->dotPosition->nextNode->info)->firstSet :
+        ((unsigned long)ONE << item->lookahead);
+
+
+    for (; firstset; firstset >>= ONE, terminal++)
+    {
+        for (; ~firstset & ONE; firstset >>= ONE, terminal++);
+
+        !BIT_TEST(rule->visited, terminal) ?
+            AddClosureItem(closureStack, items, rule, terminal) : ZERO;
+    }
+}
+
+//-----------------------------------------------------------------------------
+//                                      Closure                                     
+//                                      -------                                
+//                                                                             
+// General      : The function performs the closure operation 
+//                over list of items.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       items - The list of items (I/O)						                                        
+//                                                                             
+// Return Value : The result of the operator and the two operands.             
+//-----------------------------------------------------------------------------
+// T(n) = c * (|R| + |V|) + d -> O(|R| + |V|)
+//-----------------------------------------------------------------------------
+void Closure(CircularLinearLinkedListNode **items)
 {
     Item *currentItem;
     Stack closureStack;
     NonTerminal *nextNonTerminal;
     CircularLinearLinkedListNode *itemsPtr = (*items)->nextNode;
+    LinearLinkedListNode *rules;
 
     InitStack(&closureStack);
 
@@ -104,39 +186,26 @@ CircularLinearLinkedListNode* Closure(CircularLinearLinkedListNode **items)
         currentItem = PopStack(&closureStack);
         nextNonTerminal = ((Expression*)currentItem->dotPosition->info)->value.nonTerminal;
 
-        for (LinearLinkedListNode *pRules = nextNonTerminal->rules; pRules; pRules = pRules->nextNode)
-        {
-            Item *temp;
-
-            unsigned long firstset = currentItem->dotPosition->nextNode ? 
-                ((Expression*)currentItem->dotPosition->nextNode->info)->firstSet :
-                ((unsigned long)ONE << currentItem->lookahead);
-
-            TokenType terminal = ZERO;
-
-            for (; firstset; firstset >>= ONE)
-            {
-                for (; ~firstset & ONE; firstset >>= ONE, terminal++);
-
-                if (!BIT_TEST(((Rule*)pRules->info)->visited, terminal))
-                {
-                    temp = InitialItem(pRules->info, terminal);
-                    BIT_SET(temp->rule->visited, terminal);
-                    InsertEndCircularLinearLinkedList(items);
-                    (*items)->info = temp;
-
-                    if (!((Expression*)temp->dotPosition->info)->isTerminal)
-                        PushStack(&closureStack, (*items)->info);
-                }
-                
-                terminal++;
-            }
-        }
+        for (rules = nextNonTerminal->rules; rules; rules = rules->nextNode)
+            CurrentRuleClosure(&closureStack, items, rules->info, currentItem);
     }
-
-    return (*items);   
 }
 
+//-----------------------------------------------------------------------------
+//                                      Make Initial Goto Item                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function handles the first item in the
+//                goto state of an expression.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       item - The item (In)						                                        
+//       expressions - The visited expressions list (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//----------------------------------------------------------------------------- 
 void MakeInitialGotoItem(Item *item, LinearLinkedListNode **expressions)
 {
     Expression *expression = item->dotPosition->info;
@@ -148,26 +217,54 @@ void MakeInitialGotoItem(Item *item, LinearLinkedListNode **expressions)
     InsertLastCircularLinearLinkedList(&expression->node);
 }
 
-unsigned long KeyState(PushdownState *state)
-{
-    return state->key;
-}
-
+//-----------------------------------------------------------------------------
+//                                      Handle Next Item                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function adds the next item of a given
+//                item to the goto state of its expression.                                                          
+//                                                                             
+// Parameters   :                                                              
+//       item - The item to add (In)
+//       expressions - The list of visited expressions (I/O)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
 void HandleNextItem(Item *item, LinearLinkedListNode **expressions)
 {
     Expression *expression = item->dotPosition->info;
     CircularLinearLinkedListNode *nextStateItems;
     PushdownState *currentState;
-    Item *nextItem = NextItem(item);
+    Item *nextItem;
 
     !expression->node ?
         MakeInitialGotoItem(item, expressions) : 
         InsertEndCircularLinearLinkedList(&expression->node);
+
+    nextItem = NextItem(item);
     
     ((CircularLinearLinkedListNode*)expression->node)->info = nextItem;
     expression->nodeKey += ItemKey(nextItem);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Handle Final Item                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function adds a reducing state for the
+//                final item of a rule.                                                         
+//                                                                             
+// Parameters   :                                                              
+//       parser - The parser context (In)						                                        
+//       currentState - The state before the new reducing state (In)						                                        
+//       item - The item with dot position at its end (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 void HandleFinalItem(Parser *parser, PushdownState *currentState, Item *item)
 {
     PushdownState *reducingState = AddPushdownState(parser->pushdownMachine);
@@ -186,24 +283,31 @@ void HandleFinalItem(Parser *parser, PushdownState *currentState, Item *item)
     AddPushdownTransition(parser->pushdownMachine, currentState, reducingState, (ExpressionValue)item->lookahead);
 }
 
-PushdownTransition* NextState(PushdownState **current, ExpressionValue expression, BOOL(*ComapreExpressions)(ExpressionValue, ExpressionValue));
-
+//-----------------------------------------------------------------------------
+//                                      Make Goto State                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function constructs the goto state of
+//                a given expression, from a give state.                                                          
+//                                                                             
+// Parameters   :                                                              
+//       machine - The pushdown machine (In)						                                        
+//       currentState - The state (In)						                                        
+//       expression - The expression for the goto (In)						                                        
+//       nextStates - The queue of next goto states (In)						                                        
+//       visitedState - The already visited states (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//----------------------------------------------------------------------------- 
 void MakeGotoState(PushdownMachine *machine, PushdownState *currentState, 
                    Expression *expression, Queue *nextStates, Dictionary *visitedStates)
 {
     PushdownState *nextState;
     CircularLinearLinkedListNode *gotoItems = expression->node;
-    // PushdownTransition *tr = NULL;
+
     nextState = currentState;
-
-    // BOOL(*__ComapreExpressions)(ExpressionValue, ExpressionValue) = CompareTerminals;
-
-    // !expression->isTerminal ? __ComapreExpressions = CompareNonTerminals : NULL;
-
-    // if (nextState->transitionsManager)
-    // {
-        // tr = NextState(&nextState, expression->value, __ComapreExpressions);
-    // }
 
     if (!(nextState = LookupDictionary(visitedStates, expression, KeyState, StatesComparator)))
     {
@@ -218,12 +322,26 @@ void MakeGotoState(PushdownMachine *machine, PushdownState *currentState,
         EmptyCircularLinearLinkedList(&gotoItems, free);
     }
 
-    // if (!tr)
     AddPushdownTransition(machine, currentState, nextState, expression->value);
-    // else
-    // tr->dest = nextState;
 }
 
+//-----------------------------------------------------------------------------
+//                                      Make Goto States                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function constructs all goto states from a given state                                                           
+//                                                                             
+// Parameters   :                                                              
+//      parser - The parser context (In)						                                        
+//      currentState - The state (In)						                                        
+//      nextStates - The queue of next goto states (In)						                                        
+//      visitedStates - The already visited states (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+// n - num of items in the state 
+//-----------------------------------------------------------------------------
 void MakeGotoStates(Parser *parser, PushdownState *currentState, Queue *nextStates, Dictionary *visitedStates)
 {
     CircularLinearLinkedListNode *ptr = currentState->lrItems->nextNode;
@@ -255,6 +373,20 @@ void MakeGotoStates(Parser *parser, PushdownState *currentState, Queue *nextStat
     EmptyLinearLinkedList(&visitedExpressions, NULL);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Build LR States                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function builds the LR/LALR pushdown machine of a grammar.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       parser - The parser context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+// n - grammar size
+//-----------------------------------------------------------------------------
 void BuildLRStates(Parser *parser)
 {
     PushdownState* initialState = AddPushdownState(parser->pushdownMachine);
@@ -282,33 +414,58 @@ void BuildLRStates(Parser *parser)
     EmptyDictionary(&visitedStates, NULL);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Init Parser                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function initializer the parser context.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       parser - The parser context (In)
+//       grammar - The grammar to parse with (In)						                                        
+//                                                                             
+// Return Value : The result of the operator and the two operands.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d
+//-----------------------------------------------------------------------------
 void InitParser(Parser *parser, Grammar *grammar)
 {
     parser->pushdownMachine = malloc(sizeof(PushdownMachine));
     parser->grammar = grammar;
 
     InitPushdownMachine(parser->pushdownMachine);
-
-    // PrintGrammar(parser->grammar);
-
     BuildLRStates(parser);
 }
 
-PushdownTransition* NextState(PushdownState **current, ExpressionValue expression, BOOL(*ComapreExpressions)(ExpressionValue, ExpressionValue))
+//-----------------------------------------------------------------------------
+//                                      Next State                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function finds the next state labeld with
+//                given expression from a given state.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       current - The current state (I/O)
+//       expression - The expression (In)
+//       CompareExpressions - The expressions comparator (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
+void NextState(PushdownState **current, ExpressionValue expression, BOOL(*ComapreExpressions)(ExpressionValue, ExpressionValue))
 {
     CircularLinearLinkedListNode *ptr = (*current)->transitionsManager;
+    PushdownState *next = NULL;
     PushdownTransition *currentTransition;
     ExpressionValue symbol;
-
-    PushdownState *next = NULL;
-    PushdownTransition *tr = NULL;
 
     do
     {
         currentTransition = ptr->info;
 
         ComapreExpressions(currentTransition->symbol, expression) ? 
-            (next = currentTransition->dest, (tr = currentTransition)) : //(next = Prioritize(next, currentTransition->dest)) : 
+            next = currentTransition->dest, currentTransition :
             ZERO;
 
         ptr = ptr->nextNode;
@@ -316,22 +473,52 @@ PushdownTransition* NextState(PushdownState **current, ExpressionValue expressio
     while (ptr != (*current)->transitionsManager);
 
     *current = next;
-
-    return tr;
-    //*current = LookupTransition(*current, expression)->dest;
 }
 
-void _NextToken(CircularLinearLinkedListNode **tokensPtr, unsigned int *currentLine)
+//-----------------------------------------------------------------------------
+//                                      Next Non Line Token                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function updates the line number and
+//                moves to the next token.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       tokensPtr - The tokens list (In)						                                        
+//       currentLine - The line number (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
+void NextNonLineToken(CircularLinearLinkedListNode **tokensPtr, unsigned int *currentLine)
 {
     (*tokensPtr) = (*tokensPtr)->nextNode;
 
     while (((Token*)(*tokensPtr)->info)->type == WHITESPACE)
     {
         (*currentLine)++;
-        (*tokensPtr) = (*tokensPtr)->nextNode;
+        *tokensPtr = (*tokensPtr)->nextNode;
     }
 }
 
+//-----------------------------------------------------------------------------
+//                                      Shift                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function shifts the current state.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       states - The pushdown machine stack (In)
+//       state - The state to shift (In)						                                        
+//       tokensPtr - The tokens list (In)						                                        
+//       currentLine - The current line number (In)						                                        
+//       semanticStack - The semantic stack (In)						                                        
+//       unusedNodes - The stack of unused nodes (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 void Shift(Stack *states, PushdownState *state, CircularLinearLinkedListNode **tokenPtr, unsigned int *currentLine,
            Stack *semanticStack, Stack *unusedNodes)
 {
@@ -343,18 +530,32 @@ void Shift(Stack *states, PushdownState *state, CircularLinearLinkedListNode **t
     PushStack(semanticStack, astNode);
     PushStack(unusedNodes, astNode);
     astNode->info = (*tokenPtr)->info;
+    astNode->label = *currentLine;
 
-    _NextToken(tokenPtr, currentLine);
-    //*tokenPtr = (*tokenPtr)->nextNode;
+    NextNonLineToken(tokenPtr, currentLine);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Reduce                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function reduces a given rule.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      states - The pushdown machine stack (In)						                                        
+//      rule - The rule to reduce (In)						                                        
+//      scopeStack - The scope stack context (In)						                                        
+//      semanticStack - The semantic stack (In)						                                        
+//      errors - The error handler context (In)						                                        
+//                                                                             
+// Return Value : The goto state.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
 PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *semanticStack, ErrorHandler *errors)
 {
     LinearLinkedListNode *ptr;
     PushdownState *nextState;
-
-    // printf("Reduce by: %s -> ", rule->nonTerminal->name);
-    // PrintRule(rule);
 
     rule->semanticAction = rule->semanticAction ? rule->semanticAction : DefaultSemanticAction;
     PushStack(semanticStack, rule->semanticAction(scopeStack, semanticStack, errors));
@@ -371,29 +572,74 @@ PushdownState* Reduce(Stack *states, Rule *rule, ScopeStack *scopeStack, Stack *
     return (nextState);
 }
 
-PushdownState* sync(Stack *stack, CircularLinearLinkedListNode **tokens, void *a)
+//-----------------------------------------------------------------------------
+//                                      Panic Mode                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function activates panic mode to recover
+//                from syntax erorr.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       parser - The parser context (In)						                                        
+//       semanticStack - The semantic stack (In)						                                        
+//       tokens - The tokens list (I/O)						                                        
+//       errors - The errors handler context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//----------------------------------------------------------------------------- 
+void PanicMode(Parser *parser, Stack *semanticStack, CircularLinearLinkedListNode **tokens, ErrorHandler *errors)
 {
-    CircularLinearLinkedListNode **t;
+    TokenType syncingTokensVec[SYNCING_TOKENS_NUM] = SYNCING_TOKENS;
+    TokenType currentToken;
+    PushdownState *currentState;
+    PushdownState *nextState = NULL;
 
-    while (((Token*)(*tokens)->info)->type != SEMI_COLON) *tokens = (*tokens)->nextNode;
+    BIT_VEC(syncingTokens, TOKENS_NUM);
+    BIT_VEC_ZERO(syncingTokens, TOKENS_NUM);
 
-    *tokens = (*tokens)->nextNode;
-
-    t = tokens;
-
-    while (!IsEmptyStack(stack))
+    for (currentToken = ZERO; currentToken < SYNCING_TOKENS_NUM; currentToken++)
     {
-        PushdownState *state = PopStack(stack);
-        PushdownState *temp = state;
-
-        PopStack(a);
-
-        NextState(&state, (ExpressionValue)((Token*)(*tokens)->info)->type, CompareTerminals);
-
-        if (~state->isAccepting & REDUCING_STATE_MASK) { PushStack(stack, temp); return temp; }
+        BIT_SET(syncingTokens, syncingTokensVec[currentToken]);
     }
+
+    MakeError(errors, "Unexcpected token: `%s`", ((Token*)(*tokens)->info)->lexeme);
+
+    while (!BIT_TEST(syncingTokens, ((Token*)(*tokens)->info)->type)) 
+        NextNonLineToken(tokens, &errors->currentLine);
+    
+    NextNonLineToken(tokens, &errors->currentLine);
+
+    while (!nextState && !IsEmptyStack(parser->pushdownMachine->stack))
+    {
+        nextState = currentState = PopStack(parser->pushdownMachine->stack);
+
+        NextState(&nextState, (ExpressionValue)((Token*)(*tokens)->info)->type, CompareTerminals);
+
+        !nextState ? FreeAbstractSyntaxTree(PopStack(semanticStack)) : ZERO;
+    }
+
+    PushStack(parser->pushdownMachine->stack, currentState);
+    NextState(&currentState, (ExpressionValue)((Token*)(*tokens)->info)->type, CompareTerminals);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Parse                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function parses a list of tokens
+//                according to a given gramar.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       parser - The parser context (In)						                                        
+//       tokens - The list of tokens (In)						                                        
+//       errors - The error handler context (In)						                                        
+//                                                                             
+// Return Value : The built abstract syntax tree.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
 AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *tokens, ErrorHandler *errors)
 {
     PushdownState *currentState = InitialPushdownState(parser->pushdownMachine);
@@ -401,18 +647,8 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
     Stack semanticStack;
     Stack unusedStack;
     ScopeStack scopeStack;
-    Token *previousToken;
-    Token *prepreviousToken;
-
-    BIT_VEC(syncingTokens, TOKENS_NUM);
-    BIT_VEC_ZERO(syncingTokens, TOKENS_NUM);
-
-    BIT_SET(syncingTokens, SEMI_COLON);
-    BIT_SET(syncingTokens, LEFT_PAREN);
-    BIT_SET(syncingTokens, LEFT_CURLY);
-    BIT_SET(syncingTokens, LEFT_BRACKET);
-    BIT_SET(syncingTokens, COMMA);
-
+    AbstractSyntaxTreeNode *node;
+    
     errors->currentLine = ONE;
 
     InitScopeStack(&scopeStack);
@@ -426,11 +662,6 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
 
     while (currentState && ~currentState->isAccepting & ACCEPTING_STATE_MASK)
     {
-        if (prepreviousToken != tokensPtr->info)
-            prepreviousToken = previousToken;
-
-        previousToken = tokensPtr->info;
-
         currentState->isAccepting & REDUCING_STATE_MASK ? 
             currentState = Reduce(parser->pushdownMachine->stack, 
                                   ((Item*)currentState->lrItems->info)->rule, &scopeStack, &semanticStack , errors) : 
@@ -438,59 +669,38 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
 
         NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
 
-        if (!currentState && ((Token*)tokensPtr->info)->type != EOD)
-        {
-            while (tokens->nextNode->nextNode->nextNode->nextNode != tokensPtr)
-            {
-                tokens = tokens->nextNode;
-            }
-            
-            printf("Une token: %s\n", ((Token*)tokensPtr->info)->lexeme);
-
-            MakeError(errors, "Unexcpected token: %s`%s`%s", 
-                previousToken->lexeme, ((Token*)tokensPtr->info)->lexeme, ((Token*)tokensPtr->nextNode->info)->lexeme);
-
-            while (!BIT_TEST(syncingTokens, ((Token*)tokensPtr->info)->type)) _NextToken(&tokensPtr, &errors->currentLine);
-            
-            _NextToken(&tokensPtr, &errors->currentLine);
-
-            while (!IsEmptyStack(parser->pushdownMachine->stack))
-            {
-                PushdownState *ts;
-                currentState = PopStack(parser->pushdownMachine->stack);
-
-                ts = currentState;
-                NextState(&ts, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
-
-                if (ts) break;
-
-                PopStack(&semanticStack);
-            }
-
-            PushStack(parser->pushdownMachine->stack, currentState);
-            NextState(&currentState, (ExpressionValue)((Token*)tokensPtr->info)->type, CompareTerminals);
-        }
+        !currentState && ((Token*)tokensPtr->info)->type != EOD ? 
+            PanicMode(parser, &semanticStack, &tokensPtr, errors) : ZERO;
     }
 
     ExitScope(&scopeStack);
 
-    AbstractSyntaxTreeNode *finalAst = PopStack(&semanticStack);
-
     while (!IsEmptyStack(&unusedStack))
     {
-        AbstractSyntaxTreeNode *node = PopStack(&unusedStack);
+        node = PopStack(&unusedStack);
 
-        if (!node->GenerationFunction && !node->type && !((Symbol*)node->info)->_type && !node->childrenManager)
-        {
-            free(node);
-        }
+        !node->GenerationFunction && !node->info && !((Symbol*)node->info)->type ?
+            free(node) : ZERO;
     }
 
-    return finalAst;
+    return (PopStack(&semanticStack));
 }
 
+//-----------------------------------------------------------------------------
+//                                      Free Parser                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function empties the underlying
+//                pushdown machine of the parser.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       parser - The parser context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
 void FreeParser(Parser *parser)
 {
-    // FreeGrammar(parser->grammar);
     EmptyPushdownMachine(parser->pushdownMachine);
 }

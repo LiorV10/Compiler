@@ -1,3 +1,5 @@
+// TypeSystem.h
+
 #define _TYPE_SYSTEM_H
 
 #ifndef _SYMBOL_TABLE_H
@@ -10,8 +12,10 @@ typedef enum {
                 STRUCT_TYPE, TYPES_COUNT
             } TypeKind;
 
+#define POINTER_SIZE 8
+
 #define TYPE_NAMES {"char", "short", "int", "long", "float", "double", "void"}
-#define TYPE_SIZES {1,      2,       4,     8,      4,        8,        0    , 0, 8}
+#define TYPE_SIZES {1,      2,       4,     8,      4,        8,        0    , 0, POINTER_SIZE}
 
 typedef struct Type Type;
 
@@ -33,5 +37,7 @@ typedef struct
 
 void InitTypeSystem(StringsDictionary *symbolTable);
 void MakeType(Type **type, BOOL isStruct);
-Field *FindField(Type *source, char *name);
 void AddField(Type *source, char *name, unsigned short offset, Type *type);
+Field *FindField(Type *source, char *name);
+Type* SetBaseType(Type **type, Type *base);
+void CalculateArraySize(Type *arrayType);

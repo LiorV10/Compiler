@@ -1,14 +1,13 @@
 // main.c
 
 #include "Viewer.h"
-#include "Construction.h"
-#include "Lexer.h"
+#include "Construction.c"
+#include "Lexer.c"
 #include "Parser.c"
-#include "SemanticAnalyzer.h"
+#include "SemanticAnalyzer.c"
 #include "CodeGenerator.c"
 
-#include <sys/time.h>
-struct timeval stop, start;
+#define NUM_OF_ARGS 3
 
 CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream, ErrorHandler *errors)
 {
@@ -45,114 +44,102 @@ CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream, ErrorHandler 
     return (tokens);
 }
 
-void FreeToken(Token *token)
+struct Context
 {
-    free(token->lexeme);
-    free(token);
+    char *sourcePath;
+    char *destPath;
+
+    Grammar grammar;
+    CircularLinearLinkedListNode *tokens;
+    AbstractSyntaxTreeNode *ast;
+
+    Parser parser;
+    CodeGenerator generator;
+
+    ErrorHandler errorHandler;
+};
+
+void LexingPhase(struct Context *context)
+{
+    Stream stream;
+
+    InitStream(&stream, context->sourcePath, "rt");
+
+    context->tokens = TokenizeStream(&stream, &context->errorHandler);
+
+    CloseStream(&stream);
 }
 
-void EmitFunc(void *stream, char *buffer, va_list args)
+void ParsingPhase(struct Context *context)
 {
-    va_list tmp;
-    va_copy(tmp, args);
+    InitParser(&context->parser, &context->grammar);
 
-    vfprintf(stream, buffer, args);
-    // vfprintf(stdout, buffer, tmp);
+    context->ast = Parse(&context->parser, context->tokens, &context->errorHandler);
 
-    va_end(tmp);
+    FreeGrammar(&context->grammar);
+    FreeParser(&context->parser);
 }
 
-void FreeNode(AbstractSyntaxTreeNode *astRoot)
+void SemanticPhase(struct Context *context)
 {
-    EmptyCircularLinearLinkedList(&astRoot->childrenManager, NULL);
-    free(astRoot);
+    !ErrorsFound(&context->errorHandler) ?
+        AnalyzeSemantics(&context->ast, &context->errorHandler) : ZERO;
 }
 
-void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot)
+void CodeGenerationPhase(struct Context *context)
 {
-    if (!astRoot) return;
+    Stream stream;
 
-    if (!astRoot->childrenManager)
+    if (!ErrorsFound(&context->errorHandler))
     {
-        FreeNode(astRoot);
-        return;
+        InitStream(&stream, context->destPath, "wt");
+        InitCodeGenerator(&context->generator, WriteStream, &stream);
+        GenerateCode(&context->generator, context->ast);
+        CloseStream(&stream);
+        FreeCodeGenerator(&context->generator);
     }
 
-    CircularLinearLinkedListNode *child = astRoot->childrenManager->nextNode;
+    EmptyCircularLinearLinkedList(&context->tokens, FreeToken);
+    FreeAbstractSyntaxTree(context->ast);
+}
 
-    do
+void ReportErrors(struct Context *context)
+{
+    Error *error;
+
+    while (ErrorsFound(&context->errorHandler))
     {
-        FreeAbstractSyntaxTree(child->info);
-        child = child->nextNode;
-    } 
-    while (child != astRoot->childrenManager->nextNode);
-    
-    FreeNode(astRoot);
+        error = NextError(&context->errorHandler);
+
+        printf("Error in line %d: ", error->line);
+        puts(error->error);
+
+        free(error->error);
+        free(error);
+    }
 }
 
 void main(unsigned short argumentsCount, char* arguments[])
 {
-    ErrorHandler errorHandler;
-    Grammar grammar;
+    struct Context context;
 
-    Stream sourceStream;
-    CircularLinearLinkedListNode *tokens;
+    argumentsCount < NUM_OF_ARGS ? ExitWithError("Source or dest files were not specified.") : ZERO;
 
-    Parser parser;
-    AbstractSyntaxTreeNode *ast = NULL;
+    context.sourcePath = arguments[ONE];
+    context.destPath = arguments[TWO];
 
-    CodeGenerator generator;
+    InitErrorHandler(&context.errorHandler);
 
-    argumentsCount < THREE ? ExitWithError("Source/Dest file was not specified.") : ZERO;
+    InitGrammar(&context.grammar);
+    BuildGrammarFromFile(&context.grammar);
+    AssignActions(&context.grammar);
 
-    InitErrorHandler(&errorHandler);
-    InitGrammar(&grammar);
-    BuildGrammarFromFile(&grammar);
-    AssignActions(&grammar);
+    LexingPhase(&context);
+    ParsingPhase(&context);
+    SemanticPhase(&context);
+    CodeGenerationPhase(&context);
 
-    InitStream(&sourceStream, arguments[ONE], "rt");
-    tokens = TokenizeStream(&sourceStream, &errorHandler);
-    CloseStream(&sourceStream);    
-
-    gettimeofday(&start, NULL);
-
-    InitParser(&parser, &grammar);
-
-    if (!ErrorsFound(&errorHandler))
-        ast = Parse(&parser, tokens, &errorHandler);
-
-    if (!ErrorsFound(&errorHandler))
-        Semantics(&ast);
-
-    if (!ErrorsFound(&errorHandler)) 
-    {
-        FILE *p = fopen(arguments[TWO], "wt");
-        InitCodeGenerator(&generator, EmitFunc, p);
-        GenerateCode(&generator, ast);
-        fclose(p);
-    }
-
-    gettimeofday(&stop, NULL);
-    printf("took %lu us\n", (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec);
-    printf("took %lu s\n", stop.tv_sec - start.tv_sec);
-
-    /*      TESTING      */
-    if (!ErrorsFound(&errorHandler))
     system("gcc out.s -o out.o && ./out.o ; echo $?");
 
-    while (ErrorsFound(&errorHandler))
-    {
-        Error *error = NextError(&errorHandler);
-
-        printf("Error in line %d: ", error->line);
-        printf(error->error);
-        printf("\n");
-
-        free(error);
-    }
-
-    // FreeCodeGenerator(&generator);
-    FreeParser(&parser);
-    EmptyCircularLinearLinkedList(&tokens, FreeToken);
-    FreeAbstractSyntaxTree(ast);
+    ReportErrors(&context);
 }

@@ -1,5 +1,9 @@
 // CodeGenerator.h
 
+#ifndef _STDARG_H
+    #include <stdarg.h>
+#endif
+
 #ifndef _ABSTRACT_SYNTAX_TREE_H
     #include "../libs/AbstractSyntaxTree.h"
 #endif
@@ -10,10 +14,6 @@
 
 #ifndef _TYPE_SYSTEM_H
     #include "../libs/TypeSystem.h"
-#endif
-
-#ifndef _STDARG_H
-    #include <stdarg.h>
 #endif
 
 #define REGISTER_NAMES {NULL, \ 
@@ -29,6 +29,7 @@ typedef struct
     LinearLinkedListNode *usedRegisters;
     char *registers[sizeof((char*[])REGISTER_NAMES) / sizeof(char*)];
     short currentMemoryOffset;
+    unsigned short currentLabel;
     void (*Emit)(void *stream, char *buffer, va_list args);
     void *stream;
 } CodeGenerator;

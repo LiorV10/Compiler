@@ -21,7 +21,7 @@
     #define SEMANTICS_H_FILE "../grammar/semantics.h"
 #endif
 
-#define UPDATE_HEADER TRUE
+#define UPDATE_HEADER FALSE
 
 #if !UPDATE_HEADER
     #undef SEMANTICS_H_FILE

@@ -80,13 +80,25 @@ StateMachine *FromSymbol(char symbol)
     return (stateMachine);
 }
 
-StateMachine *Concat(StateMachine *first, StateMachine *second, BOOL applyTransition)
+StateMachine* ConcatWithTransition(StateMachine *first, StateMachine *second)
 {
     State *firstEnd = FinalState(first);
     State *secondStart = InitialState(second);
 
     ConcatStateMachines(first, second);
-    applyTransition ? AddTransition(first, firstEnd, secondStart, EPSILON_TRANSITION) : ZERO;
+    AddTransition(first, firstEnd, secondStart, EPSILON_TRANSITION);
+
+    free(second);
+
+    return (first);
+}
+
+StateMachine* Concat(StateMachine *first, StateMachine *second)
+{
+    State *firstEnd = FinalState(first);
+    State *secondStart = InitialState(second);
+
+    ConcatStateMachines(first, second);
 
     free(second);
 
@@ -121,7 +133,7 @@ StateMachine *Union(StateMachine *first, StateMachine *second)
 
     State *temp = PushState(first);
 
-    first = Concat(first, second, FALSE);
+    first = Concat(first, second);
     AddTransition(first, temp, firstStart, EPSILON_TRANSITION);
     AddTransition(first, temp, secondStart, EPSILON_TRANSITION);
     

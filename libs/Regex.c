@@ -2,237 +2,153 @@
 
 #include "Regex.h"
 
-StateMachine *RegexToENFA(char *pattern)
+#define PREDEFINED_PATTERNS {[LTETTERS_CHAR] = LETTERS_PATTERN, [DIGIT_CHAR] = DIGIT_PATTERN}
+
+struct ThompsonExecutor
+{
+    StateMachine* (*operatorFunctionPtr)();
+    void (*typeFunctionPtr)();
+};
+
+StateMachine *ThompsonConstruction(char *pattern);
+
+void ApplyPredefinedPattern(Stack *machines, StateMachine* (*function)(), char *pattern)
+{
+    char *patterns[] = PREDEFINED_PATTERNS;
+
+    PushStack(machines, function(patterns[*pattern]));
+}
+
+void ApplyUnaryOperator(Stack *machines, StateMachine* (*function)(), char *pattern)
+{
+    PushStack(machines, function(PopStack(machines)));
+}
+
+void ApplyBinaryOperator(Stack *machines, StateMachine* (*function)(), char *pattern)
+{
+    PushStack(machines, function(PopStack(machines), PopStack(machines)));
+}
+
+void ApplySymbol(Stack *machines, StateMachine* (*function)(), char *pattern)
+{
+    PushStack(machines, function(*pattern));
+}
+
+void ExecuteThompsonExecutor(Stack *stack, char *pattern, struct ThompsonExecutor *thompsonExecutor)
+{
+    thompsonExecutor->typeFunctionPtr(stack, thompsonExecutor->operatorFunctionPtr, pattern);
+}
+
+//-----------------------------------------------------------------------------
+//                                      Thompson Construction                                     
+//                                      ---------------------                             
+//                                                                             
+// General      : The function constructs a NFA from a given regex, according
+//                to the thompson's algorithm.                                                    
+//                                                                             
+// Parameters   :                                                             
+//       pattern - The regex pattern (In)						                                        
+//                                                                             
+// Return Value : The NFA.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
+StateMachine* ThompsonConstruction(char *pattern)
 {
     Stack stack;
+
+    struct ThompsonExecutor thompsonExecutors[] =
+    {
+        [ANY_SYMBOL] = {.operatorFunctionPtr = FromSymbol, .typeFunctionPtr = ApplySymbol},
+        [LTETTERS_CHAR] = {.operatorFunctionPtr = ThompsonConstruction, .typeFunctionPtr = ApplyPredefinedPattern},
+        [DIGIT_CHAR] = {.operatorFunctionPtr = ThompsonConstruction, .typeFunctionPtr = ApplyPredefinedPattern},
+        [CONCAT_CHAR] = {.operatorFunctionPtr = ConcatWithTransition, .typeFunctionPtr = ApplyBinaryOperator},
+        [STAR_OPERATOR] = {.operatorFunctionPtr = Star, .typeFunctionPtr = ApplyUnaryOperator},
+        [ALTERNATION_OPERATOR] = {.operatorFunctionPtr = Alternate, .typeFunctionPtr = ApplyUnaryOperator},
+        [UNION_OPERATOR] = {.operatorFunctionPtr = Union, .typeFunctionPtr = ApplyBinaryOperator},
+        [PLUS_OPERATOR] = {.operatorFunctionPtr = OneOrMore, .typeFunctionPtr = ApplyUnaryOperator},
+        [MAX_OPERATOR + ONE] = {.operatorFunctionPtr = FromSymbol, .typeFunctionPtr = ApplySymbol}
+    };
 
     InitStack(&stack);
 
     for (; *pattern; pattern++)
     {
-        switch (*pattern)
-        {
-            case LTETTERS_CHAR:
-                PushStack(&stack, RegexToENFA(LETTERS_PATTERN));
-                break;
-
-            case DIGIT_CHAR:
-                PushStack(&stack, RegexToENFA(DIGIT_PATTERN));
-                break;
-
-            case CONCAT_CHAR:
-                PushStack(&stack, Concat(PopStack(&stack), PopStack(&stack), TRUE));
-                break;
-
-            case STAR_OPERATOR:
-                PushStack(&stack, Star(PopStack(&stack)));
-                break;
-
-            case ALTERNATION_OPERATOR:
-                PushStack(&stack, Alternate(PopStack(&stack)));
-                break;
-
-            case UNION_OPERATOR:
-                PushStack(&stack, Union(PopStack(&stack), PopStack(&stack)));
-                break;
-
-            case PLUS_OPERATOR:
-                PushStack(&stack, OneOrMore(PopStack(&stack)));
-                break;
-
-            default:
-                PushStack(&stack, FromSymbol(*pattern));
-                break;
-        }
+        ExecuteThompsonExecutor(&stack, pattern, thompsonExecutors + MIN(*pattern, MAX_OPERATOR + ONE));
     }
 
     return (PopStack(&stack));
 }
 
-CircularLinearLinkedListNode* EpsilonClosureByState(State* state)
+//-----------------------------------------------------------------------------
+//                                      Regex To NFA                                     
+//                                      ------------                                  
+//                                                                             
+// General      : The function constructs a NFA from regex pattern and type.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       pattern - The regex pattern (In)						                                        
+//       matchType - The pattern's type (In)						                                        
+//                                                                             
+// Return Value : The NFA.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
+StateMachine *RegexToNFA(char *pattern, unsigned short matchType)
 {
-    CircularLinearLinkedListNode *states;
-    CircularLinearLinkedListNode *epsilonStates;
-    CircularLinearLinkedListNode *previousEpsilonStates;
+    StateMachine *nfa = ThompsonConstruction(pattern);
 
-    InitCircularLinearLinkedList(&states);
-    InitCircularLinearLinkedList(&epsilonStates);
-
-    InsertLastCircularLinearLinkedList(&states);
-    states->info = state;
-
-    SelectSymbolTransitions(states, states->nextNode, &epsilonStates, EPSILON_TRANSITION);
-
-    while (epsilonStates)
-    {
-        previousEpsilonStates = epsilonStates->nextNode;
-        ConcatCircularLinearLinkedLists(&states, epsilonStates);
-        epsilonStates = NULL;
-        SelectSymbolTransitions(states, previousEpsilonStates, &epsilonStates, EPSILON_TRANSITION);
-    }
-
-    return states;
-}
-
-StateMachine *ENFAToNFA(StateMachine *enfa)
-{
-    StateMachine *nfa = malloc(sizeof(StateMachine));
-    CircularLinearLinkedListNode *sp = enfa->statesManager->nextNode;
-
-    int x = 0;
-    InitStateMachine(nfa);
-
-    do
-    {
-        ((State*)sp->info)->flag = x++;
-        sp = sp->nextNode;
-    }
-    while (sp != enfa->statesManager->nextNode);
-
-    State *arr[x];
-
-    do
-    {
-        State *current = AddState(nfa);
-        arr[((State*)sp->info)->flag] = current;
-        current->flag = ((State*)sp->info)->flag;
-        current->visited = FALSE; 
-        sp = sp->nextNode;
-    }
-    while (sp != enfa->statesManager->nextNode);
-
-    do
-    {
-        SetAllVisited(enfa, FALSE);
-        CircularLinearLinkedListNode *closure = EpsilonClosureByState(sp->info);
-        CircularLinearLinkedListNode *sc = closure->nextNode;
-
-        do
-        {
-            if (!arr[((State*)sp->info)->flag]->info)
-                arr[((State*)sp->info)->flag]->info = ((State*)sc->info)->info;
-
-            CircularLinearLinkedListNode *transitions = ((State*)sc->info)->transitionsManager;
-
-            if (transitions) do
-            {
-                if (((Transition*)transitions->info)->symbol != EPSILON_TRANSITION)
-                {
-                    AddTransition(nfa, arr[((State*)sp->info)->flag], 
-                        arr[((Transition*)transitions->info)->dest->flag], 
-                        ((Transition*)transitions->info)->symbol);
-                }
-
-                transitions = transitions->nextNode;
-            }
-            while (transitions != ((State*)sc->info)->transitionsManager);
-
-            sc = sc->nextNode;
-        }
-        while (sc != closure->nextNode);
-
-        EmptyCircularLinearLinkedList(&closure, NULL);
-
-        sp = sp->nextNode;
-    }
-    while (sp != enfa->statesManager->nextNode);
-
-    EmptyStateMachine(enfa);
+    FinalState(nfa)->info = matchType;
 
     return (nfa);
 }
 
-void EC(State *state)
+//-----------------------------------------------------------------------------
+//                                      Find Accepting State                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function attempts to find an accepting state in a list
+//                of states.                                 
+//                                                                             
+// Parameters   :                                                              
+//       states - The list of states (In)						                                        
+//                                                                             
+// Return Value : The accepting state, if found.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
+State* FindAcceptingState(CircularLinearLinkedListNode *states)
 {
-    CircularLinearLinkedListNode *p = state->transitionsManager;
-
-    state->visited = TRUE;
-
-    if (!Exists(state->ec, state))
-    {
-        !state->ec ? 
-                InsertLastCircularLinearLinkedList(&state->ec) : 
-                InsertEndCircularLinearLinkedList(&state->ec);
-
-        state->ec->info = state;
-    }
-
-    if (!p)
-    {
-        return;
-    }
-
-    do
-    {
-        if (((Transition*)p->info)->symbol == EPSILON_TRANSITION && !((Transition*)p->info)->dest->visited)
-        {
-            EC(((Transition*)p->info)->dest);
-
-            CircularLinearLinkedListNode *pp = ((Transition*)p->info)->dest->ec;
-
-            if (pp) do
-            {
-                if (!Exists(state->ec, pp->info))
-                {
-                    !state->ec ? 
-                            InsertLastCircularLinearLinkedList(&state->ec) : 
-                            InsertEndCircularLinearLinkedList(&state->ec);
-
-                    state->ec->info = pp->info;
-                }
-
-                pp = pp->nextNode;
-            }
-            while (pp != ((Transition*)p->info)->dest->ec);
-        }
-        else if (((Transition*)p->info)->symbol == EPSILON_TRANSITION && (((Transition*)p->info)->dest->visited))
-        {
-            CircularLinearLinkedListNode *pp = ((Transition*)p->info)->dest->ec;
-
-            if (pp) do
-            {
-                if (!Exists(state->ec, pp->info))
-                {
-                    !state->ec ? 
-                            InsertLastCircularLinearLinkedList(&state->ec) : 
-                            InsertEndCircularLinearLinkedList(&state->ec);
-
-                    state->ec->info = pp->info;
-                }
-
-                pp = pp->nextNode;
-            }
-            while (pp != ((Transition*)p->info)->dest->ec);
-        }
-
-        p = p->nextNode;
-    }
-    while (p != state->transitionsManager);
-}
-
-StateMachine *RegexToNFA(char *pattern, unsigned short matchType)
-{
-    StateMachine *enfa = RegexToENFA(pattern);
-    FinalState(enfa)->info = ++matchType;
-
-    return (enfa);
-}
-
-State* FindAcceptingState(CircularLinearLinkedListNode *currentStates, char *s, char *e)
-{
-    CircularLinearLinkedListNode *ptr = currentStates;
+    CircularLinearLinkedListNode *ptr = states;
     State *acceptingState = ptr->info;
 
     do
     {
-        ((State*)ptr->info)->info > acceptingState->info ? acceptingState = ptr->info : ZERO;
+        ((State*)ptr->info)->info > acceptingState->info ?
+            acceptingState = ptr->info : ZERO;
+
         ptr = ptr->nextNode;
     } 
-    while (ptr != currentStates);
+    while (ptr != states);
 
     return (acceptingState->info ? acceptingState : NULL);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Make Match                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function makes a match from a substring and pattern type.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       start - The start of the substring (In)						                                        
+//       end - The end of the substring (In)						                                        
+//       matchType - The pattern's type (In)						                                        
+//                                                                             
+// Return Value : The match.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
 struct Match* MakeMatch(char *start, char *end, unsigned short matchType)
 {
     char *ptr;
@@ -251,6 +167,20 @@ struct Match* MakeMatch(char *start, char *end, unsigned short matchType)
     match->matchType = --matchType;
 }
 
+//-----------------------------------------------------------------------------
+//                                      Init States List                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function initializes a states list with the initial state.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       states - The list of states (In)						                                        
+//       state - The initial state (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 void InitStatesList(CircularLinearLinkedListNode **states, State *state)
 {
     InitCircularLinearLinkedList(states);
@@ -258,6 +188,20 @@ void InitStatesList(CircularLinearLinkedListNode **states, State *state)
     (*states)->info = state;
 }
 
+//-----------------------------------------------------------------------------
+//                                      Execute Regex                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function matches a string to a regex pattern.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       nfa - The regex pattern as NFA (In)
+//       input - The string to match (In)						                                        
+//                                                                             
+// Return Value : The match, if found.             
+//-----------------------------------------------------------------------------
+// T(n) = c1 * n + c2 * m + d -> O(n + m)
+//-----------------------------------------------------------------------------
 struct Match* ExecuteRegex(StateMachine *nfa, char *input)
 {
     CircularLinearLinkedListNode *currentStates;
@@ -276,7 +220,7 @@ struct Match* ExecuteRegex(StateMachine *nfa, char *input)
         SelectNextStates(nfa, &currentStates, &nextStates, *++input);
     }
 
-    match = (acceptingState = FindAcceptingState(currentStates, inputStart, input)) ?
+    match = (acceptingState = FindAcceptingState(currentStates)) ?
         MakeMatch(inputStart, input, acceptingState->info) :
         NULL;
 

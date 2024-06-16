@@ -10,11 +10,11 @@ void InitTypeSystem(StringsDictionary *symbolTable)
     for (currentType = ZERO; currentType != BASE_TYPES_COUNT; currentType++)
     {
         MakeSymbol(&currentSymbol);
-        MakeType(&currentSymbol->_type, FALSE);
+        MakeType(&currentSymbol->type, FALSE);
 
         currentSymbol->name = typeNames[currentType];
-        ((Type*)currentSymbol->_type)->size = typeSizes[currentType];
-        ((Type*)currentSymbol->_type)->type = currentType;
+        ((Type*)currentSymbol->type)->size = typeSizes[currentType];
+        ((Type*)currentSymbol->type)->type = currentType;
     
         InsertStringsDictionary(symbolTable, currentSymbol->name, currentSymbol);
     }
@@ -28,7 +28,10 @@ void MakeType(Type **type, BOOL isStruct)
     (*type)->baseType = (*type)->structDef = (*type)->fields = NULL;
     
     if (isStruct)
+    {
+        (*type)->fields = malloc(sizeof(StringsDictionary));
         InitStringsDictionary((*type)->fields);
+    }
 }
 
 void AddField(Type *source, char *name, unsigned short offset, Type *type)
@@ -43,8 +46,39 @@ void AddField(Type *source, char *name, unsigned short offset, Type *type)
 }
 
 Field *FindField(Type *source, char *name)
-{
-    while (source->baseType) source = source->baseType;
-    
+{    
     return LookupStringsDictionary(source->fields, name);
+}
+
+Type* SetBaseType(Type **type, Type *base)
+{
+    Type *temp;
+
+    for (temp = *type; temp && temp->baseType; temp = temp->baseType);
+
+    temp ? temp->baseType = base : (*type = base);
+    
+    return (temp);
+}
+
+void CalculateArraySize(Type *arrayType)
+{
+    Type *prevBase;
+    Type *type;
+    Type temp;
+
+    temp.type = POINTER_TYPE;
+    temp.baseType = NULL;
+
+    prevBase = SetBaseType(&arrayType, &temp);
+    type = arrayType->baseType;
+
+    while (type->type != POINTER_TYPE)
+    {
+        arrayType->size *= type->size;
+        type = type->baseType;
+    }
+
+    type->baseType ? arrayType->size *= type->size : ZERO;
+    prevBase->baseType = NULL;
 }

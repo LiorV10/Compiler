@@ -2,6 +2,8 @@
 
 #include "Grammar.h"
 
+#define SET_BIT(set, offset) ((set |= (((unsigned long)ONE << offset))))
+
 void InitGrammar(Grammar *grammar)
 {
     InitLinearLinkedList(&grammar->nonTerminals);
@@ -139,8 +141,6 @@ BOOL CompareExpressions(Expression *first, Expression *second)
     return (first == second);
 }
 
-#define SET_BIT(set, offset) ((set |= (((unsigned long)ONE << offset))))
-
 void ExpressionFirstSet(Expression *expression)
 {
     Expression *nextExpression;
@@ -219,5 +219,4 @@ void FreeGrammar(Grammar *grammar)
 {
     EmptyLinearLinkedList(&grammar->nonTerminals, FreeNonTerminal);
     EmptyLinearLinkedList(&grammar->expressions, free);
-    free(grammar);
 }

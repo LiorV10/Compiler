@@ -57,4 +57,4 @@ dkms.conf
 *.old*
 
 # Temps
-*.s*
+*.s

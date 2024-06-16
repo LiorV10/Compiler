@@ -1,19 +1,21 @@
 int printf();
 int puts();
 
-void print_vec(int vec[], int n)
+typedef short vector[11];
+
+void print_vec(short vec[], int n)
 {
     int i;
 
     for (i = 0; i < n; i = i + 1)
     {
-        printf("%d\t", vec[i]);
+        printf("%3hd", vec[i]);
     }
 
     puts("");
 }
 
-void print_mat(int mat[][3], int n, int m)
+void print_mat(short mat[][11], int n, int m)
 {
     int i;
     
@@ -25,15 +27,15 @@ void print_mat(int mat[][3], int n, int m)
     puts("");
 }
 
-int sum_mat(int (*mat)[3], int n, int m)
+int sum_mat(short (*mat)[11], int n, int m)
 {
     int i;
     int size = n * m;
     int sum = 0;
-    int *ptr = mat;
+    short *ptr = mat;
 
     printf("Same #1: %d\n", ptr == &mat[0][0]);
-    printf("Same #2: %d\n", ptr[4] == mat[1][1] & ptr[4] == mat[0][4]);
+    printf("Same #2: %d\n", ptr[15] == mat[1][4] & ptr[15] == mat[0][15]);
 
     for (i = 0; i < size; i = i + 1)
     {
@@ -43,9 +45,14 @@ int sum_mat(int (*mat)[3], int n, int m)
     return sum;
 }
 
+int dummy()
+{
+    puts("hello, world!");
+}
+
 int main()
 {
-    int mat[4][3];
+    short mat[11][11];
 
     mat[0][0] = 1;
     mat[0][1] = 2;
@@ -61,30 +68,40 @@ int main()
     mat[3][2] = 12;
 
     print_mat(mat, 4, 3);
-    printf("Sum: %d\n\n", sum_mat(mat, 4, 3));
+    printf("Sum #1: %d\n\n", sum_mat(mat, 4, 3));
 
     int i;
     int j;
 
-    for (i = 0; i < 4; i = i + 1)
+    for (i = 0; i < 11; i = i + 1)
     {
-        for (j = 0; j < 3; j = j + 1)
+        for (j = 0; j < 11; j = j + 1)
         {
-            mat[i][j] = i + j;
+            mat[i][j] = i * j;
         }
     }
 
-    print_mat(mat, 4, 3);
+    print_mat(mat, 11, 11);
+    printf("Sum #2: %d\n\n", sum_mat(mat, 11, 11));
 
-    int vec[5];
+    short vec_2[5];
 
-    vec[0] = 1;
-    vec[1] = 2;
-    vec[2] = 3;
-    vec[3] = 4;
-    vec[4] = 5;
+    vec_2[0] = 1;
+    vec_2[1] = 2;
+    vec_2[2] = 3;
+    vec_2[3] = 4;
+    vec_2[4] = 5;
 
-    print_vec(vec, 5);
+    print_vec(vec_2, 5);
 
-    return 0;
+    vector vec;
+
+    for (i = 0; i < 11; i = i + 1)
+    {
+        vec[i] = i + 1;
+    }
+
+    print_vec(vec, 11);
+
+    return 1;
 }

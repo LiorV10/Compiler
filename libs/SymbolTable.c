@@ -8,8 +8,8 @@ void MakeSymbol(Symbol **symbol)
     
     (*symbol)->name = NULL;
     (*symbol)->memoryAddress = ZERO;
-    (*symbol)->_type = NULL;
-    (*symbol)->type = ZERO;
+    (*symbol)->type = NULL;
+    BIT_VEC_ZERO((*symbol)->kind, KINDS_COUNT);
 }
 
 void InitScopeStack(ScopeStack *scopeStack)
@@ -48,4 +48,11 @@ Symbol* LookupSymbol(ScopeStack *scopeStack, char *name)
     }
 
     return (symbol);
+}
+
+Symbol* LookupSymbolInCurrentScope(ScopeStack *scopeStack, char *name)
+{
+    LinearLinkedListNode *ptr = scopeStack->symbolTables;
+    
+    return (LookupStringsDictionary(ptr->info, name));
 }

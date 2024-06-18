@@ -224,7 +224,7 @@ struct Match* ExecuteRegex(StateMachine *nfa, char *input)
         MakeMatch(inputStart, input, acceptingState->info) :
         NULL;
 
-    SetAllVisited(nfa, FALSE);
+    SetAllVisited(currentStates, FALSE);
 
     EmptyCircularLinearLinkedList(&currentStates, NULL);
     nextStates ? EmptyCircularLinearLinkedList(&nextStates, NULL) : ZERO;

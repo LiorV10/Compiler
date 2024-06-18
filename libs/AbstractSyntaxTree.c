@@ -26,7 +26,8 @@ void MakeAbstractSyntaxTree(AbstractSyntaxTreeNode **root)
     (*root)->AnalysisFunction = NULL;
     (*root)->label = ZERO;
     (*root)->type = NULL;
-    (*root)->lvalue = ZERO;
+    (*root)->lvalue = FALSE;
+    (*root)->evaluateAsExpression = TRUE;
     (*root)->field = NULL;
 }
 
@@ -60,6 +61,8 @@ void FreeNode(AbstractSyntaxTreeNode *astRoot)
 
 void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot)
 {
+    if (!astRoot) return;
+    
     if (!astRoot->childrenManager)
     {
         FreeNode(astRoot);

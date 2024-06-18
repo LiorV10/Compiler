@@ -4,11 +4,37 @@
     #include "StateMachine.h"
 #endif
 
+//-----------------------------------------------------------------------------
+//                              Init State Machine                                     
+//                              ------------------                                 
+//                                                                             
+// General      : The function initializes the state machine                                                           
+//                                                                             
+// Parameters   :                                                              
+//       stateMachine - The state machine to initialize (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 void InitStateMachine(StateMachine *stateMachine)
 {
     InitCircularLinearLinkedList(&stateMachine->statesManager);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Add State                                     
+//                                      ---------                                 
+//                                                                             
+// General      : The function adds a new state at the end.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       stateMachine - The state machine (In)						                                        						                                        
+//                                                                             
+// Return Value : The state added.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 State *AddState(StateMachine *stateMachine)
 {
     State *newState = malloc(sizeof(State));
@@ -27,6 +53,54 @@ State *AddState(StateMachine *stateMachine)
     return (newState);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Push State                                     
+//                                      ----------                                 
+//                                                                             
+// General      : The function adds a new state at the start.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       stateMachine - The state machine to initialize (In)						                                        						                                        
+//                                                                             
+// Return Value : The state added.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
+State* PushState(StateMachine *stateMachine)
+{
+    State *newState = malloc(sizeof(State));
+
+    InitCircularLinearLinkedList(&newState->transitionsManager);
+
+    !stateMachine->statesManager ? 
+        InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
+        InsertAfterCircularLinearLinkedList(stateMachine->statesManager);
+
+    newState->info = ZERO;
+    newState->visited = FALSE;
+    
+    stateMachine->statesManager->nextNode->info = newState;
+
+    return (newState);
+}
+
+//-----------------------------------------------------------------------------
+//                                      Add Transition                                     
+//                                      --------------                                  
+//                                                                             
+// General      : The function adds a new weighted directed edge between two
+//                given states.                                                      
+//                                                                             
+// Parameters   :                                                              
+//       stateMachine - The state machine to initialize (In)						                                        
+//       source - The source state (In)						                                        
+//       dest - The dest state (In)						                                        
+//       symbol - The weight of the edge (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) =  d -> O(1)
+//-----------------------------------------------------------------------------
 void AddTransition(StateMachine *stateMachine, State *source, State *dest, char symbol)
 {
     Transition *transition = malloc(sizeof(Transition));
@@ -40,32 +114,78 @@ void AddTransition(StateMachine *stateMachine, State *source, State *dest, char 
     source->transitionsManager->info = transition;
 }
 
+//-----------------------------------------------------------------------------
+//                                      Final State                                     
+//                                      -----------                                  
+//                                                                             
+// General      : The function finds the final state of a state machine.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       source - The source state (In)						                                        						                                        
+//                                                                             
+// Return Value : The final state.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
 State *FinalState(StateMachine *stateMachine)
 {
     return (stateMachine->statesManager->info);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Initial State                                     
+//                                      -------------                                  
+//                                                                             
+// General      : The function finds the final state of a state machine.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       source - The source state (In)						                                        						                                        
+//                                                                             
+// Return Value : The final state.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
 State *InitialState(StateMachine *stateMachine)
 {
     return (stateMachine->statesManager->nextNode->info);
 }
 
-void SetAllVisited(StateMachine *stateMachine, BOOL visited)
-{
-    CircularLinearLinkedListNode *states = stateMachine->statesManager;
-
-    do
-    {
-        ((State*)states->info)->visited = visited;
-        states = states->nextNode;
-    } 
-    while (states != stateMachine->statesManager);
-}
-
+//-----------------------------------------------------------------------------
+//                                      Concat State Machines                                     
+//                                      ---------------------                                 
+//                                                                             
+// General      : The function concats a source state machine into a dest.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      first - The dest state machine (In)						                                        
+//      second - The source state machine (In)						                                        
+//                                                                             
+// Return Value : The None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
 void ConcatStateMachines(StateMachine *first, StateMachine *second)
 {
     ConcatCircularLinearLinkedLists(&first->statesManager, second->statesManager);
 }
+
+//-----------------------------------------------------------------------------
+//                                      Thompson Construcions                                     
+//                                      ---------------------                                 
+//                                                                             
+// General      : The following functions implement the
+//                thompson construction algorithm.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       first - The left state machine (In)						                                        
+//       second - The right state machine (In)
+//       symbol - The symbol in the regex pattern (In)						                                        
+//                                                                             
+// Return Value : The state machine after applying the operator.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
+#pragma region ThomsponConstructions
 
 StateMachine *FromSymbol(char symbol)
 {
@@ -103,24 +223,6 @@ StateMachine* Concat(StateMachine *first, StateMachine *second)
     free(second);
 
     return (first);
-}
-
-State* PushState(StateMachine *stateMachine)
-{
-    State *newState = malloc(sizeof(State));
-
-    InitCircularLinearLinkedList(&newState->transitionsManager);
-
-    !stateMachine->statesManager ? 
-        InsertLastCircularLinearLinkedList(&stateMachine->statesManager) :
-        InsertAfterCircularLinearLinkedList(stateMachine->statesManager);
-
-    newState->info = ZERO;
-    newState->visited = FALSE;
-    
-    stateMachine->statesManager->nextNode->info = newState;
-
-    return (newState);
 }
 
 StateMachine *Union(StateMachine *first, StateMachine *second)
@@ -170,6 +272,22 @@ StateMachine *Alternate(StateMachine *stateMachine)
     return (stateMachine);
 }
 
+#pragma endregion
+
+//-----------------------------------------------------------------------------
+//                                      Insert State                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function inserts a state to the closure list.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      states - The closure states list (In)						                                        
+//      state - The state to insert (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 void InsertState(CircularLinearLinkedListNode **states, State *state)
 {
     *states ? 
@@ -180,6 +298,22 @@ void InsertState(CircularLinearLinkedListNode **states, State *state)
     (*states)->info = state;
 }
 
+//-----------------------------------------------------------------------------
+//                                      Select Next Transitions                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function selects the destination states of transitions
+//                with a given symbol from list of transitions.                                                          
+//                                                                             
+// Parameters   :                                                              
+//       transitions - The transitions list (In)						                                        
+//       nextStates - The states selected (In)						                                        
+//       symbol - The desired symbol (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
                            CircularLinearLinkedListNode **nextStates,
                            char symbol)
@@ -200,6 +334,23 @@ void SelectNextTransitions(CircularLinearLinkedListNode *transitions,
     while (ptr != transitions->nextNode);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Select Symbol Transitions                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function selects the destination states of transitions
+//                with a given symbol from list of states.                                                          
+//                                                                             
+// Parameters   :                                                              
+//       currentStates - The states list (In)						                                        
+//       startPtr - The start of the states list (In)						                                        
+//       nextStates - The states selected (In)						                                        
+//       symbol - The desired symbol (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n, m) = c1 * n + c2 * m + d -> O(n + m) 
+//-----------------------------------------------------------------------------
 void SelectSymbolTransitions(CircularLinearLinkedListNode *currentStates,
                            CircularLinearLinkedListNode *startPtr,
                            CircularLinearLinkedListNode **nextStates,
@@ -222,6 +373,23 @@ void SelectSymbolTransitions(CircularLinearLinkedListNode *currentStates,
     while (currentStatesPtr != currentStates->nextNode);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Select All transitions                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function attempts to select either destination states
+//                of transitions with a given symbol, or, if not found, 
+//                transitions labled as any symbol.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       currentStates - The list of current states (In)						                                        
+//       nextState - The list of selected states (In)						                                        
+//       symbol - The desired symbol (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n, m) = c1 * n + c2 * m + d -> O(n + m)
+//-----------------------------------------------------------------------------
 void SelectAllTransitions(CircularLinearLinkedListNode *currentStates,
                         CircularLinearLinkedListNode **nextStates,
                         char symbol)
@@ -230,6 +398,20 @@ void SelectAllTransitions(CircularLinearLinkedListNode *currentStates,
     !*nextStates ? SelectSymbolTransitions(currentStates, currentStates->nextNode, nextStates, ANY_SYMBOL) : ZERO;
 }
 
+//-----------------------------------------------------------------------------
+//                                      Epsilon Closure                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function finds the epsilon closure of a given
+//                list of states.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       states - The list of states (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n, m) = c1 * n + c2 * m + d -> O(n + m)
+//-----------------------------------------------------------------------------
 void EpsilonClosure(CircularLinearLinkedListNode **states)
 {
     CircularLinearLinkedListNode *epsilonStates;
@@ -247,83 +429,50 @@ void EpsilonClosure(CircularLinearLinkedListNode **states)
     }
 }
 
-BOOL Exists(CircularLinearLinkedListNode *l, void *v)
+//-----------------------------------------------------------------------------
+//                                      Set All Visited                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function sets all states in a given list to a given 
+//                visited mode.                                           
+//                                                                             
+// Parameters   :                                                              
+//       statesList - The list of states (In)						                                        
+//       visited - The desired visited mode (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
+void SetAllVisited(CircularLinearLinkedListNode *statesList, BOOL visited)
 {
-    if (!l) return FALSE;
+    CircularLinearLinkedListNode *states = statesList;
 
-    CircularLinearLinkedListNode *p = l;
     do
     {
-        if (p->info == v) return TRUE;
-
-        p = p->nextNode;
-    }
-    while (p != l);
-
-    return FALSE;
+        ((State*)states->info)->visited = visited;
+        states = states->nextNode;
+    } 
+    while (states != statesList);
 }
 
-void f(StateMachine *nfa,
-                   CircularLinearLinkedListNode **currentStates, 
-                   CircularLinearLinkedListNode **nextStates,
-                   char symbol)
-{
-        CircularLinearLinkedListNode *ppp = *nextStates;
-
-    do
-    {
-        !*currentStates ? 
-            InsertLastCircularLinearLinkedList(currentStates) : 
-            InsertEndCircularLinearLinkedList(currentStates);
-
-        (*currentStates)->info = ppp->info;
-
-        ppp = ppp->nextNode;
-    }
-    while (ppp != *nextStates);
-
-    CircularLinearLinkedListNode *s = (*currentStates)->nextNode;
-    CircularLinearLinkedListNode *e = s;
-
-    do
-    {
-        CircularLinearLinkedListNode *p = ((State*)s->info)->ec;
-
-        if (p) do
-        {
-            InsertEndCircularLinearLinkedList(nextStates);
-            (*nextStates)->info = p->info;
-
-            p = p->nextNode;
-        }
-        while (p != ((State*)s->info)->ec);
-        
-        s = s->nextNode;
-    }
-    while (s != e);
-
-    EpsilonClosure(currentStates);
-
-    ppp = *currentStates;
-
-    do
-    {
-        int a = Exists(*nextStates, ppp->info); 
-
-        if (!a)
-        {
-            puts("moshe");
-            SWAP(*nextStates, *currentStates, CircularLinearLinkedListNode*);
-            break;
-        }
-
-        ppp = ppp->nextNode;
-    }
-    while (ppp != *currentStates);
-
-    EmptyCircularLinearLinkedList(currentStates, NULL);
-}
-
+//-----------------------------------------------------------------------------
+//                                      Select Next States                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function selects all the reachable next states from a 
+//                given list of states.                                                          
+//                                                                             
+// Parameters   :                                                              
+//       nfa - The state machine (In)						                                        
+//       currentStates - The list of current states (In)						                                        
+//       nextStates - The list of selected states (In)						                                        
+//       symbol - The desired symbol (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n, m) = c1 * n + c2 * m + d -> O(n + m)
+//-----------------------------------------------------------------------------
 void SelectNextStates(StateMachine *nfa,
                    CircularLinearLinkedListNode **currentStates, 
                    CircularLinearLinkedListNode **nextStates,
@@ -334,23 +483,15 @@ void SelectNextStates(StateMachine *nfa,
     
     SWAP(*nextStates, *currentStates, CircularLinearLinkedListNode*);
 
-    // SetAllVisited(nfa, FALSE);
-
-    CircularLinearLinkedListNode *states = *currentStates;
-
-    do
-    {
-        ((State*)states->info)->visited = FALSE;
-        states = states->nextNode;
-    } 
-    while (states != *currentStates);
+    SetAllVisited(*currentStates, FALSE);
 
     SelectAllTransitions(*currentStates, nextStates, symbol);
 }
 
 void EmptyState(State *state)
 {
-    state->transitionsManager ? EmptyCircularLinearLinkedList(&state->transitionsManager, free) : ZERO;
+    state->transitionsManager ? 
+        EmptyCircularLinearLinkedList(&state->transitionsManager, free) : ZERO;
     free(state);
 }
 

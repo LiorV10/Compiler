@@ -611,7 +611,7 @@ void PanicMode(Parser *parser, Stack *semanticStack, CircularLinearLinkedListNod
     
     NextNonLineToken(tokens, &errors->currentLine);
 
-    while (!nextState && !IsEmptyStack(parser->pushdownMachine->stack))
+    while (!nextState && !IsEmptyStack(semanticStack))
     {
         nextState = currentState = PopStack(parser->pushdownMachine->stack);
 
@@ -683,7 +683,7 @@ AbstractSyntaxTreeNode* Parse(Parser *parser, CircularLinearLinkedListNode *toke
             free(node) : ZERO;
     }
 
-    return (PopStack(&semanticStack));
+    return (!IsEmptyStack(&semanticStack) ? PopStack(&semanticStack) : NULL);
 }
 
 //-----------------------------------------------------------------------------

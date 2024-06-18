@@ -8,7 +8,38 @@
 #include "CodeGenerator.c"
 
 #define NUM_OF_ARGS 3
+#define SOURCE_FILE_OFFSET 1
+#define DEST_FILE_OFFSET 2
 
+struct Context
+{
+    char *sourcePath;
+    char *destPath;
+
+    Grammar grammar;
+    CircularLinearLinkedListNode *tokens;
+    AbstractSyntaxTreeNode *ast;
+
+    Parser parser;
+    CodeGenerator generator;
+
+    ErrorHandler errorHandler;
+};
+
+//-----------------------------------------------------------------------------
+//                                  Tokenize Stream                                     
+//                                  ---------------                                  
+//                                                                             
+// General      : The function tokenizes a given stream.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      sourceStream - The stream to tokenize (In)						                                        
+//      errors - The error handler context (In)						                                        
+//                                                                             
+// Return Value : The list of tokens.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream, ErrorHandler *errors)
 {
     Lexer lexer;
@@ -44,21 +75,19 @@ CircularLinearLinkedListNode* TokenizeStream(Stream *sourceStream, ErrorHandler 
     return (tokens);
 }
 
-struct Context
-{
-    char *sourcePath;
-    char *destPath;
-
-    Grammar grammar;
-    CircularLinearLinkedListNode *tokens;
-    AbstractSyntaxTreeNode *ast;
-
-    Parser parser;
-    CodeGenerator generator;
-
-    ErrorHandler errorHandler;
-};
-
+//-----------------------------------------------------------------------------
+//                                  Lexing Phase                                     
+//                                  ------------                                  
+//                                                                             
+// General      : The function performs the lexical analysis phase.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       context - The compiler context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void LexingPhase(struct Context *context)
 {
     Stream stream;
@@ -70,6 +99,19 @@ void LexingPhase(struct Context *context)
     CloseStream(&stream);
 }
 
+//-----------------------------------------------------------------------------
+//                                  Parsing Phase                                     
+//                                  -------------                                  
+//                                                                             
+// General      : The function performs the syntax analysis phase.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       context - The compiler context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void ParsingPhase(struct Context *context)
 {
     InitParser(&context->parser, &context->grammar);
@@ -80,12 +122,38 @@ void ParsingPhase(struct Context *context)
     FreeParser(&context->parser);
 }
 
+//-----------------------------------------------------------------------------
+//                                  Semantic Phase                                     
+//                                  --------------                                  
+//                                                                             
+// General      : The function performs the semantic analysis phase.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       context - The compiler context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void SemanticPhase(struct Context *context)
 {
     !ErrorsFound(&context->errorHandler) ?
         AnalyzeSemantics(&context->ast, &context->errorHandler) : ZERO;
 }
 
+//-----------------------------------------------------------------------------
+//                              Code Generation Phase                                     
+//                              ---------------------                                
+//                                                                             
+// General      : The function performs the code generation phase.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       context - The compiler context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void CodeGenerationPhase(struct Context *context)
 {
     Stream stream;
@@ -103,6 +171,19 @@ void CodeGenerationPhase(struct Context *context)
     FreeAbstractSyntaxTree(context->ast);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Report Errors                                     
+//                                      -------------                                  
+//                                                                             
+// General      : The function reports the discovered errors.                                                           
+//                                                                             
+// Parameters   :                                                              
+//       context - The compiler context (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void ReportErrors(struct Context *context)
 {
     Error *error;
@@ -119,14 +200,30 @@ void ReportErrors(struct Context *context)
     }
 }
 
+//-----------------------------------------------------------------------------
+//                              C to Assembly Compiler									
+//                              ----------------------								
+//																				
+// General : This program compiles a C program into GAS code.					
+//																				
+// Input   : Source C code file.								
+//																				
+// Process : Compilation phases.							
+//																				
+// Output  : Assembly code file.		
+//																				
+//-----------------------------------------------------------------------------
+// Programmer : Lior Vidas														
+// Student Id : 327654471																												
+//-----------------------------------------------------------------------------
 void main(unsigned short argumentsCount, char* arguments[])
 {
     struct Context context;
 
     argumentsCount < NUM_OF_ARGS ? ExitWithError("Source or dest files were not specified.") : ZERO;
 
-    context.sourcePath = arguments[ONE];
-    context.destPath = arguments[TWO];
+    context.sourcePath = arguments[SOURCE_FILE_OFFSET];
+    context.destPath = arguments[DEST_FILE_OFFSET];
 
     InitErrorHandler(&context.errorHandler);
 

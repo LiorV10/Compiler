@@ -52,7 +52,5 @@ Symbol* LookupSymbol(ScopeStack *scopeStack, char *name)
 
 Symbol* LookupSymbolInCurrentScope(ScopeStack *scopeStack, char *name)
 {
-    LinearLinkedListNode *ptr = scopeStack->symbolTables;
-    
-    return (LookupStringsDictionary(ptr->info, name));
+    return (LookupStringsDictionary(scopeStack->symbolTables->info, name));
 }

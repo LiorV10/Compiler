@@ -38,7 +38,7 @@ State *AddState(StateMachine *stateMachine);
 void AddTransition(StateMachine *stateMachine, State *source, State *dest, char symbol);
 State *FinalState(StateMachine *stateMachine);
 State *InitialState(StateMachine *stateMachine);
-void SetAllVisited(StateMachine *stateMachine, BOOL visited);
+void SetAllVisited(CircularLinearLinkedListNode *statesList, BOOL visited);
 void ConcatStateMachines(StateMachine *first, StateMachine *second);
 StateMachine *FromSymbol(char symbol);
 StateMachine* ConcatWithTransition(StateMachine *first, StateMachine *second);

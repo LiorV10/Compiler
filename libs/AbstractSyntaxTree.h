@@ -21,6 +21,7 @@ struct AbstractSyntaxTreeNode
     unsigned short reg;
     void *info;
     BOOL lvalue;
+    BOOL evaluateAsExpression;
     unsigned short label;
     void *type;
     void *field;
@@ -31,5 +32,4 @@ struct AbstractSyntaxTreeNode
 
 void MakeAbstractSyntaxTree(AbstractSyntaxTreeNode **root);
 AbstractSyntaxTreeNode** SetAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node);
-AbstractSyntaxTreeNode** SetFirstAbstractSyntaxTreeNodeChild(AbstractSyntaxTreeNode *node);
 void FreeAbstractSyntaxTree(AbstractSyntaxTreeNode *astRoot);

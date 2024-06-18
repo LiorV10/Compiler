@@ -2,12 +2,14 @@ int printf();
 int puts();
 long malloc();
 void free();
-long strdup();
-long strlen();
+char* strdup();
+int strlen();
 
 struct MOSHE
 {
     long aa;
+    // int aa;
+    // void aa;
     long *bb;
     long *bbb;
     int xx;
@@ -96,7 +98,14 @@ void print_list_rec(Node *lst)
     return;
 }
 
-typedef char boolean;
+typedef int my_int;
+
+int func(int x)
+{
+    printf("func::%d\n", x);
+
+    return x;
+}
 
 int main()
 {
@@ -187,21 +196,14 @@ int main()
     print_list_iter(lst, &length);
     print_list_rec(lst);
 
-    // for (; !is_empty(lst); )
-    //    printf("[%d]->", pop(&lst));
+    while (!is_empty(lst))
+       printf("[%d]->", pop(&lst));
 
-    Node *lstPtr;
-    int i = 0;
-
-    puts("\n");
-
-    for (lstPtr = lst; lstPtr; lstPtr = lstPtr->next)
-    {
-        printf("[%d]:: ", i = i + 1);
-        print_list_iter(lstPtr, &length);
-    }
+    puts("||");    
     
-    puts("||");
+    Node *lstPtr;
+    int i = lstPtr;
+
     printf("length: %d\n", length);
 
     int arr[20];
@@ -219,7 +221,7 @@ int main()
     printf("%d\n", mat[aa][y] == *(*(mat + aa) + y));
     printf("Val:%d\n", mat[aa][y]);
 
-    printf("result:%d\n", (aa * y / y + aa + (4 + aa * (y + aa))) - y + (aa * 2 + y / 3) / y);
+    // printf("result:%d\n", (aa * y / y + aa + (4 + aa * (y + aa))) - y + (aa * 2 + y / 3) / y);
 
     struct teststruct
     {

@@ -2,92 +2,87 @@
 
 #include "Construction.h"
 
-static BOOL terminals = TRUE;
-static int x = 0;
+#define MAX_DEFINITION_LENGTH 256
+#define MAX_RULE_LENGTH 1024
 
-Expression *MakeExpression(Grammar *g, char *line)
+Expression *MakeExpression(Grammar *grammar, char *line, BOOL isTerminal, int *terminalsCount)
 {
-    Expression *e = malloc(sizeof(Expression));
+    Expression *expression = malloc(sizeof(Expression));
+    NonTerminal *nonTerminal;
 
-    e->node = NULL;
-    e->nodeKey = ZERO;
+    expression->node = NULL;
+    expression->nodeKey = ZERO;
 
-    if (terminals)
+    if (isTerminal)
     {
-        e->isTerminal = TRUE;
-        e->value.terminal = x++;
+        expression->isTerminal = TRUE;
+        expression->value.terminal = (*terminalsCount)++;
 
-        PushLinearLinkedList(&g->expressions);
-        g->expressions->info = e;
+        PushLinearLinkedList(&grammar->expressions);
+        grammar->expressions->info = expression;
     }
     else
     {
-        NonTerminal *nt = malloc(sizeof(NonTerminal));
+        nonTerminal = malloc(sizeof(NonTerminal));
+        nonTerminal->rules = NULL;
 
-        nt->rules = NULL;
+        expression->isTerminal = FALSE;
+        expression->value.nonTerminal = nonTerminal;
 
-        e->isTerminal = FALSE;
-        e->value.nonTerminal = nt;
+        PushLinearLinkedList(&grammar->expressions);
+        grammar->expressions->info = expression;
 
-        PushLinearLinkedList(&g->expressions);
-        g->expressions->info = e;
-
-        PushLinearLinkedList(&g->nonTerminals);
-        g->nonTerminals->info = nt;
+        PushLinearLinkedList(&grammar->nonTerminals);
+        grammar->nonTerminals->info = nonTerminal;
     }
 
-    return e;
+    return expression;
 }
 
-void WriteSemantic(char *a, FILE *f, int n, char *s, int m)
+void WriteSemantic(char *ruleName, FILE *file, int ruleNum, char *semanticAction, int expressions)
 {
-    fprintf(f, "AbstractSyntaxTreeNode* Semantic_%d(void *scopeStack, Stack *semanticStack, ErrorHandler *errors)\n{\n", n);
-    fprintf(f, "// %s\n", a);
-    fprintf(f, "AbstractSyntaxTreeNode *_$_$ = NULL;\n");
+    fprintf(file, "AbstractSyntaxTreeNode* Semantic_%d(void *scopeStack, Stack *semanticStack, ErrorHandler *errors)\n{\n", ruleNum);
+    fprintf(file, "// %s\n", ruleName);
+    fprintf(file, "AbstractSyntaxTreeNode *_$_$ = NULL;\n");
 
-    for (; m; m--)
+    for (; expressions; expressions--)
     {
-        fprintf(f, "AbstractSyntaxTreeNode *_$%d = PopStack(semanticStack);\n", m - 1);
+        fprintf(file, "AbstractSyntaxTreeNode *_$%d = PopStack(semanticStack);\n", expressions - 1);
     }
 
-    fputs(s, f);
-    fprintf(f, "\nreturn _$_$;\n}\n", s);
+    fputs(semanticAction, file);
+    fprintf(file, "\nreturn _$_$;\n}\n", semanticAction);
 }
 
-int strct(char *s, char c)
+int strcount(char *str, char ch)
 {
-    int count = 0;
+    int count = ZERO;
 
-    for (; *s; s++) count += *s == c;
+    for (; *str; str++) count += *str == ch;
 
     return count;
 }
 
 void BuildGrammarFromFile(Grammar *grammar)
 {
+    BOOL isTerminal = TRUE;
+    int terminalsCount = ZERO;
     FILE *grammar_defs = fopen(GRAMMAR_DEFINITIONS, "rt");
     FILE *grammar_rules = fopen(GRAMMAR_RULES, "rt");
     FILE *semantics = fopen(SEMANTICS_FILE, "wt");
     FILE *semantics_h = fopen(SEMANTICS_H_FILE, "wt");
-
-    fprintf(semantics, "#include \"semantics.h\"\n");
-
-    // fprintf(semantics, "#define _SEMANTICS\ntypedef enum {");
-
     StringsDictionary *tbl = malloc(sizeof(StringsDictionary));
 
     InitStringsDictionary(tbl);
 
-    char line[2048] = {ZERO};
-    char line_[2048] = {ZERO};
-
+    char line[MAX_RULE_LENGTH];
     char *nonTerminal;
     char *expressions;
     char *semantic;
 
-    // Grammar g = {.expressions = NULL, .nonTerminals = NULL};
+    fprintf(semantics, "#include \"semantics.h\"\n");
 
-    fgets(line, 256, grammar_defs);
+    fgets(line, MAX_DEFINITION_LENGTH, grammar_defs);
 
     if (UPDATE_HEADER)
         fprintf(semantics_h, "enum {");
@@ -96,12 +91,12 @@ void BuildGrammarFromFile(Grammar *grammar)
     {
         if (*line == '\n')
         {
-            terminals = !terminals;
-            fgets(line, 256, grammar_defs);
+            isTerminal = FALSE;
+            fgets(line, MAX_DEFINITION_LENGTH, grammar_defs);
             continue;
         }
 
-        if (terminals)
+        if (isTerminal)
         {
             char *terminal = strtok(line, " ");
 
@@ -111,12 +106,10 @@ void BuildGrammarFromFile(Grammar *grammar)
                 fprintf(semantics_h, "%s, ", terminal);
         }
 
-        sscanf(line, "%s", line_);
-        InsertStringsDictionary(tbl, line_, MakeExpression(grammar, line_));        
-    
-        // puts(line_);
+        sscanf(line, "%s", line);
+        InsertStringsDictionary(tbl, line, MakeExpression(grammar, line, isTerminal, &terminalsCount));
 
-        fgets(line, 256, grammar_defs);
+        fgets(line, MAX_DEFINITION_LENGTH, grammar_defs);
     }
 
     if (UPDATE_HEADER)
@@ -124,16 +117,16 @@ void BuildGrammarFromFile(Grammar *grammar)
         fprintf(semantics_h, "TOKENS_NUM };\n#define PATTERNS {");
 
         fseek(grammar_defs, ZERO, SEEK_SET);
-        fgets(line, 256, grammar_defs);
+        fgets(line, MAX_DEFINITION_LENGTH, grammar_defs);
 
-        terminals = TRUE;
+        isTerminal = TRUE;
 
-        while (terminals)
+        while (isTerminal)
         {
             if (*line == '\n')
             {
-                terminals = !terminals;
-                fgets(line, 256, grammar_defs);
+                isTerminal = !isTerminal;
+                fgets(line, MAX_DEFINITION_LENGTH, grammar_defs);
                 continue;
             }
 
@@ -145,7 +138,7 @@ void BuildGrammarFromFile(Grammar *grammar)
                 fprintf(semantics_h, "%s, ", pattern);
             }
             
-            fgets(line, 256, grammar_defs);
+            fgets(line, MAX_DEFINITION_LENGTH, grammar_defs);
         }
 
         fprintf(semantics_h, "\"\"}\n");
@@ -183,13 +176,11 @@ void BuildGrammarFromFile(Grammar *grammar)
             #endif\n");
     }
 
-    fgets(line, 2048, grammar_rules);
+    fgets(line, MAX_RULE_LENGTH, grammar_rules);
     fputs("AbstractSyntaxTreeNode *DefaultSemanticAction(void *scopeStack, Stack *semanticStack, ErrorHandler *errors)"
           "{ return PopStack(semanticStack); }\n", semantics);
 
-    // return;
-
-    int rule = 0;
+    int rule = ZERO;
 
     while (!feof(grammar_rules))
     {
@@ -197,25 +188,13 @@ void BuildGrammarFromFile(Grammar *grammar)
         expressions = strtok(NULL, "@");
         semantic = strtok(NULL, "@");
 
-        // puts(nonTerminal);
-        // puts(expressions);
-
         if (semantic)
         {
-            WriteSemantic(nonTerminal, semantics, rule, semantic, strct(expressions, ' '));
-            // puts(semantic);
+            WriteSemantic(nonTerminal, semantics, rule, semantic, strcount(expressions, ' '));
         }
 
-        expressions = strtok(expressions, " ");
-
-        Expression *e = LookupStringsDictionary(tbl, nonTerminal);
-
-        // printf("RULE_%d: %s\n", rule, e->value.nonTerminal->name);
-
-        // puts("");
-
         rule++;
-        fgets(line, 2048, grammar_rules);
+        fgets(line, MAX_RULE_LENGTH, grammar_rules);
     }
 
     fprintf(semantics, "void AssignActions(Grammar *g)\n{\n"
@@ -228,7 +207,7 @@ void BuildGrammarFromFile(Grammar *grammar)
           "rules[currentRule++] = rulesPtr->info;\n}\n}\n", rule);
 
     fseek(grammar_rules, ZERO, SEEK_SET);
-    fgets(line, 2048, grammar_rules);
+    fgets(line, MAX_RULE_LENGTH, grammar_rules);
 
     rule = ZERO;
 
@@ -265,11 +244,11 @@ void BuildGrammarFromFile(Grammar *grammar)
         current->rules->info = r;
 
         rule++;
-        fgets(line, 2048, grammar_rules);
+        fgets(line, MAX_RULE_LENGTH, grammar_rules);
     }
     
     fseek(grammar_rules, ZERO, SEEK_SET);
-    fgets(line, 2048, grammar_rules);
+    fgets(line, MAX_RULE_LENGTH, grammar_rules);
 
     LinearLinkedListNode *nonTerminalsPtr, *rulesPtr;
     int rules[rule];

@@ -72,7 +72,7 @@ void SethiUllman(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
     AbstractSyntaxTreeNode *right;
     AbstractSyntaxTreeNode *max;
 
-    if (!astRoot->childrenManager || astRoot->GenerationFunction == GenerateCall)
+    if (!astRoot->childrenManager || !astRoot->evaluateAsExpression)
     {
         astRoot->GenerationFunction ?
             astRoot->GenerationFunction(generator, astRoot) : ZERO;
@@ -320,6 +320,21 @@ void EmitLabel(CodeGenerator *generator, int label)
     Emit(generator, ".AG%d:\n", label);
 }
 
+//-----------------------------------------------------------------------------
+//                                      Cast By Size                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function widens a register to fit a given size.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      reg - The register to widen (In)						                                        
+//      size - The desired size (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
 void CastBySize(CodeGenerator *generator, Register *reg, unsigned char size)
 {
     Register new = REGSITER_BY_SIZE(*reg, size);
@@ -336,30 +351,58 @@ void CastBySize(CodeGenerator *generator, Register *reg, unsigned char size)
     *reg = new;
 }
 
-void GenerateSymbol(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+//-----------------------------------------------------------------------------
+//                                      Generate Symbol                                     
+//                                      ---------------                                 
+//                                                                             
+// General      : The function generates code for loading a variable.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)				                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
+void GenerateSymbol(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     unsigned short typeSize = ((Type*)astNode->type)->size;
 
     if (((Type*)astNode->type)->type == ARRAY_TYPE)
     {
-        Emit(codeGenerator, "leaq %d(%%rbp), ", ((Symbol*)astNode->info)->memoryAddress);
+        Emit(generator, "leaq %d(%%rbp), ", ((Symbol*)astNode->info)->memoryAddress);
         typeSize = QWORD_SIZE;
     }
     else
     {
-        Emit(codeGenerator, "mov ");
-        EmitRegisterOrAddress(codeGenerator, astNode);
-        Emit(codeGenerator, ", ");
+        Emit(generator, "mov ");
+        EmitRegisterOrAddress(generator, astNode);
+        Emit(generator, ", ");
     }
 
-    astNode->reg = astNode->reg ? astNode->reg : GetRegister(codeGenerator);
+    astNode->reg = astNode->reg ? astNode->reg : GetRegister(generator);
     astNode->reg = REGSITER_BY_SIZE(astNode->reg, MIN(typeSize, QWORD_SIZE));
 
-    EmitRegister(codeGenerator, astNode->reg);
-    Emit(codeGenerator, "\n");
+    EmitRegister(generator, astNode->reg);
+    Emit(generator, "\n");
 }
 
-void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+//-----------------------------------------------------------------------------
+//                                  Generate Declaration                                     
+//                                  --------------------                            
+//                                                                             
+// General      : The function generates code for variable declaration.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)				                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
+void GenerateDeclaration(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *init = astNode->childrenManager ? astNode->childrenManager->info : NULL;
 
@@ -367,37 +410,65 @@ void GenerateDeclaration(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     Type *type = astNode->type;
 
     if (init)
-        init->GenerationFunction(codeGenerator, init);
+        init->GenerationFunction(generator, init);
 
-    decl->memoryAddress = ((CodeGenerator *)codeGenerator)->currentMemoryOffset;   
+    decl->memoryAddress = ((CodeGenerator *)generator)->currentMemoryOffset;   
 
-    ((CodeGenerator *)codeGenerator)->currentMemoryOffset += type->size;
+    ((CodeGenerator *)generator)->currentMemoryOffset += type->size;
 
     if (init)
     {
-        Load(codeGenerator, init);
-        CastBySize(codeGenerator, &init->reg, type->size);
+        Load(generator, init);
+        CastBySize(generator, &init->reg, type->size);
 
-        Emit(codeGenerator, "mov ");
-        EmitRegister(codeGenerator, init->reg);
-        Emit(codeGenerator, ", ");
-        EmitMemoryAddress(codeGenerator, decl->memoryAddress);
-        Emit(codeGenerator, "\n");
+        Emit(generator, "mov ");
+        EmitRegister(generator, init->reg);
+        Emit(generator, ", ");
+        EmitMemoryAddress(generator, decl->memoryAddress);
+        Emit(generator, "\n");
 
         astNode->reg = init->reg;
     }
 }
 
-void GenerateArithmeticExpression(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+//-----------------------------------------------------------------------------
+//                              Generate Arithmetic Expression                                     
+//                              ------------------------------                                  
+//                                                                             
+// General      : The function generates code for an arithmetic expression.                                                            
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)							                                        
+//                                                                             
+// Return Value : The result of the operator and the two operands.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
+void GenerateArithmeticExpression(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *expression = astNode->childrenManager->info;
 
-    GenerateExpression(codeGenerator, expression);
+    GenerateExpression(generator, expression);
     astNode->reg = expression->reg;
     astNode->lvalue = expression->lvalue;
     astNode->type = expression->type;
 }
 
+//-----------------------------------------------------------------------------
+//                                  Generate Expression                                     
+//                                  -------------------                                  
+//                                                                             
+// General      : The function generates an expression.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)							                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n) 
+//-----------------------------------------------------------------------------
 void GenerateExpression(void *generator, AbstractSyntaxTreeNode *astRoot)
 {
     LabelAst(astRoot);
@@ -405,7 +476,21 @@ void GenerateExpression(void *generator, AbstractSyntaxTreeNode *astRoot)
     FreeRegister(generator, astRoot->reg);
 }
 
-void Load(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+//-----------------------------------------------------------------------------
+//                                      Load                                     
+//                                      ----                                  
+//                                                                             
+// General      : The function loads a pointer.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)					                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1)
+//-----------------------------------------------------------------------------
+void Load(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     astNode = astNode->GenerationFunction == GenerateArithmeticExpression ?
         astNode->childrenManager->info : astNode;
@@ -417,139 +502,165 @@ void Load(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         return;
     }
 
-    Emit(codeGenerator, "mov (");
-    EmitRegister(codeGenerator, astNode->reg);
-    Emit(codeGenerator, "), ");
+    Emit(generator, "mov (");
+    EmitRegister(generator, astNode->reg);
+    Emit(generator, "), ");
 
-    CastBySize(codeGenerator, &astNode->reg, ((Type*)astNode->type)->size);
+    CastBySize(generator, &astNode->reg, ((Type*)astNode->type)->size);
 
-    EmitRegister(codeGenerator, astNode->reg);
-    Emit(codeGenerator, "\n");
+    EmitRegister(generator, astNode->reg);
+    Emit(generator, "\n");
 }
 
-void Store(void *codeGenerator, AbstractSyntaxTreeNode *source, AbstractSyntaxTreeNode *dest)
+//-----------------------------------------------------------------------------
+//                                      Store                                     
+//                                      -----                                  
+//                                                                             
+// General      : The function stores a register in memory.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      source - The ast represnting the source expression (In)							                                        
+//      dest - The ast represnting the dest memory (In)							                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
+void Store(void *generator, AbstractSyntaxTreeNode *source, AbstractSyntaxTreeNode *dest)
 {
-    CastBySize(codeGenerator, &source->reg, ((Type*)dest->type)->size);
+    CastBySize(generator, &source->reg, ((Type*)dest->type)->size);
 
-    Emit(codeGenerator, "mov ");
-    EmitRegister(codeGenerator, source->reg);
-    Emit(codeGenerator, ", ");
+    Emit(generator, "mov ");
+    EmitRegister(generator, source->reg);
+    Emit(generator, ", ");
 
     if (dest->GenerationFunction == GenerateDereference)
     {
-        Emit(codeGenerator, "("); 
-        EmitRegister(codeGenerator, FULL_REGISTER(dest->reg)); 
-        Emit(codeGenerator, ")");
+        Emit(generator, "("); 
+        EmitRegister(generator, FULL_REGISTER(dest->reg)); 
+        Emit(generator, ")");
     }
     else
     {
-        EmitMemoryAddress(codeGenerator, ((Symbol*)dest->info)->memoryAddress);
+        EmitMemoryAddress(generator, ((Symbol*)dest->info)->memoryAddress);
     }
 
-    Emit(codeGenerator, "\n");
+    Emit(generator, "\n");
 }
 
+//-----------------------------------------------------------------------------
+//                                      Statements                                     
+//                                      ----------                                 
+//                                                                             
+// General      : The following functions generate code for statements.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)					                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 #pragma region Statements
 
-void GenerateFor(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateFor(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *init = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *condition = astNode->childrenManager->nextNode->nextNode->info;
     AbstractSyntaxTreeNode *step = astNode->childrenManager->nextNode->nextNode->nextNode->info;
     AbstractSyntaxTreeNode *body = astNode->childrenManager->info;
 
-    int bodyLabel = GetLabel(codeGenerator);
-    int endLabel = GetLabel(codeGenerator);
+    int bodyLabel = GetLabel(generator);
+    int endLabel = GetLabel(generator);
 
     if (init->GenerationFunction)
-        init->GenerationFunction(codeGenerator, init);
+        init->GenerationFunction(generator, init);
 
-    EmitLabel(codeGenerator, bodyLabel);
-    condition->GenerationFunction(codeGenerator, condition);
+    EmitLabel(generator, bodyLabel);
+    condition->GenerationFunction(generator, condition);
 
-    Load(codeGenerator, condition);
-    if (condition->type) // REMOVE AFTER SEMANTIC ANALYSIS IS DONE!!!
+    Load(generator, condition);
     condition->reg = REGSITER_BY_SIZE(condition->reg, ((Type*)condition->type)->size);
 
-    Emit(codeGenerator, "test ");
-    EmitRegister(codeGenerator, condition->reg);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, condition->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, "test ");
+    EmitRegister(generator, condition->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, condition->reg);
+    Emit(generator, "\n");
 
-    Emit(codeGenerator, "jz .AG%d\n", endLabel);
-    body->GenerationFunction(codeGenerator, body);
+    Emit(generator, "jz .AG%d\n", endLabel);
+    body->GenerationFunction(generator, body);
 
     if (step != body)
-        step->GenerationFunction(codeGenerator, step);
+        step->GenerationFunction(generator, step);
 
-    Emit(codeGenerator, "jmp .AG%d\n", bodyLabel);
-    EmitLabel(codeGenerator, endLabel);
+    Emit(generator, "jmp .AG%d\n", bodyLabel);
+    EmitLabel(generator, endLabel);
 }
 
-void GenerateWhile(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateWhile(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *body = astNode->childrenManager->info;
     AbstractSyntaxTreeNode *condition = astNode->childrenManager->nextNode->info;
 
-    int bodyLabel = GetLabel(codeGenerator);
-    int endLabel = GetLabel(codeGenerator);
+    int bodyLabel = GetLabel(generator);
+    int endLabel = GetLabel(generator);
 
-    EmitLabel(codeGenerator, bodyLabel);
-    condition->GenerationFunction(codeGenerator, condition);
+    EmitLabel(generator, bodyLabel);
+    condition->GenerationFunction(generator, condition);
 
-    Load(codeGenerator, condition);
-    if (condition->type) // REMOVE AFTER SEMANTIC ANALYSIS IS DONE!!!
+    Load(generator, condition);
     condition->reg = REGSITER_BY_SIZE(condition->reg, ((Type*)condition->type)->size);
 
-    Emit(codeGenerator, "test ");
-    EmitRegister(codeGenerator, condition->reg);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, condition->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, "test ");
+    EmitRegister(generator, condition->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, condition->reg);
+    Emit(generator, "\n");
 
-    Emit(codeGenerator, "jz .AG%d\n", endLabel);
-    body->GenerationFunction(codeGenerator, body);
+    Emit(generator, "jz .AG%d\n", endLabel);
+    body->GenerationFunction(generator, body);
 
-    Emit(codeGenerator, "jmp .AG%d\n", bodyLabel);
-    EmitLabel(codeGenerator, endLabel);
+    Emit(generator, "jmp .AG%d\n", bodyLabel);
+    EmitLabel(generator, endLabel);
 }
 
-
-void GenerateIf(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateIf(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *condition = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *body = astNode->childrenManager->nextNode->nextNode->info;
     AbstractSyntaxTreeNode *elseBody = astNode->childrenManager->info;
 
-    condition->GenerationFunction(codeGenerator, condition);
+    condition->GenerationFunction(generator, condition);
 
-    Load(codeGenerator, condition);
+    Load(generator, condition);
 
-    Emit(codeGenerator, "test ");
-    EmitRegister(codeGenerator, condition->reg);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, condition->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, "test ");
+    EmitRegister(generator, condition->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, condition->reg);
+    Emit(generator, "\n");
 
-    int falseLabel = GetLabel(codeGenerator);
-    int continueLabel = GetLabel(codeGenerator);
+    int falseLabel = GetLabel(generator);
+    int continueLabel = GetLabel(generator);
     
     if (elseBody != body)
     {
-        Emit(codeGenerator, "jz .AG%d\n", falseLabel);
-        body->GenerationFunction(codeGenerator, body);
-        Emit(codeGenerator, "jmp .AG%d\n", continueLabel);
-        EmitLabel(codeGenerator, falseLabel);
-        elseBody->GenerationFunction(codeGenerator, elseBody);
+        Emit(generator, "jz .AG%d\n", falseLabel);
+        body->GenerationFunction(generator, body);
+        Emit(generator, "jmp .AG%d\n", continueLabel);
+        EmitLabel(generator, falseLabel);
+        elseBody->GenerationFunction(generator, elseBody);
     }
     else
     {
-        Emit(codeGenerator, "jz .AG%d\n", continueLabel);
-        body->GenerationFunction(codeGenerator, body);
+        Emit(generator, "jz .AG%d\n", continueLabel);
+        body->GenerationFunction(generator, body);
     }
 
-    EmitLabel(codeGenerator, continueLabel);
+    EmitLabel(generator, continueLabel);
 }
 
 void GenerateBlock(void *generator, AbstractSyntaxTreeNode *astRoot)
@@ -563,170 +674,190 @@ void GenerateBlock(void *generator, AbstractSyntaxTreeNode *astRoot)
 
 #pragma endregion
 
+//-----------------------------------------------------------------------------
+//                                      Binary Operators                                     
+//                                      ----------------                                 
+//                                                                             
+// General      : The following functions generate code for binary operators.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 #pragma region BinaryOperators
 
-void GenerateAssignment(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateAssignment(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
     Type *leftType = left->type;
 
-    Load(codeGenerator, right);
-    Store(codeGenerator, right, left);
+    Load(generator, right);
+    Store(generator, right, left);
 
     if (left->reg)
     {
-        CastBySize(codeGenerator, &right->reg, leftType->size);
+        CastBySize(generator, &right->reg, leftType->size);
         left->reg = REGSITER_BY_SIZE(left->reg, leftType->size);
 
-        Emit(codeGenerator, "mov ");
-        EmitRegister(codeGenerator, right->reg);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, left->reg);
-        Emit(codeGenerator, "\n");
+        Emit(generator, "mov ");
+        EmitRegister(generator, right->reg);
+        Emit(generator, ", ");
+        EmitRegister(generator, left->reg);
+        Emit(generator, "\n");
     }
 
-    FreeRegister(codeGenerator, right->reg);
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateAddition(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateAddition(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Load(codeGenerator, left);
-    Load(codeGenerator, right);
+    Load(generator, left);
+    Load(generator, right);
 
     if (((Type*)left->type)->baseType)
     {
-        CastBySize(codeGenerator, &right->reg, QWORD_SIZE);
+        CastBySize(generator, &right->reg, QWORD_SIZE);
 
-        GenerateOffsetCalculation(codeGenerator, right, ((Type*)left->type)->baseType);
-        Emit(codeGenerator, "leaq (");
-        EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, right->reg);
-        Emit(codeGenerator, "), ");
-        EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-        Emit(codeGenerator, "\n");
+        GenerateOffsetCalculation(generator, right, ((Type*)left->type)->baseType);
+        Emit(generator, "leaq (");
+        EmitRegister(generator, FULL_REGISTER(left->reg));
+        Emit(generator, ", ");
+        EmitRegister(generator, right->reg);
+        Emit(generator, "), ");
+        EmitRegister(generator, FULL_REGISTER(left->reg));
+        Emit(generator, "\n");
     }
     else
     {
-        CastBySize(codeGenerator, &right->reg, ((Type*)left->type)->size);
+        CastBySize(generator, &right->reg, ((Type*)left->type)->size);
         left->reg = REGSITER_BY_SIZE(left->reg, ((Type*)left->type)->size);
 
-        Emit(codeGenerator, "add ");
-        EmitRegister(codeGenerator, right->reg);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, left->reg);
-        Emit(codeGenerator, "\n");
+        Emit(generator, "add ");
+        EmitRegister(generator, right->reg);
+        Emit(generator, ", ");
+        EmitRegister(generator, left->reg);
+        Emit(generator, "\n");
     }
 
-    FreeRegister(codeGenerator, right->reg);
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateSubtraction(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateSubtraction(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Load(codeGenerator, left);
-    Load(codeGenerator, right);
+    Load(generator, left);
+    Load(generator, right);
 
     if (((Type*)left->type)->baseType)
     {
-        Emit(codeGenerator, "neg ");
-        EmitRegister(codeGenerator, FULL_REGISTER(right->reg));
-        Emit(codeGenerator, "\nleaq (");
-        EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, FULL_REGISTER(right->reg));
-        Emit(codeGenerator, ", %d), ", ((Type*)left->type)->baseType->size);
-        EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-        Emit(codeGenerator, "\n");
+        Emit(generator, "neg ");
+        EmitRegister(generator, FULL_REGISTER(right->reg));
+        Emit(generator, "\nleaq (");
+        EmitRegister(generator, FULL_REGISTER(left->reg));
+        Emit(generator, ", ");
+        EmitRegister(generator, FULL_REGISTER(right->reg));
+        Emit(generator, ", %d), ", ((Type*)left->type)->baseType->size);
+        EmitRegister(generator, FULL_REGISTER(left->reg));
+        Emit(generator, "\n");
     }
     else
     {
-        CastBySize(codeGenerator, &right->reg, ((Type*)left->type)->size);
+        CastBySize(generator, &right->reg, ((Type*)left->type)->size);
         left->reg = REGSITER_BY_SIZE(left->reg, ((Type*)left->type)->size);
 
-        Emit(codeGenerator, "sub ");
-        EmitRegister(codeGenerator, right->reg);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, left->reg);
-        Emit(codeGenerator, "\n");
+        Emit(generator, "sub ");
+        EmitRegister(generator, right->reg);
+        Emit(generator, ", ");
+        EmitRegister(generator, left->reg);
+        Emit(generator, "\n");
     }
 
-    FreeRegister(codeGenerator, right->reg);
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateMult(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateMult(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Load(codeGenerator, left);
-    Load(codeGenerator, right);
+    Load(generator, left);
+    Load(generator, right);
 
-    CastBySize(codeGenerator, &right->reg, QWORD_SIZE);
+    CastBySize(generator, &right->reg, QWORD_SIZE);
 
-    Emit(codeGenerator, "imul ");
-    EmitRegister(codeGenerator, right->reg);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, REGSITER_BY_SIZE(left->reg, QWORD_SIZE));
-    Emit(codeGenerator, "\n");
+    Emit(generator, "imul ");
+    EmitRegister(generator, right->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, REGSITER_BY_SIZE(left->reg, QWORD_SIZE));
+    Emit(generator, "\n");
 
-    FreeRegister(codeGenerator, right->reg);
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateDivision(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateDivision(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Load(codeGenerator, left);
-    Load(codeGenerator, right);
+    Load(generator, left);
+    Load(generator, right);
 
-    CastBySize(codeGenerator, &left->reg, QWORD_SIZE);
+    CastBySize(generator, &left->reg, QWORD_SIZE);
 
-    Emit(codeGenerator, "mov ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, ", %%rax\ncqo\nidiv ");
+    Emit(generator, "mov ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, ", %%rax\ncqo\nidiv ");
 
-    EmitRegisterOrAddress(codeGenerator, right);
+    EmitRegisterOrAddress(generator, right);
 
-    Emit(codeGenerator, "\nmov %%rax, ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, "\nmov %%rax, ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
 
-    FreeRegister(codeGenerator, right->reg);
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateMod(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateMod(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Emit(codeGenerator, "xor %%rdx, %%rdx\n");
-    Emit(codeGenerator, "mov ");
-    EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-    Emit(codeGenerator, ", %%rax\nidiv ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, "\nmov %%rdx, ");
-    EmitRegister(codeGenerator, FULL_REGISTER(left->reg));
-    Emit(codeGenerator, "\n");
+    Load(generator, left);
+    Load(generator, right);
 
-    FreeRegister(codeGenerator, right->reg);
+    CastBySize(generator, &left->reg, QWORD_SIZE);
+
+    Emit(generator, "mov ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, ", %%rax\ncqo\nidiv ");
+
+    EmitRegisterOrAddress(generator, right);
+
+    Emit(generator, "\nmov %%rdx, ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
+
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateStructAccess(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateStructAccess(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *structNode = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *fieldNode = astNode->childrenManager->info;
@@ -741,21 +872,21 @@ void GenerateStructAccess(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
         astNode->reg = structNode->reg;
         astNode->GenerationFunction = GenerateDereference;
 
-        Emit(codeGenerator, "lea %d(", field->offset);
-        EmitRegister(codeGenerator, structNode->reg);
-        Emit(codeGenerator, ")");
+        Emit(generator, "lea %d(", field->offset);
+        EmitRegister(generator, structNode->reg);
+        Emit(generator, ")");
     }
     else
     {
         astNode->reg = REGSITER_BY_SIZE(structNode->reg, field->type->size);
 
-        Emit(codeGenerator, "mov ");
-        EmitMemoryAddress(codeGenerator, ((Symbol*)astNode->info)->memoryAddress);
+        Emit(generator, "mov ");
+        EmitMemoryAddress(generator, ((Symbol*)astNode->info)->memoryAddress);
     }
 
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, astNode->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, ", ");
+    EmitRegister(generator, astNode->reg);
+    Emit(generator, "\n");
 }
 
 void GenerateLT(void *generator, AbstractSyntaxTreeNode *astNode)
@@ -766,8 +897,7 @@ void GenerateLT(void *generator, AbstractSyntaxTreeNode *astNode)
     Load(generator, left);
     Load(generator, right);
 
-    if (right->type)
-        CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
 
     Emit(generator, "cmp ");
     EmitRegister(generator, right->reg);
@@ -789,8 +919,7 @@ void GenerateGT(void *generator, AbstractSyntaxTreeNode *astNode)
     Load(generator, left);
     Load(generator, right);
 
-    if (right->type)
-        CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
 
     Emit(generator, "cmp ");
     EmitRegister(generator, right->reg);
@@ -804,37 +933,47 @@ void GenerateGT(void *generator, AbstractSyntaxTreeNode *astNode)
     astNode->reg = left->reg;
 }
 
-void GenerateLSHIFT(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateLSHIFT(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Emit(codeGenerator, "shlx ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, "\n");
+    Load(generator, left);
+    Load(generator, right);
 
-    FreeRegister(codeGenerator, right->reg);
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
+    Emit(generator, "shlx ");
+    EmitRegisterOrAddress(generator, right);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
+
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateRSHIFT(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateRSHIFT(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Emit(codeGenerator, "sarx ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, "\n");
+    Load(generator, left);
+    Load(generator, right);
 
-    FreeRegister(codeGenerator, right->reg);
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
+    Emit(generator, "sarx ");
+    EmitRegisterOrAddress(generator, right);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
+
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
@@ -843,11 +982,16 @@ void GenerateLE(void *generator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
+    Load(generator, left);
+    Load(generator, right);
+
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
     Emit(generator, "cmp ");
     EmitRegisterOrAddress(generator, right);
     Emit(generator, ", ");
     EmitRegister(generator, left->reg);
-    Emit(generator, "\nsetle %%al\nmovzbl %%al, ");
+    Emit(generator, "\nsetle %%al\nmovsx %%al, ");
     EmitRegister(generator, left->reg);
     Emit(generator, "\n");
 
@@ -860,11 +1004,16 @@ void GenerateGE(void *generator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
+    Load(generator, left);
+    Load(generator, right);
+
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
     Emit(generator, "cmp ");
     EmitRegisterOrAddress(generator, right);
     Emit(generator, ", ");
     EmitRegister(generator, left->reg);
-    Emit(generator, "\nsetge %%al\nmovzbl %%al, ");
+    Emit(generator, "\nsetge %%al\nmovsx %%al, ");
     EmitRegister(generator, left->reg);
     Emit(generator, "\n");
 
@@ -880,8 +1029,7 @@ void GenerateEEQ(void *generator, AbstractSyntaxTreeNode *astNode)
     Load(generator, left);
     Load(generator, right);
 
-    if (right->type)
-        CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
 
     Emit(generator, "cmp ");
     EmitRegisterOrAddress(generator, right);
@@ -900,11 +1048,16 @@ void GenerateNEQ(void *generator, AbstractSyntaxTreeNode *astNode)
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
+    Load(generator, left);
+    Load(generator, right);
+
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
     Emit(generator, "cmp ");
     EmitRegisterOrAddress(generator, right);
     Emit(generator, ", ");
     EmitRegister(generator, left->reg);
-    Emit(generator, "\nsetne %%al\nmovzbl %%al, ");
+    Emit(generator, "\nsetne %%al\nmovsx %%al, ");
     EmitRegister(generator, left->reg);
     Emit(generator, "\n");
 
@@ -912,53 +1065,114 @@ void GenerateNEQ(void *generator, AbstractSyntaxTreeNode *astNode)
     astNode->reg = left->reg;
 }
 
-void GenerateAnd(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateAnd(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Load(codeGenerator, left);
-    Load(codeGenerator, right);
+    Load(generator, left);
+    Load(generator, right);
 
-    CastBySize(codeGenerator, &right->reg, QWORD_SIZE);
-    CastBySize(codeGenerator, &left->reg, QWORD_SIZE);
+    CastBySize(generator, &right->reg, QWORD_SIZE);
+    CastBySize(generator, &left->reg, QWORD_SIZE);
 
-    Emit(codeGenerator, "and ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, "and ");
+    EmitRegisterOrAddress(generator, right);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
 
-    FreeRegister(codeGenerator, right->reg);
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
-void GenerateXor(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateLogicalAnd(void *generator, AbstractSyntaxTreeNode *astNode)
+{
+    AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
+    AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
+    int endLabel = GetLabel(generator);
+
+    GenerateExpression(generator, left);
+    Load(generator, left);
+
+    Emit(generator, "test ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\nmov $0, ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\nje .AG%d\n", endLabel);
+
+    GenerateExpression(generator, right);
+    Load(generator, right);
+
+    Emit(generator, "test ");
+    EmitRegister(generator, right->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, right->reg);
+    Emit(generator, "\nmov $0, ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\nje .AG%d", endLabel);
+    Emit(generator, "\nmov $1, ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
+
+    EmitLabel(generator, endLabel);
+
+    astNode->reg = REGSITER_BY_SIZE(GetRegister(generator), ((Type*)left->type)->size);
+
+    Emit(generator, "mov ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, ", ");
+    EmitRegister(generator, astNode->reg);
+    Emit(generator, "\n");
+}
+
+void GenerateXor(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *left = astNode->childrenManager->nextNode->info;
     AbstractSyntaxTreeNode *right = astNode->childrenManager->info;
 
-    Emit(codeGenerator, "xor ");
-    EmitRegisterOrAddress(codeGenerator, right);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, left->reg);
-    Emit(codeGenerator, "\n");
+    Load(generator, left);
+    Load(generator, right);
 
-    FreeRegister(codeGenerator, right->reg);
+    CastBySize(generator, &left->reg, ((Type*)right->type)->size);
+
+    Emit(generator, "xor ");
+    EmitRegisterOrAddress(generator, right);
+    Emit(generator, ", ");
+    EmitRegister(generator, left->reg);
+    Emit(generator, "\n");
+
+    FreeRegister(generator, right->reg);
     astNode->reg = left->reg;
 }
 
 #pragma endregion
 
+//-----------------------------------------------------------------------------
+//                                      Unary Operators                                     
+//                                      ---------------                                 
+//                                                                             
+// General      : The following functions generate code for unary operators.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 #pragma region UnaryOperators
 
-void GenerateOffsetCalculation(void *codeGenerator, AbstractSyntaxTreeNode *astNode, Type *type)
+void GenerateOffsetCalculation(void *generator, AbstractSyntaxTreeNode *astNode, Type *type)
 {
     for (; type; type = type->baseType)
     {
-        Emit(codeGenerator, "imul $%d, ", type->size);
-        EmitRegister(codeGenerator, astNode->reg);
-        Emit(codeGenerator, "\n");
+        Emit(generator, "imul $%d, ", type->size);
+        EmitRegister(generator, astNode->reg);
+        Emit(generator, "\n");
     }
 }
 
@@ -1005,7 +1219,7 @@ void GenerateNeg(void *generator, AbstractSyntaxTreeNode *astNode)
     astNode->reg = operand->reg;
 }
 
-void GenerateLogNot(void *generator, AbstractSyntaxTreeNode *astNode)
+void GenerateLogicalNot(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     AbstractSyntaxTreeNode *operand = astNode->childrenManager->nextNode->info;
 
@@ -1020,62 +1234,72 @@ void GenerateLogNot(void *generator, AbstractSyntaxTreeNode *astNode)
     astNode->reg = operand->reg;
 }
 
-void GenerateIncrement(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
-{
-    AbstractSyntaxTreeNode *expression = astNode->childrenManager->nextNode->info;
-
-    expression->GenerationFunction(codeGenerator, expression);
-
-    Emit(codeGenerator, "mov ");
-    EmitMemoryAddress(codeGenerator, ((Symbol*)expression->info)->memoryAddress);
-    Emit(codeGenerator, ", ");
-    EmitRegister(codeGenerator, expression->reg);
-    Emit(codeGenerator, "\n");
-
-    Emit(codeGenerator, "incl ");
-    EmitMemoryAddress(codeGenerator, ((Symbol*)expression->info)->memoryAddress);
-    Emit(codeGenerator, "\n");
-
-    astNode->reg = expression->reg;
-}
-
 #pragma endregion
 
+//-----------------------------------------------------------------------------
+//                                      Constants                                     
+//                                      ---------                                 
+//                                                                             
+// General      : The following functions generate code for literal constants.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)						                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 #pragma region Constants
 
-void GenerateStringLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateStringLiteral(void *generator, AbstractSyntaxTreeNode *astNode)
 {
-    int label = GetLabel(codeGenerator);
+    int label = GetLabel(generator);
 
-    astNode->reg = astNode->reg ? FULL_REGISTER(astNode->reg) : FULL_REGISTER(GetRegister(codeGenerator));
+    astNode->reg = astNode->reg ? FULL_REGISTER(astNode->reg) : FULL_REGISTER(GetRegister(generator));
 
-    Emit(codeGenerator, ".section .rodata\n");
-    EmitLabel(codeGenerator, label);
-    Emit(codeGenerator, ".string %s\n.text\n", ((Symbol*)astNode->info)->name);
-    Emit(codeGenerator, "leaq .AG%d(%%rip), ", label);
-    EmitRegister(codeGenerator, astNode->reg);
-    Emit(codeGenerator, "\n");
+    Emit(generator, ".section .rodata\n");
+    EmitLabel(generator, label);
+    Emit(generator, ".string %s\n.text\n", ((Symbol*)astNode->info)->name);
+    Emit(generator, "leaq .AG%d(%%rip), ", label);
+    EmitRegister(generator, astNode->reg);
+    Emit(generator, "\n");
 }
 
-void GenerateFloatLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateFloatLiteral(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     // NOT IMPLEMENTED
 }
 
-void GenerateIntegerLiteral(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateIntegerLiteral(void *generator, AbstractSyntaxTreeNode *astNode)
 {
-    astNode->reg = astNode->reg ? astNode->reg : GetRegister(codeGenerator);
+    astNode->reg = astNode->reg ? astNode->reg : GetRegister(generator);
 
-    Emit(codeGenerator, "mov $%s, ", ((Symbol*)astNode->info)->name);
-    EmitRegister(codeGenerator, (astNode->reg = REGSITER_BY_SIZE(astNode->reg, ((Type*)astNode->type)->size)));
-    Emit(codeGenerator, "\n");
+    Emit(generator, "mov $%s, ", ((Symbol*)astNode->info)->name);
+    EmitRegister(generator, (astNode->reg = REGSITER_BY_SIZE(astNode->reg, ((Type*)astNode->type)->size)));
+    Emit(generator, "\n");
 }
 
 #pragma endregion
 
+//-----------------------------------------------------------------------------
+//                                      Functions                                     
+//                                      ---------                              
+//                                                                             
+// General      : The following functions generate code for
+//                function definitions and calls.                                                            
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)							                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = d -> O(1) 
+//-----------------------------------------------------------------------------
 #pragma region Functions
 
-void GenerateReturn(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
+void GenerateReturn(void *generator, AbstractSyntaxTreeNode *astNode)
 {
     Register result = REGSITER_BY_SIZE(EAX, QWORD_SIZE);
     AbstractSyntaxTreeNode *value;
@@ -1083,19 +1307,19 @@ void GenerateReturn(void *codeGenerator, AbstractSyntaxTreeNode *astNode)
     if (astNode->childrenManager)
     {
         value = astNode->childrenManager->info;
-        value->GenerationFunction(codeGenerator, value);
+        value->GenerationFunction(generator, value);
 
-        Load(codeGenerator, value);
-        CastBySize(codeGenerator, &value->reg, QWORD_SIZE);
+        Load(generator, value);
+        CastBySize(generator, &value->reg, QWORD_SIZE);
 
-        Emit(codeGenerator, "mov ");
-        EmitRegisterOrAddress(codeGenerator, value);
-        Emit(codeGenerator, ", ");
-        EmitRegister(codeGenerator, result);
-        Emit(codeGenerator, "\n");
+        Emit(generator, "mov ");
+        EmitRegisterOrAddress(generator, value);
+        Emit(generator, ", ");
+        EmitRegister(generator, result);
+        Emit(generator, "\n");
     }
 
-    Emit(codeGenerator, "jmp RET_%d\n", astNode->label);
+    Emit(generator, "jmp RET_%d\n", astNode->label);
 }
 
 void GenerateCall(void *generator, AbstractSyntaxTreeNode *astRoot)
@@ -1158,6 +1382,53 @@ void GenerateCall(void *generator, AbstractSyntaxTreeNode *astRoot)
     }
 
     Emit(generator, "movq %%xmm14, %%rcx\nmovq %%xmm15, %%rdx\ncall %s\n", function->name);
+    
+    stackSize ? 
+        Emit(generator, "add $%d, %%rsp\n", stackSize) : ZERO;
+
+    while (!IsEmptyStack(&usedRegisters))
+    {
+        Emit(generator, "popq ");
+        EmitRegister(generator, FULL_REGISTER(PopStack(&usedRegisters)));
+        Emit(generator, "\n");
+    }
+
+    astRoot->reg = REGSITER_BY_SIZE(GetRegister(generator), ((Type*)astRoot->type)->size);
+
+    Emit(generator, "mov %%rax, ");
+    EmitRegister(generator, FULL_REGISTER(astRoot->reg));
+    Emit(generator, "\n");
+}
+
+void GenerateCallWithoutParams(void *generator, AbstractSyntaxTreeNode *astRoot)
+{
+    Symbol *function = astRoot->info;
+    LinearLinkedListNode *usedRegistersPtr;
+
+    unsigned int stackSize = ZERO;
+
+    Stack usedRegisters; 
+
+    InitStack(&usedRegisters);
+
+    for (usedRegistersPtr = ((CodeGenerator*)generator)->usedRegisters;
+         usedRegistersPtr; 
+         usedRegistersPtr = usedRegistersPtr->nextNode)
+    {
+        Emit(generator, "pushq ");
+        EmitRegister(generator, FULL_REGISTER(usedRegistersPtr->info));
+        Emit(generator, "\n");
+
+        PushStack(&usedRegisters, usedRegistersPtr->info);
+        stackSize += QWORD_SIZE;
+    }
+
+    stackSize %= STACK_ALIGNMENT;
+
+    stackSize ?
+        Emit(generator, "subq $%d, %%rsp\n", stackSize) : ZERO;
+    
+    Emit(generator, "call %s\n", function->name);
     
     stackSize ? 
         Emit(generator, "add $%d, %%rsp\n", stackSize) : ZERO;
@@ -1298,6 +1569,20 @@ void GenerateFunctions(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot
 
 #pragma endregion
 
+//-----------------------------------------------------------------------------
+//                                      Generate Code                                     
+//                                      -------------                                  
+//                                                                             
+// General      : The function generates code for a given ast.                                                           
+//                                                                             
+// Parameters   :                                                              
+//      generator - The code generator context (In)						                                        
+//      astNode - The ast represnting the expressions (In)							                                        
+//                                                                             
+// Return Value : None.             
+//-----------------------------------------------------------------------------
+// T(n) = c * n + d -> O(n)
+//-----------------------------------------------------------------------------
 void GenerateCode(CodeGenerator *generator, AbstractSyntaxTreeNode *astRoot)
 {
     GenerateFunctions(generator, astRoot);
